@@ -1,0 +1,36 @@
+/*
+    overlay.scss
+*/
+
+@use '../base/variables';
+
+.overlay {
+    position: fixed;
+  inset: 0;
+  background: #09041a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+    backdrop-filter: blur(5px);
+    transition: opacity 0.3s ease-in-out;
+    &__loader {
+        color: #fff;
+        font-family: 'Orbitron', monospace;
+        font-size: 1.3rem;
+        animation: pulse 2s infinite ease-in-out;
+        &__text {
+            margin-top: 10px;
+             font-size: 1.3rem;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+    }
+
+}
+
+@keyframes pulse {
+    0% { opacity: 0.5; text-shadow: 0 0 10px #ff00ff; }
+    50% { opacity: 1; text-shadow: 0 0 20px #ff00ff, 0 0 30px #cc00ff; }
+    100% { opacity: 0.5; text-shadow: 0 0 10px #ff00ff; }
+}

@@ -1,0 +1,327 @@
+/*
+    navigation.scss
+*/
+
+@use '../base/variables';
+
+.navigation {
+    position: fixed;
+    top: 2vh;
+    user-select: none;
+   
+
+    
+    &__item--has-dropdown {
+        position: relative;
+    
+        // Prikaži dropdown pri hoveru nad itemom ili nad samim dropdownom
+        &:hover > .dropdown,
+        > .dropdown:hover {
+          opacity: 1;
+          visibility: visible;
+          transform: none; // reset transform (XY) kad je aktivno
+        }
+      
+      
+      
+    }
+   
+
+   &--horizontal {
+    width: 100vw;
+    text-align: center;
+
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 12;
+   }
+
+   
+
+
+    &--vertical {
+
+        left: 0;
+        width: 15vw;
+        height: 101vh;
+        padding: 0;
+        margin-left: 1vw;
+        display: flex;
+        flex-direction: column; 
+        justify-content: flex-start; 
+        align-items: flex-start; 
+        z-index: 6;
+
+        
+   }
+
+
+    
+
+
+
+    &__list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        
+        display: flex;
+        justify-content: right;
+        align-items: end;
+        width: 100%;
+
+        &--horizontal {
+            width: 80%;
+            margin-left: 15vw;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+
+        &--vertical {
+            list-style: none;
+
+          
+
+            
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+ 
+            height: 100%;
+            margin-bottom: 5vh;
+        }
+
+
+
+    }
+
+   &__item {
+    position: relative;
+     display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin: 2rem 0;
+            align-items: center;
+
+            
+   }
+
+   &__account {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    vertical-align: middle;
+   }
+    
+
+   &__link {
+    color: variables.$color-text;
+    text-decoration: none;
+    margin: 0 10px;
+    font-size: 16px;
+    font-weight: bold;
+    transition: color 0.3s ease;
+    text-transform: uppercase;
+    z-index: 9;
+
+    &__icon {
+        width: 24px;
+        height: auto;
+        transition: filter 0.3s ease-in-out;
+    
+        // isto kao hover, ali tamnija verzija
+        filter: invert(40%) sepia(10%) saturate(0%) hue-rotate(287deg) brightness(70%) contrast(70%) drop-shadow(0 0 2px #ffffff5e);
+    
+        &:hover {
+            cursor: pointer;
+        }
+    }
+
+    &__text {
+        display: none;
+         font-size: 16px;
+        font-weight: bold;
+        color: variables.$color-text;
+        margin-left: 1rem;
+        text-transform: uppercase;
+    }
+
+    &__label {
+        font-size: 18px;
+        font-weight: bold;
+        color: variables.$color-text;
+        text-decoration: none;
+        transition: color 0.3s ease;
+        display: block;
+        letter-spacing: 1px;
+        margin-left: 2rem;
+    }
+
+    &--vertical {
+        background-color: transparent;
+        outline: none;
+        border: 0;
+        color: #d4bfff;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        padding: 0.5rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        position: relative;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+
+        &:hover {
+            cursor: pointer;
+            color: #fff;
+            
+         
+        
+
+            .navigation__link__icon {
+                filter: invert(96%) sepia(44%) saturate(0%) hue-rotate(287deg) brightness(103%) contrast(102%);
+                transform: scale(1.2);
+                transition: transform 0.3s ease-in-out;
+            }
+
+            > .tooltip {
+                opacity: 1;
+                transform: translateX(-60px) translateY(-40px); // lagani pomak dolje
+            }
+
+           
+        }
+
+        &::before {
+            position: absolute;
+            left: 1rem;
+            top: 12px;
+            opacity: 0;
+            font-size: 12px;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            display: flex;
+            align-items: center; // Centriranje simbola uz tekst
+        }
+
+        &:hover::before {
+            opacity: 1;
+            transform: translateX(5px);
+        }
+    }
+
+    
+    }
+}
+
+// Mobile menu button
+.mobile__menu__close {
+    display: none; 
+}
+
+.mobile__menu__button {
+    display: none;
+    position: fixed;
+    top: 2vh;
+    left: 2vw;
+    z-index: 999;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+
+    img {
+        width: 32px;
+        height: auto;
+    }
+}
+
+@media (max-width: 1440px) {
+
+
+    .navigation__link--vertical:hover {
+      .tooltip {
+          opacity: 1;
+          transform: translateX(-10px) translateY(-40px); // lagani pomak dolje
+      }
+    }
+  }
+
+@media (max-width: 1024px) {
+
+
+  .navigation__link--vertical:hover {
+    .tooltip {
+        opacity: 1;
+        transform: translateX(0) translateY(-40px); // lagani pomak dolje
+    }
+  }
+}
+
+// Mobile Navigation
+@media (max-width: 768px) {
+    .navigation--vertical {
+        transform: translateX(-105%);
+        transition: transform 0.3s ease-in-out;
+        background-color: rgb(0, 0, 0);
+        width: 70vw;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 13;
+        
+     
+        .navigation__link__text {
+             display: inline-block;
+           
+
+
+        }
+
+    }
+
+
+    .navigation__link--vertical {
+        justify-content: flex-start;
+    }
+
+
+
+    .navigation--open {
+        transform: translateX(-5%);
+        .mobile__menu__button {
+            display: none;
+        }
+    }
+
+    .navigation__list--vertical {
+        flex-direction: column;
+        align-items: flex-start;
+        padding-left: 1rem;
+        margin-top: 1rem;
+    }
+
+    .navigation__list--horizontal {
+    width: 70%;
+    margin-right: 0;
+    
+    }
+
+    .mobile__menu__button {
+        display: block;
+      
+    }
+
+    .mobile__menu__close {
+        display: block;
+        width: 100%;
+        text-align: right;
+        
+       
+    }
+}

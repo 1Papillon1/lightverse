@@ -1,0 +1,48 @@
+/*
+    feautures.scss
+*/
+
+@use 'sass:color' as c;
+@use '../base/mixins';
+@use '../base/variables';
+
+.features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+    padding: 3rem 2rem;
+    background-color: c.adjust(variables.$color-background, $lightness: -5%);
+  
+    &__item {
+      flex: 1 1 calc(33.33% - 2rem); // Tri elementa po redu
+      max-width: 300px;
+      background-color: variables.$color-primary;
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  
+      &:hover {
+        transform: translateY(-5px);
+        transition: transform 0.3s ease;
+      }
+  
+      &__icon {
+        font-size: 2rem;
+        color: variables.$color-secondary;
+        margin-bottom: 1rem;
+      }
+  
+      &__title {
+        font-size: 1.5rem;
+        color: variables.$color-text;
+        margin-bottom: 0.5rem;
+      }
+  
+      &__description {
+        font-size: 1rem;
+        color: variables.$color-muted;
+      }
+    }
+  }

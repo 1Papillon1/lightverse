@@ -1,0 +1,60 @@
+/*
+    footer.scss
+*/
+@use '../base/variables';
+.footer {
+    position: absolute;
+    bottom: 2rem;
+    width: 50vw;
+    height: 20vh;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0;
+    display: flex;
+    &__container {
+        display: flex; 
+        justify-content: center;
+        align-items: center;
+        
+        z-index: 12;
+    }
+
+    &__button {
+        width: 50px;
+        background-color: transparent;
+        border: none;
+        outline: none;
+        cursor: pointer; 
+        z-index: 12;
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+        &:hover {
+          
+
+            .icon {
+                transition: filter 0.3s ease-in-out;
+                filter: invert(66%) sepia(44%) saturate(0%) hue-rotate(287deg) brightness(102%) contrast(103%) drop-shadow(0 0 2px #ffffff18);
+                transform: scale(1.2);
+            }
+
+            > .tooltip {
+                opacity: 1;
+                transform: translateX(0px) translateY(-100px); // lagani pomak dolje
+            }
+        }
+    }
+
+   
+
+    &--row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        vertical-align: middle;
+        flex-direction: row;
+        gap: 3rem;
+    }
+
+  
+    
+}

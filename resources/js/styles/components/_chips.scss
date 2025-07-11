@@ -1,0 +1,30 @@
+/*
+    chips.scss
+*/
+@use '../base/variables';
+.chip {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    padding: 2px 6px;
+    user-select: none;
+    background-color: variables.$color-primary;
+    color: variables.$color-text;
+    border-radius: 8px;
+    box-shadow: 0 0 1px 2px variables.$color-secondary;
+    &:hover {
+        cursor: pointer;
+        .subheader {
+            &__label {
+                color: #ffffff;
+
+          }
+            &__icon {
+            filter: invert(96%) sepia(44%) saturate(0%) hue-rotate(287deg) brightness(103%) contrast(102%);
+             color: #ffffff;
+             transition: filter 0.3s ease-in-out;            }
+        }
+    }
+}
