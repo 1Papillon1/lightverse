@@ -11,7 +11,7 @@ const nodeData = [
 
 export default function FloatingNodeGrid({ onSelect, onNodeHover }) {
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-  const radius = isMobile ? 2.3 : 7.5;
+  const radius = isMobile ? 4.3 : 7.5;
   const verticalScale = isMobile ? 0.4 : 2.4;
 
   return nodeData.map((node, i) => {

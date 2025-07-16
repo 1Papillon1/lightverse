@@ -1,9 +1,11 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import { RepeatWrapping, TextureLoader } from "three";
-import { useLoader } from "@react-three/fiber";
+import { useLoader, useThree } from "@react-three/fiber";
 
 export default function Terrain({ type = "token" }) {
   const mesh = useRef();
+
+  const { viewport } = useThree();
 
   const textureMap = {
     wallet: "/textures/wallet_node_4k.jpg",
@@ -21,8 +23,21 @@ export default function Terrain({ type = "token" }) {
     texture.repeat.set(1, 1);
   }, [texture]);
 
+  // adjust y position based on viewport width
+  const positionY = useMemo(() => {
+    if (viewport.width >= 20) return -22;
+    if (viewport.width >= 15) return -20;
+    if (viewport.width >= 10) return -18;
+    return -18; // very narrow screens
+  }, [viewport.width]);
+
   return (
-    <mesh rotation={[-Math.PI / 1.6, 0, 0]} position={[0, -8, 0]} ref={mesh} receiveShadow>
+    <mesh
+      rotation={[-Math.PI / 1.6, 0, 0]}
+      position={[0, positionY, 0]}
+      ref={mesh}
+      receiveShadow
+    >
       <planeGeometry args={[70, 70]} />
       <meshStandardMaterial map={texture} />
     </mesh>

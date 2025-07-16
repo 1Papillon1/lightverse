@@ -9,3 +9,19 @@ import rightClickIcon from "@/assets/icons/right_click.svg";
 import zoomInIcon from "@/assets/icons/zoom_in.svg";
 import zoomOutIcon from "@/assets/icons/zoom_out.svg";
 
+const Helpbox = observer((part) => {
+  const rootStore = RootStoreContext.useStore();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleHelpbox = () => {
+    setIsOpen(!isOpen);
+  };
+
+  return (
+
+
+    <div>
+
+    </div>
+  );
+});

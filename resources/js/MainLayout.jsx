@@ -6,6 +6,7 @@ import { useRootStore } from '@/stores/RootStore';
 import { observer } from "mobx-react-lite";
 import ReturnToOrbitButton from '@/components/transitions/ReturnToOrbitButton';
 import { usePage } from '@inertiajs/react';
+import WalletProvider from '@/components/wallet/WalletProvider';
 
 
 const MainLayout = observer(({ children }) => {
@@ -15,24 +16,29 @@ const MainLayout = observer(({ children }) => {
   const isDashboard = url === "/dashboard";
 
   return (
-    <div className="App">
-  
-      {rootStore.uiStore.animated && !rootStore.marketStore.sceneReady && (
-        <>
-          <AirEffect />
+    <WalletProvider>
+
+      <div className="App">
+    
+        {rootStore.uiStore.animated && !rootStore.marketStore.sceneReady && (
+          <>
+            <AirEffect />
+          
+          
+          </>
+        )}
+        <Navigation horizontal />
         
-         
-        </>
-      )}
-      <Navigation horizontal />
-      
-      <div className="layout">
-        {children}
+        <div className="layout">
+          {children}
+        </div>
+
+        {!isDashboard && (
+            <ReturnToOrbitButton onReturn={() => rootStore.uiStore.setActiveScene("universe")} />
+        )}
+        
       </div>
-     {!isDashboard && (
-        <ReturnToOrbitButton onReturn={() => rootStore.uiStore.setActiveScene("universe")} />
-     )}
-    </div>
+    </WalletProvider>
   );
 });
 

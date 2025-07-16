@@ -4,7 +4,7 @@ import { RootStoreContext } from "@/stores/RootStore";
 import { Inertia } from '@inertiajs/inertia';
 import { usePage } from "@inertiajs/react";
 import accountIcon from "@/assets/icons/account_circle.svg";
-
+import WalletConnectButton from "@/components/wallet/WalletConnectButton";
 
 
 
@@ -87,6 +87,9 @@ const Navigation = observer(({ horizontal = false, vertical = true }) => {
               {username && (
                 <span className="navigation__link__label">{username}</span>
               )}
+            </li>
+            <li className="navigation__wallet">
+              <WalletConnectButton />
             </li>
           </ul>
         </nav>

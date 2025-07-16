@@ -13,6 +13,7 @@ class RootStore {
     uiStore;
     userStore;
     marketStore;
+    
 
     constructor() {
         this.uiStore = new UIStore(this);
