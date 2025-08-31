@@ -1,4 +1,4 @@
-// components/visuals/Starfield.jsx
+// Starfield.jsx
 import React, { useEffect, useRef } from "react";
 
 const Starfield = () => {

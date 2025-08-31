@@ -1,36 +1,167 @@
 /*
-    overlay.scss
+  overlay.scss
 */
 
 @use '../base/variables';
 
 .overlay {
-    position: fixed;
+  position: fixed;
   inset: 0;
-  background: #09041a;
+  background: rgba(9, 4, 26, 0.11);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   z-index: 1000;
-    backdrop-filter: blur(5px);
-    transition: opacity 0.3s ease-in-out;
-    &__loader {
-        color: #fff;
-        font-family: 'Orbitron', monospace;
-        font-size: 1.3rem;
-        animation: pulse 2s infinite ease-in-out;
-        &__text {
-            margin-top: 10px;
-             font-size: 1.3rem;
-            color: #fff;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-        }
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+
+  &--tutorial {
+    animation: overlay-fade-in 0.4s ease;
+    padding: 1rem;
+  }
+
+  &__content {
+    pointer-events: auto;
+    margin-bottom: 7vh;
+    max-width: 640px;
+    width: 90vw;
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    color: #fff;
+    text-shadow: 0 0 8px #00ffff;
+  }
+
+  &__text {
+    font-size: 1.15rem;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    user-select: none;
+  }
+
+  &__instruction {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-top: -0.5rem;
+    margin-bottom: 1.2rem;
+    font-style: italic;
+    color: #00ffff;
+    text-shadow: 0 0 6px #00ffff66;
+  }
+
+  &__buttons-bar {
+    pointer-events: auto;
+    position: fixed;
+    bottom: 2vh;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1.2rem;
+    z-index: 1001;
+  }
+
+  &__button {
+    background: linear-gradient(90deg, #00ffff, #8f00ff);
+    color: #fff;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    font-weight: bold;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 0 10px #00ffff80;
+    transition: all 0.25s ease;
+
+    &--overlay:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 14px #0ff, 0 0 24px #8f00ff;
     }
+
+    &--skip {
+      background: rgba(255, 0, 128, 0.75);
+      box-shadow: 0 0 10px #ff0088;
+    }
+  }
+
+    &--menu {
+      justify-content: center; // Center vertically
+      background: rgba(9, 4, 26, 0.60);
+      animation: overlay-fade-in 0.5s ease;
+    }
+
+    &--comingsoon {
+    justify-content: center; // Center vertically
+    background: rgba(9, 4, 26, 0.30); 
+    animation: overlay-fade-in 0.5s ease;
+
+    .overlay__content {
+      background: rgba(0, 0, 0, 0.45);
+      padding: 2rem 2.5rem;
+      border-radius: 16px;
+      box-shadow: 0 0 25px #00ffff55, 0 0 45px #8f00ff44;
+      backdrop-filter: blur(8px);
+
+      .overlay__title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #fff;
+        text-shadow: 0 0 12px #8f00ff, 0 0 18px #00ffff;
+        letter-spacing: 2px;
+      }
+
+      .overlay__text {
+        font-size: 1.25rem;
+        margin-bottom: 0.8rem;
+        color: #e0e0e0;
+      }
+
+      .overlay__instruction {
+        font-size: 1rem;
+        font-style: italic;
+        opacity: 0.9;
+        color: #00ffff;
+        text-shadow: 0 0 8px #00ffff88;
+      }
+    }
+  }
+
+  &--auth {
+    justify-content: center; 
+    background: rgba(9, 4, 26, 0.30); 
+    animation: overlay-fade-in 0.5s ease;
+
+    .overlay__content {
+      background: rgba(0, 0, 0, 0.55);
+      padding: 2rem 2.5rem;
+      border-radius: 16px;
+      box-shadow: 0 0 25px #00ffff55, 0 0 45px #8f00ff44;
+      backdrop-filter: blur(8px);
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .overlay__title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      color: #fff;
+      text-shadow: 0 0 10px #8f00ff, 0 0 15px #00ffff;
+      letter-spacing: 1px;
+    }
+  }
 
 }
 
-@keyframes pulse {
-    0% { opacity: 0.5; text-shadow: 0 0 10px #ff00ff; }
-    50% { opacity: 1; text-shadow: 0 0 20px #ff00ff, 0 0 30px #cc00ff; }
-    100% { opacity: 0.5; text-shadow: 0 0 10px #ff00ff; }
+// Animations
+@keyframes overlay-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

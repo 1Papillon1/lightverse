@@ -3,7 +3,7 @@ import FloatingNode from "@/components/visuals/FloatingNode";
 
 const nodeData = [
   { type: "wallet", name: "Wallet", id: "wallet", route: "/wallet" },
-  { type: "token", name: "Market", id: "market", route: "/dashboard" },
+  { type: "market", name: "Markets", id: "market", route: "/markets" },
   { type: "contract", name: "Contracts", id: "contract", route: "/contracts" },
   { type: "roadmap", name: "Roadmap", id: "roadmap", route: "/roadmap" },
   { type: "ai", name: "Wzkr AI", id: "ai", route: "/ai" }
@@ -25,10 +25,15 @@ export default function FloatingNodeGrid({ onSelect, onNodeHover }) {
         key={node.id}
         type={node.type}
         position={[x * 0.7, y * 3.7, z]}
-          onClick={() => {
-  onSelect?.(node.id, [x * 0.7, y * 3.7, z], node.route); // ← pass position and route
-}}
-
+        onClick={() => {
+          onSelect?.(node.id, [x * 0.7, y * 3.7, z], node.route); 
+          
+   
+          if (node.id === "ai") {
+         
+            rootStore.tutorialStore.completeTutorialOnNodeClick();
+          }
+        }}
         onHover={(info) =>
           onNodeHover?.(info ? { ...info, label: node.name } : null)
         }

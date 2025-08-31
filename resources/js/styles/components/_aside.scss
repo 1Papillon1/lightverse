@@ -6,9 +6,9 @@
   position: fixed;
   top: 0;
   right: 0;
-  width: 250px;
+  width: 0;
   height: 100%;
-  z-index: 0;
+  z-index: 13;
   &__button {
     position: absolute;
     right: 1rem;
@@ -22,7 +22,8 @@
     cursor: pointer;
     box-shadow: 0 0 15px #4d4dfd88;
     transition: transform 0.2s ease;
-    z-index: 12;
+    width: 200px;
+    
     &:hover {
          transform: scale(1.05);
     }

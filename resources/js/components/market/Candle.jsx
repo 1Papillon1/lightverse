@@ -1,5 +1,6 @@
+// Candle.jsx
 import React from 'react';
-import { Html, Text } from '@react-three/drei';
+import { Html } from '@react-three/drei';
 import { formatTimeLabel } from '../../utils/dateUtil';
 
 const Candle = ({ x, open, high, low, close, time, timeY, pctChange, interval }) => {

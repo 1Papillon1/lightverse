@@ -1,3 +1,4 @@
+// UniverseScene.jsx
 import { useEffect, useRef, useState, useContext } from "react";
 import { Canvas } from "@react-three/fiber";
 import FloatingNodeGrid from "@/components/layout/FloatingNodeGrid";
@@ -6,6 +7,7 @@ import gsap from "gsap";
 import { RootStoreContext } from "@/stores/RootStore";
 import LoadingScreen from "@/components/transitions/LoadingScreen";
 import { Inertia } from "@inertiajs/inertia";
+import TutorialZoomTracker from "../trackers/TutorialZoomTracker";
 
 import { TextureLoader } from "three";
 import { useLoader } from "@react-three/fiber";
@@ -18,10 +20,11 @@ export default function UniverseScene({ onSceneSelect }) {
   const [mounted, setMounted] = useState(false);
   const [localReady, setLocalReady] = useState(false);
   const store = useContext(RootStoreContext).marketStore;
+  
 
   const textures = useLoader(TextureLoader, [
     "/textures/wallet_node_4k.jpg",
-    "/textures/token_node_4k.jpg",
+    "/textures/market_node_4k.jpg",
     "/textures/contract_node_4k.jpg",
     "/textures/roadmap_node_4k.jpg",
     "/textures/ai_node_4k.jpg"
@@ -33,22 +36,21 @@ export default function UniverseScene({ onSceneSelect }) {
       setTimeout(() => {
         store.setSceneReady(true);
         setLocalReady(true);
-      }, 500); // slight delay for smooth entry
+      }, 500); 
     }
   }, [textures, mounted, store]);
 
  const handleNodeClick = (id, pos, route) => {
   const camera = orbitRef.current.object;
+  const zoomFactor = 2;
 
-  const zoomFactor = 2; // ↓ Closer = smaller value (1.0 or less gets tight)
-
-gsap.to(camera.position, {
-  x: pos[0] * zoomFactor,
-  y: pos[1] * zoomFactor,
-  z: pos[2] * zoomFactor,
-  duration: 1.3,
-  ease: "power2.out"
-}); 
+  gsap.to(camera.position, {
+    x: pos[0] * zoomFactor,
+    y: pos[1] * zoomFactor,
+    z: pos[2] * zoomFactor,
+    duration: 1.3,
+    ease: "power2.out",
+  });
 
   gsap.to(targetRef.current, {
     0: pos[0],
@@ -60,17 +62,23 @@ gsap.to(camera.position, {
       orbitRef.current.target.set(...targetRef.current);
     },
     onComplete: () => {
-      if (route) Inertia.visit(route); // 👈 navigate AFTER animation
-    }
+      if (route) Inertia.visit(route);
+    },
   });
+
+
+   store.uiStore.setActiveNode(id);
 
   if (onSceneSelect) onSceneSelect(id);
 };
 
+
   return (
     <>
-      {!localReady && <LoadingScreen />} {/* Overlayed loading screen */}
+      {!localReady && <LoadingScreen />} 
       <Canvas camera={{ position: [0, 0, 12], fov: 80 }} gl={{ toneMappingExposure: 2 }}>
+        <TutorialZoomTracker />
+        
         <ambientLight intensity={0.7} />
         <directionalLight position={[5, 5, 5]} intensity={1.2} />
         <pointLight position={[0, 0, 8]} intensity={1.5} />
@@ -78,7 +86,7 @@ gsap.to(camera.position, {
         <NebulaBackdrop />
 
         <Stars radius={200} depth={20} count={8000} factor={4} fade />
-        {/* <VolumetricFog /> */}
+      
 
         <OrbitControls ref={orbitRef} enablePan={false} enableZoom={true}
          minDistance={3}

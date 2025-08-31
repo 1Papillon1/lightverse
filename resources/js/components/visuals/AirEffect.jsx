@@ -1,4 +1,4 @@
-// components/visuals/AirEffect.jsx
+// AirEffect.jsx
 import React, { useEffect, useRef } from "react";
 import Starfield from "./Starfield";
 
@@ -14,19 +14,19 @@ const AirEffect = () => {
 
     const windParticles = [];
     const colors = [
-      "rgba(142, 68, 173, 0.15)",
-      "rgba(143, 7, 197, 0.15)",
-      "rgba(102, 51, 153, 0.15)",
+      "rgba(142, 68, 173, 0.12)",
+      "rgba(143, 7, 197, 0.12)",
+      "rgba(102, 51, 153, 0.12)",
     ];
 
     function createParticle() {
       return {
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        radius: Math.random() * 2 + 3,
+        radius: Math.random() * 1.5 + 2,
         speedX: Math.random() * 2 + 2,
         speedY: Math.random() * 0.5 - 0.25,
-        trailLength: Math.random() * 30 + 5,
+        trailLength: Math.random() * 20 + 5,
         color: colors[Math.floor(Math.random() * colors.length)],
       };
     }
@@ -94,7 +94,7 @@ const AirEffect = () => {
           position: "fixed",
           top: 0,
           left: 0,
-          zIndex: 0,
+          zIndex: 13,
           width: "100vw",
           height: "100vh",
           pointerEvents: "none",

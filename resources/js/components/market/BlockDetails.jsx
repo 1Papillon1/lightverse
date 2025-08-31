@@ -11,7 +11,7 @@ import BlockGraph  from "./BlockGraph";
 const BlockDetails = observer(({ symbol }) => {
   const { marketStore: store } = useContext(RootStoreContext);
 
-  // lokalni state za interakciju
+
  const [activeBlock, setActiveBlock] = useState(null);
   const blockRef = useRef();
   const data = store.selectedMarket;
@@ -19,7 +19,7 @@ const BlockDetails = observer(({ symbol }) => {
 
   const [zoom, setZoom] = useState(1);
 
-   // on wheel, adjust zoom between 0.5 and 3
+
   const handleWheel = useCallback(e => {
     e.stopPropagation();
     const delta = -e.deltaY * 0.001;
@@ -31,7 +31,7 @@ const BlockDetails = observer(({ symbol }) => {
   }, []);
 
 
-  // fetch i selekcija coina
+ 
   useEffect(() => {
     async function load() {
       if (store.markets.length === 0) {
@@ -45,7 +45,7 @@ const BlockDetails = observer(({ symbol }) => {
     load();
   }, [symbol, store]);
   
-  // kad se selektira market i imamo ref, postavi activeBlock
+
   useEffect(() => {
     if (blockRef.current) {
       setActiveBlock(blockRef.current);

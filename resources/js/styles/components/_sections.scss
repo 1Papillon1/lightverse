@@ -12,7 +12,7 @@
     height: variables.$block-height;
     transform-style: preserve-3d;
     transition: transform 1s ease-in-out;
-    z-index: 4;
+    z-index: 14;
 
     &__container {
         margin-top: 25vh;
@@ -33,7 +33,7 @@
         z-index: 1;
         margin: 5% 15%;
         transform-style: preserve-3d;
-
+        user-select: none;
 
         &--centered {
             text-align: center;
@@ -97,7 +97,7 @@
 
         &--back, &--forward {
             padding: 1rem 0.5rem;
-            z-index: 10;
+            z-index: 15;
         }
     }
 
@@ -179,8 +179,23 @@
     }
 
     .section__button {
+        background: none;
+        text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+        box-shadow: none;
+        transform: none;
         padding: 0.8rem 1.5rem;
-        font-size: 16px;
+        
+        &:hover {
+            background: none;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            box-shadow: none;
+            transform: none;
+        }
+    }
+
+    .section__icon {
+        width: 32px;
+        opacity: 0.8;
     }
 
     .section__content {
@@ -208,6 +223,9 @@
     }
 
     .section__content {
-        margin: 10% 5%;
+        margin: 2%;
+        padding-bottom: 2rem;
     }
 }
+
+

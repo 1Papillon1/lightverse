@@ -1,62 +1,54 @@
+// UserStore.js
 import { makeAutoObservable } from "mobx";
 
 class UserStore {
-    rootStore;
-    authorized = false;
-    status = "";
+  rootStore;
+  authorized = false;
+  status = "";
+  user = null;
 
-    user = null;
-    tutorialCompleted = false;
+  // current overlay: "login" | "signup" | "settings" | null
+  activeOverlay = null;
 
-    constructor(rootStore) {
-        this.rootStore = rootStore;
-        makeAutoObservable(this);
+  constructor(rootStore) {
+    this.rootStore = rootStore;
+    makeAutoObservable(this);
+  }
+
+  // --- Overlay handling ---
+  openOverlay(name) {
+    if (["login", "signup", "settings"].includes(name)) {
+      this.activeOverlay = name;
     }
+  }
 
+  closeOverlay() {
+    this.activeOverlay = null;
+  }
 
-    loggedIn(username, password) {
-        if (username === "admin" && password === "admin") {
-            this.authorized = true;
-            this.user = { username };
-        } else {
-            this.status = "Username or password is incorrect";
-        }
-
-        
+  toggleOverlay(name) {
+    if (this.activeOverlay === name) {
+      this.closeOverlay();
+    } else {
+      this.openOverlay(name);
     }
+  }
 
-    
-    logout() {
-        this.user = null;
+  // --- Auth handling ---
+  loggedIn(username, password) {
+    if (username === "admin" && password === "admin") {
+      this.authorized = true;
+      this.user = { username };
+      this.closeOverlay(); // close login on success
+    } else {
+      this.status = "Username or password is incorrect";
     }
+  }
 
-    // remember tutorial completion in cookies or local storage
-    isTutorialCompleted() {
-        if (!this.tutorialCompleted) {
-            const completed = localStorage.getItem("tutorialCompleted");
-            if (completed === "true") {
-                this.tutorialCompleted = true;
-            } else {
-                this.tutorialCompleted = false;
-            }
-        }
-
-    }
-    
-
-
-    // Tutorial management
-
-    setTutorialCompleted() {
-        this.tutorialCompleted = true;
-
-    }
-
-    activateTutorial() {
-        this.tutorialCompleted = false;
-    }
-
-
+  logout() {
+    this.user = null;
+    this.authorized = false;
+  }
 }
 
 export default UserStore;

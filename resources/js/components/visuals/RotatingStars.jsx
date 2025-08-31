@@ -1,3 +1,4 @@
+// RotatingStars.jsx
 import { Stars } from "@react-three/drei";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
@@ -7,13 +8,13 @@ function RotatingStars() {
 
   useFrame(() => {
     if (groupRef.current) {
-      groupRef.current.rotation.y += 0.0008 / 12; // slow rotation
+      groupRef.current.rotation.y += 0.00008 / 12;
     }
   });
 
   return (
     <group ref={groupRef}>
-      <Stars radius={100} depth={30} count={8000} factor={4} fade />
+      <Stars radius={400} depth={160} count={8000} factor={5} fade />
     </group>
   );
 }

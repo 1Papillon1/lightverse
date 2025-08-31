@@ -1,23 +1,30 @@
-import React, { useContext } from "react";
+// Wallet.jsx
+
+import { useContext } from "react";
 import { observer } from "mobx-react-lite";
+import { Head, usePage } from "@inertiajs/react";
 import { RootStoreContext } from "@/stores/RootStore";
+import MainLayout from "@/MainLayout";
 
 import AirEffect from "@/components/visuals/AirEffect"; 
-import MainLayout from "@/MainLayout";
-import { Head } from "@inertiajs/react";
-
+import WalletBackdrop from "@/components/visuals/WalletBackdrop";
 
 const Wallet = observer(() => {
-    const rootStore = useContext(RootStoreContext);
-    return(
 
-            <section className="hero">
-              <Head title="Wallet" />
-              <AirEffect />  
+    const { mode } = usePage().props;
+    const rootStore = useContext(RootStoreContext);
+    
+
+    return(
+      <>
+        <Head title="Wallet" />
+        <AirEffect />  
+        
+        <WalletBackdrop mode="wallet" />
         
 
-            </section>
 
+      </>
     )
 
 })

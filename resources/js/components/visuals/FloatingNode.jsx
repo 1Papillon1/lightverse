@@ -1,6 +1,7 @@
+// FloatingNode.jsx
 import React, { useRef, useState } from "react";
 import { useFrame, useLoader } from "@react-three/fiber";
-import { MeshToonMaterial, TextureLoader } from "three";
+import { TextureLoader } from "three";
 import { Html } from "@react-three/drei";
 
 
@@ -14,7 +15,7 @@ export default function FloatingNode({ type, position, onClick }) {
 
   const textures = {
     wallet: useLoader(TextureLoader, "/textures/wallet_node_4k.jpg"),
-    token: useLoader(TextureLoader, "/textures/token_node_4k.jpg"),
+    token: useLoader(TextureLoader, "/textures/market_node_4k.jpg"),
     contract: useLoader(TextureLoader, "/textures/contract_node_4k.jpg"),
     roadmap: useLoader(TextureLoader, "/textures/roadmap_node_4k.jpg"),
     ai: useLoader(TextureLoader, "/textures/ai_node_4k.jpg"),

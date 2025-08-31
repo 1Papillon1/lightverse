@@ -1,11 +1,11 @@
+// ReturnToOrbitButton.jsx
 import React from "react";
-import { FaRocket } from "react-icons/fa"; // Optional: Icon
+import { FaRocket } from "react-icons/fa";
 import { Inertia } from "@inertiajs/inertia";
-import { useRootStore } from '@/stores/RootStore';
+
 
 export default function ReturnToOrbitButton() {
 
-const rootStore = useRootStore();
 
 const handleReturn = () => {
     

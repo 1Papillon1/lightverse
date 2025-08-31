@@ -7,8 +7,6 @@ import { RootStoreContext } from "@/stores/RootStore";
 const Footer = observer(() => {
     const rootStore = useContext(RootStoreContext);
 
-    
-
     return (
         <div className="footer interface">
             <h3 className="footer__text">

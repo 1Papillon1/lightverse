@@ -1,10 +1,9 @@
+// BlockGraph.jsx
 import React, { useContext } from "react";
-import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import { RootStoreContext } from "@/stores/RootStore";
 import { observer } from "mobx-react-lite";
 import Candle from "./Candle";
-import e from "cors";
 import YAxisLabels from "./YAxisLabels";
 
 const MAX_CANDLES = 50;

@@ -1,4 +1,4 @@
-// src/components/market/MarketBlock.jsx
+// MarketBlock.jsx
 import React, {
   forwardRef,
   useEffect,

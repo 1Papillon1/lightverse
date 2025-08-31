@@ -1,3 +1,4 @@
+// resources/js/pages/Dashboard.jsx
 import React, { useContext, useEffect, useState, useRef } from "react";
 import { observer } from "mobx-react-lite";
 import { RootStoreContext } from "@/stores/RootStore";
@@ -17,7 +18,7 @@ const Dashboard = observer(() => {
   const [activeScene, setActiveScene] = useState("market"); // default
   const { auth, symbol } = usePage().props; 
   const rootStore = useContext(RootStoreContext);    // <-- symbol je URL param
-    const store = useContext(RootStoreContext).marketStore;
+  const store = useContext(RootStoreContext).marketStore;
 
   const { navigationState } = rootStore.uiStore;
   const periods = ["24h", "7d", "30d"];

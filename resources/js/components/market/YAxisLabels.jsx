@@ -1,7 +1,6 @@
+// YAxisLabels.jsx
 import React from 'react';
 import { Html } from '@react-three/drei';
-import { useMemo } from 'react';
-import * as THREE from 'three';
 
 const YAxisLabels = ({ yStarting, minPrice, maxPrice, yScale, graphCenter }) => {
   const steps = 5;

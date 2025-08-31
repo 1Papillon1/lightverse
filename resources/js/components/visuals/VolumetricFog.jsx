@@ -1,4 +1,4 @@
-// components/visuals/VolumetricFog.jsx
+// VolumetricFog.jsx
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -6,7 +6,7 @@ import * as THREE from 'three';
 export default function VolumetricFog() {
   const meshRef = useRef();
 
-  // Memoize the shaderMaterial so it’s not recreated on each render
+
   const shaderMaterial = useMemo(() => new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,

@@ -1,3 +1,4 @@
+// Authorization.jsx
 import React from "react";
 import { Head, usePage } from "@inertiajs/react";
 import Signup from "@/components/authentication/Signup";

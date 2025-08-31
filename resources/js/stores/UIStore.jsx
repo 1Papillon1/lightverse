@@ -1,7 +1,7 @@
 import { makeAutoObservable } from "mobx";
 
 class UIStore {
-
+    activeNode = "wallet";
     animated = true;
     triggerExplosion = false;
 
@@ -39,6 +39,11 @@ class UIStore {
     resetExplosion() {
         this.triggerExplosion = false;
     }
+
+    
+  setActiveNode(node) {
+    this.activeNode = node;
+  }
 
 }
 

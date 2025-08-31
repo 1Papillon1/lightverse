@@ -1,10 +1,6 @@
 // LoadingScreen.jsx
-import React from "react";
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
-import { useRootStore } from "@/stores/RootStore";
 import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
+
 
 const LoadingScreen = observer(() => {
     

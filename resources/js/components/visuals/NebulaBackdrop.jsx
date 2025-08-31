@@ -1,3 +1,4 @@
+// NebulaBackdrop.jsx
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
@@ -62,7 +63,7 @@ export default function NebulaBackdrop({ rotate = false }) {
   return (
     <group ref={groupRef}>
       <mesh scale={[1, 1, 1]}>
-        <sphereGeometry args={[160, 128, 128]} />
+        <sphereGeometry args={[320, 256, 256]} />
         <primitive object={material} />
       </mesh>
     </group>
