@@ -57,6 +57,8 @@ const Dashboard = observer(() => {
 
       {!store.sceneReady && <LoadingScreen />}
 
+
+
       <div className="hero__container">
 
  {!symbol && (

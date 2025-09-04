@@ -8,9 +8,9 @@ import { RootStoreContext } from "@/stores/RootStore";
 import LoadingScreen from "@/components/transitions/LoadingScreen";
 import { Inertia } from "@inertiajs/inertia";
 import TutorialZoomTracker from "../trackers/TutorialZoomTracker";
-
+import { usePage } from "@inertiajs/react";
 import { TextureLoader } from "three";
-import { useLoader } from "@react-three/fiber";
+import { useLoader, useThree } from "@react-three/fiber";
 import NebulaBackdrop from "@/components/visuals/NebulaBackdrop";
 
 export default function UniverseScene({ onSceneSelect }) {
@@ -20,7 +20,39 @@ export default function UniverseScene({ onSceneSelect }) {
   const [mounted, setMounted] = useState(false);
   const [localReady, setLocalReady] = useState(false);
   const store = useContext(RootStoreContext).marketStore;
+  const { url } = usePage();
   
+
+  // Reset camera to default when navigating
+  const resetCamera = () => {
+    const camera = orbitRef.current?.object;
+    if (!camera) return;
+    gsap.to(camera.position, {
+      x: 0,
+      y: 0,
+      z: 12,
+      duration: 1,
+      ease: "power2.out"
+    });
+    gsap.to(targetRef.current, {
+      0: 0,
+      1: 0,
+      2: 0,
+      duration: 1,
+      ease: "power2.out",
+      onUpdate: () => {
+        orbitRef.current.target.set(...targetRef.current);
+      }
+    });
+    store.uiStore.setActiveNode(null);
+    if (onSceneSelect) onSceneSelect("market"); // default scene
+  };
+
+    useEffect(() => {
+    if (url === "/" || url.startsWith("/dashboard")) {
+      resetCamera();
+    }
+  }, [url]);
 
   const textures = useLoader(TextureLoader, [
     "/textures/wallet_node_4k.jpg",
@@ -76,7 +108,7 @@ export default function UniverseScene({ onSceneSelect }) {
   return (
     <>
       {!localReady && <LoadingScreen />} 
-      <Canvas camera={{ position: [0, 0, 12], fov: 80 }} gl={{ toneMappingExposure: 2 }}>
+      <Canvas camera={{ position: [0, 3, 12], fov: 80 }} gl={{ toneMappingExposure: 2 }}>
         <TutorialZoomTracker />
         
         <ambientLight intensity={0.7} />

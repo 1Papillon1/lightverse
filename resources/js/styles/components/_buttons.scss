@@ -23,8 +23,12 @@
     transform: perspective(1000px) rotateX(15deg) translateZ(10px);
     
     &--secondary {
+        max-width: 250px;
         font-size: 16px;
         padding: 8px 12px;
+        z-index: 18;
+        margin: 0 auto;
+        margin-top: 2rem;
     }
     
    &__text {
@@ -60,6 +64,14 @@
         text-align: center;
 
        
+    }
+
+    &--icon {
+        &--text {
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+        }
     }
 
     &__dropdown {

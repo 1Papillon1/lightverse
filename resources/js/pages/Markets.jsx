@@ -8,10 +8,28 @@ import { Head, usePage } from "@inertiajs/react";
 import MainLayout from "@/MainLayout";
 import UniverseBackdrop from "@/components/visuals/UniverseBackdrop";
 import ComingSoon from "@/components/information/ComingSoon";
+import { RootStoreContext } from "@/stores/RootStore";
+import MarketBlocks from "@/components/market/MarketBlocks";
 
 const Markets = observer(() => {
 
-    const { mode } = usePage().props;
+  const { mode, symbol } = usePage().props;
+  const RootStore = useContext(RootStoreContext);
+  const store = useContext(RootStoreContext).marketStore;
+  const [selectedMarket, setSelectedMarket] = useState(null);
+
+  useEffect(() => {
+    if (symbol) {
+      store.setSearchQuery(symbol);
+
+      store.setSelectedMarket(
+        store.markets.find((m) => m.symbol.toUpperCase() === symbol.toUpperCase())
+      );
+    }
+  }, [symbol, store]);
+
+
+
 
   return (
      <>
@@ -21,7 +39,7 @@ const Markets = observer(() => {
       <UniverseBackdrop mode={mode} />
 
       
-      <ComingSoon message="Market features are coming soon. Stay tuned!" />
+      <MarketBlocks />
     </>
   );
 });

@@ -31,6 +31,10 @@ class MarketStore {
   // selected market, user options
   priceChangePeriod = '24h'; // default to 24h
 
+  // User interaction
+  comparisonMode = false;
+  comparedMarkets = []; 
+
   constructor() {
     makeAutoObservable(this);
   }
@@ -68,8 +72,8 @@ class MarketStore {
           ? "http://127.0.0.1:8000/"
           : "https://cchain.fitapp.cloud";
 
-    /* const response = await fetch(`${baseUrl}/test-api`);      */
-      const response = await fetch(`http://127.0.0.1:8000/test-api`);   
+     /* const response = await fetch(`${baseUrl}/test-api`);   */   
+    const response = await fetch(`http://127.0.0.1:8000/test-api`);    
  
        const data = await response.json();
 
@@ -250,6 +254,27 @@ setPriceChangePeriod(period) {
   get currentZoomLevel() {
     return this.currentZoom;
   }
+
+
+  // Comparison mode
+  toggleComparisonMode() {
+    this.comparisonMode = !this.comparisonMode;
+    if (!this.comparisonMode) {
+      this.comparedMarkets = [];
+    }
+  }
+
+  addComparedMarket(market) {
+    if (!this.comparedMarkets.find(m => m.id === market.id)) {
+      this.comparedMarkets.push(market);
+    }
+  }
+
+  removeComparedMarket(marketId) {
+    this.comparedMarkets = this.comparedMarkets.filter(m => m.id !== marketId);
+  }
+
+
   zoomFactor() {
     // if zoom  < 1.5 set candlesGroup to 1second
     // if zoom > 1.5 set interval and < 2.5 set candlesGroup to 1minute 

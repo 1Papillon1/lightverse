@@ -72,13 +72,13 @@ const MainLayout = observer(({ children }) => {
       {userStore.activeOverlay === "settings" && <Settings />}
 
 
-        <div className="helper helper--bottom--left">
-    <Canvas camera={{ position: [0, 1, 5], fov: 40 }}>
-      <ambientLight intensity={1.2} /> {/* boost base light */}
-      <directionalLight position={[5, 10, 5]} intensity={15} />
-      {/* <NeonCat scale={3} position={[0, 0, 0]} rotation={[0, -Math.PI / 2, 0]} /> */}
-    </Canvas>
-  </div>
+       {/*  <div className="helper helper--bottom--left">
+          <Canvas camera={{ position: [0, 1, 5], fov: 40 }} style={{ pointerEvents: 'none'  }}>
+            <ambientLight intensity={1.2} /> {/* boost base light 
+            <directionalLight position={[5, 10, 5]} intensity={15} />
+            <NeonCat scale={3} position={[0, 0, 0]} rotation={[0, -Math.PI / 2, 0]} /> 
+          </Canvas>
+        </div> */}
 
       </div>
     </WalletProvider>

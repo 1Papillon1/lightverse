@@ -1,4 +1,3 @@
-// MarketBlocks.jsx
 import React, { useState, useEffect, useContext, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
@@ -11,6 +10,7 @@ import { runInAction } from "mobx";
 import { MarketBlock } from "./MarketBlock";
 import { generateColor } from "./MarketBlock";
 import { MiniCube } from "./MiniCube";
+import AddIcon from "@/assets/icons/add.svg";
 
 const MarketBlocks = observer(() => {
   const rootStore = useContext(RootStoreContext);
@@ -24,9 +24,40 @@ const MarketBlocks = observer(() => {
   const [explodedFragments, setExplodedFragments] = useState([]);
   const controlsRef = useRef();
 
+  const [pageAnimating, setPageAnimating] = useState(false);
+  const [displayedMarkets, setDisplayedMarkets] = useState([]);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
   useEffect(() => {
     store.fetchMarkets();
   }, [store]);
+
+  // Handle page change smoothly
+  useEffect(() => {
+  if (!store.paginatedMarkets.length) {
+    setDisplayedMarkets([]);
+    return;
+  }
+
+  if (displayedMarkets.length > 0) {
+    // Animate out
+    setIsTransitioning(true);
+    setPageAnimating("out");
+
+    setTimeout(() => {
+      setDisplayedMarkets([]);
+
+      setTimeout(() => {
+        setDisplayedMarkets(store.paginatedMarkets);
+        setPageAnimating("in");
+        setTimeout(() => setIsTransitioning(false), 700); // after animation finishes
+      }, 200);
+    }, 600);
+  } else {
+    setDisplayedMarkets(store.paginatedMarkets);
+    setPageAnimating("in");
+  }
+}, [store.paginatedMarkets]);
 
   const handleBlockClick = (blockRef, position, market) => {
     if (!blockRef) return;
@@ -34,21 +65,20 @@ const MarketBlocks = observer(() => {
     const camera = controlsRef.current?.object;
     if (!camera) return;
 
-    // Deselect
     if (activeBlock === blockRef) {
       gsap.to(blockRef.position, {
         x: originalPosition[0],
         y: originalPosition[1],
         z: originalPosition[2],
         duration: 0.5,
-        ease: "power2.out"
+        ease: "power2.out",
       });
       gsap.to(blockRef.rotation, {
         x: originalRotation[0],
         y: originalRotation[1],
         z: originalRotation[2],
         duration: 0.5,
-        ease: "power2.out"
+        ease: "power2.out",
       });
       setActiveBlock(null);
       runInAction(() => store.setSelectedMarket(null));
@@ -56,28 +86,31 @@ const MarketBlocks = observer(() => {
       return;
     }
 
-    // Reset previous selection
     if (activeBlock) {
       gsap.to(activeBlock.position, {
         x: originalPosition[0],
         y: originalPosition[1],
         z: originalPosition[2],
         duration: 0.5,
-        ease: "power2.out"
+        ease: "power2.out",
       });
       gsap.to(activeBlock.rotation, {
         x: originalRotation[0],
         y: originalRotation[1],
         z: originalRotation[2],
         duration: 0.5,
-        ease: "power2.out"
+        ease: "power2.out",
       });
     }
 
     rootStore.uiStore.setNavigationState("blockPreview");
 
     setOriginalPosition([...position]);
-    setOriginalRotation([blockRef.rotation.x, blockRef.rotation.y, blockRef.rotation.z]);
+    setOriginalRotation([
+      blockRef.rotation.x,
+      blockRef.rotation.y,
+      blockRef.rotation.z,
+    ]);
 
     const direction = new THREE.Vector3();
     camera.getWorldDirection(direction);
@@ -94,7 +127,7 @@ const MarketBlocks = observer(() => {
       y: targetPos.y,
       z: targetPos.z,
       duration: 0.5,
-      ease: "power2.out"
+      ease: "power2.out",
     });
 
     gsap.to(blockRef.quaternion, {
@@ -103,72 +136,11 @@ const MarketBlocks = observer(() => {
       z: targetQuaternion.z,
       w: targetQuaternion.w,
       duration: 0.5,
-      ease: "power2.out"
+      ease: "power2.out",
     });
 
     setActiveBlock(blockRef);
     runInAction(() => store.setSelectedMarket(market));
-  };
-
-  const miniExplodeActiveBlock = () => {
-    if (!activeBlock) return;
-
-    const blockSize = 1;
-    const miniSize = 0.15;
-    const count = 6;
-    const half = (count * miniSize) / 2;
-    const origin = activeBlock.position.clone();
-
-    const fragments = [];
-
-    for (let x = 0; x < count; x++) {
-      for (let y = 0; y < count; y++) {
-        for (let z = 0; z < count; z++) {
-          const px = (origin.x - half + x * miniSize);
-          const py = (origin.y - half + y * miniSize);
-          const pz = origin.z - half + z * miniSize; 
-
-          fragments.push(
-            <MiniCube
-              key={`${x}-${y}-${z}`}
-              position={[px + 0.005, py + 0.01, 4]}
-              origin={[origin.x, origin.y, origin.z]}
-              delay={Math.random() * 0.3}
-            />
-          );
-        }
-      }
-    }
-
-    activeBlock.visible = false;
-    setExplodedFragments(fragments);
-
-   setTimeout(() => {
-      const symbol = store.selectedMarket.symbol.toLowerCase();
-      Inertia.visit(`/markets/${symbol}`); 
-    
-   
-    }, 3000);
-  };
-
-  useEffect(() => {
-    if (rootStore.uiStore.triggerExplosion && activeBlock) {
-      miniExplodeActiveBlock();
-      rootStore.uiStore.resetExplosion();
-    }
-  }, [rootStore.uiStore.triggerExplosion]);
-
-  const handleAlign = () => {
-    if (!activeBlock) return;
-    const { y } = activeBlock.rotation;
-    const targetY = Math.round(y / (Math.PI / 2)) * (Math.PI / 2);
-    gsap.to(activeBlock.rotation, {
-      x: 0,
-      y: targetY,
-      z: 0,
-      duration: 0.5,
-      ease: "power2.out"
-    });
   };
 
   const handlePointerDown = (e) => {
@@ -189,17 +161,19 @@ const MarketBlocks = observer(() => {
 
   const handlePointerUp = () => setIsRotating(false);
 
-  const paginated = store.paginatedMarkets;
-  const count = paginated.length;
+  const count = displayedMarkets.length;
   const cols = Math.ceil(Math.sqrt(count));
-  const spacing = 0.5;
+  const spacing = 0.8;
 
   return (
-    <div className="market-container">
+    <div className="market market--container">
       {store.loading && <div className="loading-spinner">Loading...</div>}
-      {!store.loading && paginated.length === 0 && <div className="no-results">No results found.</div>}
 
-      {!store.loading && paginated.length > 0 && (
+      {!store.loading && store.filteredMarkets.length === 0 && !isTransitioning && (
+        <div className="no-results">No results found.</div>
+      )}
+
+      {!store.loading && displayedMarkets.length > 0 && (
         <Canvas
           camera={{ position: [0, 0, 4], fov: 50 }}
           className="canvas--market"
@@ -210,29 +184,20 @@ const MarketBlocks = observer(() => {
           <OrbitControls
             ref={controlsRef}
             enableZoom={!activeBlock}
-            enablePan={!activeBlock}
+            enablePan={false}             // 🚫 prevent dragging
             enableRotate={!activeBlock}
-            screenSpacePanning
-            minDistance={1}
+            minDistance={2}
             maxDistance={9}
+            maxPolarAngle={Math.PI / 2}   // stop below horizon
+            minPolarAngle={0}             // stop flipping upside down
+            maxAzimuthAngle={Math.PI / 3} // horizontal limit
+            minAzimuthAngle={-Math.PI / 3}
             mouseButtons={{ LEFT: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.ROTATE }}
-            onChange={() => {
-              const ctrl = controlsRef.current;
-              if (!ctrl) return;
-              ctrl.target.x = THREE.MathUtils.clamp(ctrl.target.x, -3, 3);
-              ctrl.target.y = THREE.MathUtils.clamp(ctrl.target.y, -2, 2);
-              ctrl.target.z = 0;
-              ctrl.object.position.x = THREE.MathUtils.clamp(ctrl.object.position.x, -3, 3);
-              ctrl.object.position.y = THREE.MathUtils.clamp(ctrl.object.position.y, -2, 2);
-              ctrl.object.position.z = Math.max(ctrl.object.position.z, 1);
-              ctrl.object.lookAt(ctrl.target);
-            }}
           />
-
           <ambientLight intensity={0.5} />
           <directionalLight position={[0, 5, 10]} intensity={1} />
 
-          {paginated.map((market, idx) => {
+          {displayedMarkets.map((market, idx) => {
             const row = Math.floor(idx / cols);
             const col = idx % cols;
             const x = (col - (cols - 1) / 2) * spacing;
@@ -244,6 +209,8 @@ const MarketBlocks = observer(() => {
                 position={[x, y, 0]}
                 color={generateColor(idx)}
                 onClick={handleBlockClick}
+                pageAnimating={pageAnimating}
+                delay={(row + col) * 0.05} // ripple effect
               />
             );
           })}
@@ -255,11 +222,43 @@ const MarketBlocks = observer(() => {
       <div className="footer">
         {!store.loading && store.filteredMarkets.length > 0 && (
           <div className="pagination">
-            <button onClick={() => store.prevPage()} disabled={store.currentPage === 1} className="pagination__button pagination__button--left">◀</button>
-            <span className="pagination__text">Page {store.currentPage} / {store.totalPages}</span>
-            <button onClick={() => store.nextPage()} disabled={store.currentPage === store.totalPages} className="pagination__button pagination__button--right">▶</button>
+            <button
+              onClick={() => store.prevPage()}
+              disabled={store.currentPage === 1}
+              className="pagination__button pagination__button--left"
+            >
+              ◀
+            </button>
+            <span className="pagination__text">
+              Page {store.currentPage} / {store.totalPages}
+            </span>
+            <button
+              onClick={() => store.nextPage()}
+              disabled={store.currentPage === store.totalPages}
+              className="pagination__button pagination__button--right"
+            >
+              ▶
+            </button>
           </div>
         )}
+
+        
+        {store.selectedMarket && (
+          <button className="button button--secondary button--icon--text">
+         
+             <img
+                src={AddIcon}
+                className="button__icon icon"
+                alt="add"
+                
+              />
+            <span className="button__text">Compare</span>
+
+            
+          </button>
+        )}
+
+
       </div>
     </div>
   );
