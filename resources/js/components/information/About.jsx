@@ -7,6 +7,7 @@ import arrowForwardIcon from "@/assets/icons/arrow_forward.svg";
 import { Head } from "@inertiajs/react";
 
 
+/// About section (3D Rotating Cube)
 const About = observer(() => {
    
 
@@ -41,7 +42,7 @@ const About = observer(() => {
             
            
               
-              {/* Front - Naslovna strana */}
+            
                 <div className="section__face section__face--front">
                     <div className="section__content">
                         <h1 className="section__title">CChain</h1>
@@ -54,7 +55,7 @@ const About = observer(() => {
                     </div>    
                 </div>
 
-                {/* Right - Funkcionalnosti */}
+             
                 <div className="section__face section__face--right">
                     <div className="section__content">
                         <h2 className="section__title">🚀 Explore Our Features</h2>
@@ -68,7 +69,7 @@ const About = observer(() => {
                     </div>
                 </div>
 
-                {/* Back - Tržišni podaci */}
+              
                 <div className="section__face section__face--back">
                     <div className="section__content">
                         <h2 className="section__title">🌐 Light Web Vision</h2>
@@ -89,7 +90,7 @@ const About = observer(() => {
                     </div>
                 </div>
 
-                {/* Left - Sigurnost i decentralizacija */}
+                
                 <div className="section__face section__face--left">
                     <div className="section__content">
                         <h2 className="section__title">🔒 Secure & Decentralized</h2>

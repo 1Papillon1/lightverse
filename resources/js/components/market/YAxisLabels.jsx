@@ -1,7 +1,8 @@
 // YAxisLabels.jsx
-import React from 'react';
 import { Html } from '@react-three/drei';
 
+
+/// Y-Axis Labels for Market Graphs
 const YAxisLabels = ({ yStarting, minPrice, maxPrice, yScale, graphCenter }) => {
   const steps = 5;
   const range = maxPrice - minPrice;

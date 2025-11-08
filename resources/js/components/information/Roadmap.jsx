@@ -5,8 +5,8 @@ import { RootStoreContext } from "@/stores/RootStore";
 import MainLayout from "@/MainLayout";
 import { Head } from "@inertiajs/react";
 import { usePage } from "@inertiajs/react";
-
-
+import Roadmap3D from "@/components/visuals/Roadmap3D";
+import UniverseBackdrop from "@/components/visuals/UniverseBackdrop";
 
 const Roadmap = observer(() => {
 
@@ -18,17 +18,11 @@ const Roadmap = observer(() => {
 
     return (
         <>
-            <Head title="Roadmap" />
-            <section className="hero">
-                <div className="hero__content">
-                    <h1 className="hero__title">Roadmap</h1>
-                    <p className="hero__subtitle">Welcome to the Roadmap Page</p>
-                    <p className="hero__description">
-                        Here you can find our planned features and updates.
-                    </p>
-                </div>
-            </section>
-        </>
+               <Head title="Roadmap" />
+                    <UniverseBackdrop mode="roadmap">
+                        <Roadmap3D />
+                    </UniverseBackdrop>
+                    </>
     );
 }
 ); 

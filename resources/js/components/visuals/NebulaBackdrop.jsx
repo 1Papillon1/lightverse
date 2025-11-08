@@ -14,7 +14,7 @@ export default function NebulaBackdrop({ rotate = false }) {
   });
 
   const material = useMemo(() => {
-    const size = 2048;
+    const size = 4048;
     const canvas = document.createElement("canvas");
     canvas.width = canvas.height = size;
     const ctx = canvas.getContext("2d");

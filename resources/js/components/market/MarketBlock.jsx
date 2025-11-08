@@ -1,4 +1,5 @@
-import React, {
+// MarketBlock.jsx
+import {
   forwardRef,
   useEffect,
   useRef,
@@ -25,14 +26,14 @@ export const generateColor = (index) => {
 };
 
 export const MarketBlock = forwardRef(
-  ({ market, position, color, onClick, pageAnimating, delay = 0 }, ref) => {
+  ({ market, position, color, onClick, pageAnimating, delay = 0, scale = 1 }, ref) => {
     const groupRef = useRef();
     const meshRef = useRef();
     const [hovered, setHovered] = useState(false);
 
     useImperativeHandle(ref, () => groupRef.current);
 
-    // Glow on hover
+  
     useEffect(() => {
       if (!meshRef.current) return;
       gsap.to(meshRef.current.material, {
@@ -41,7 +42,7 @@ export const MarketBlock = forwardRef(
       });
     }, [hovered]);
 
-    // Plasma animation for block + labels
+   
     useEffect(() => {
       if (!meshRef.current) return;
 
@@ -111,13 +112,13 @@ export const MarketBlock = forwardRef(
 
         labelEls.forEach((label) => {
           const origPos = label.userData?.origPos ?? label.position.clone();
-          label.userData.origPos = origPos; // save original position
+          label.userData.origPos = origPos; 
 
-          // Start from center + scale 0
+      
           label.position.set(0, 0, 0);
           label.scale.set(0, 0, 0);
 
-          // Animate back to original position & full scale
+ 
           gsap.to(label.position, {
             x: origPos.x,
             y: origPos.y,
@@ -154,7 +155,8 @@ export const MarketBlock = forwardRef(
 
     const TwoLines = ({ lines, position, rotation }) => (
       <group position={position} rotation={rotation}>
-        <Text
+        <Text 
+        frustumCulled={false}      
           position={[0, 0.05, 0]}
           fontSize={0.05}
           color="white"
@@ -167,6 +169,7 @@ export const MarketBlock = forwardRef(
           {lines[0]}
         </Text>
         <Text
+        frustumCulled={false}
           position={[0, -0.05, 0]}
           fontSize={0.05}
           color="white"
@@ -197,39 +200,40 @@ export const MarketBlock = forwardRef(
       q.percent_from_price_ath?.toFixed(2) + "%" ?? "N/A";
 
     return (
-      <group ref={groupRef} position={position}>
-        <RoundedBox
-          args={[blockSize, blockSize, blockSize]}
-          radius={0.12}
-          smoothness={4}
-          ref={meshRef}
-          castShadow
-          onPointerOver={() => {
-            setHovered(true);
-            document.body.style.cursor = "pointer";
-          }}
-          onPointerOut={() => {
-            setHovered(false);
-            document.body.style.cursor = "default";
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-            onClick(groupRef.current, position, market);
-          }}
-        >
-          <meshPhysicalMaterial
-            color={color}
-            roughness={hovered ? 0.1 : 0.3}
-            metalness={0.2}
-            clearcoat={1}
-            clearcoatRoughness={0.15}
-            sheen={1}
-            emissive={new THREE.Color(color)}
-            emissiveIntensity={hovered ? 0.8 : 0.3}
-            transparent
-            opacity={1}
-          />
-        </RoundedBox>
+      <group ref={groupRef} position={position} scale={[scale, scale, scale]}>
+        
+         <RoundedBox
+    args={[blockSize, blockSize, blockSize]}
+    radius={0.12}
+    smoothness={4}
+    ref={meshRef}
+    castShadow
+    onPointerOver={() => {
+      setHovered(true);
+      document.body.style.cursor = "pointer";
+    }}
+    onPointerOut={() => {
+      setHovered(false);
+      document.body.style.cursor = "default";
+    }}
+    onClick={(e) => {
+      e.stopPropagation();
+      onClick(groupRef.current, position, market);
+    }}
+  >
+    <meshPhysicalMaterial
+      color={color}
+      roughness={0.4}
+      metalness={0.6}
+      clearcoat={1}
+      clearcoatRoughness={0.1}
+      emissive={new THREE.Color(color)}
+      emissiveIntensity={hovered ? 1.2 : 0.6}
+      transparent
+      opacity={1}
+      toneMapped={false}  
+    />
+  </RoundedBox>
 
         {/* Labels */}
         <TwoLines

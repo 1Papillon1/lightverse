@@ -7,7 +7,7 @@ const LoadingScreen = observer(() => {
     return (
         <div className="overlay overlay--loader">
             <div className="overlay__loader">
-                <span className="overlay__loader-text">Loading...</span>
+            <span className="overlay__title">Loading.....</span>
             </div>
         </div>
     )

@@ -5,7 +5,11 @@
 .icon {
     width: 32px;
     height: 32px;
-    filter: invert(40%) sepia(10%) saturate(0%) hue-rotate(287deg) brightness(70%) contrast(70%) drop-shadow(0 0 2px rgba(255, 255, 255, 0.13));
+
+
+    &--filter {
+        filter: invert(40%) sepia(10%) saturate(0%) hue-rotate(287deg) brightness(70%) contrast(70%) drop-shadow(0 0 2px rgba(255, 255, 255, 0.13));
+    }
 
     &--large {
         width: 48px;

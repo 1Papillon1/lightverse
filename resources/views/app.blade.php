@@ -20,7 +20,7 @@
         {{-- Inline style to set the HTML background color based on our theme in app.css --}}
         <style>
             html {
-                background-color: oklch(1 0 0);
+                background-color:  oklch(0.145 0 0);
             }
 
             html.dark {
@@ -31,7 +31,7 @@
             #preload-screen {
                 position: fixed;
                 inset: 0;
-                background: #09041a;
+                 background: rgba(9, 4, 26, 0.11);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -43,6 +43,16 @@
                 animation: preloadPulse 2s infinite ease-in-out;
                 text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
                 transition: opacity 0.3s ease-in-out;
+            }
+
+            #preload-title {
+                 font-size: 2.5rem;
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                    color: #fff;
+                    text-shadow: 0px 0px 12px #8f00ff, 4px 4px 18px #9000ffa2;
+                    letter-spacing: 2px;
+                    animation: pulse 2s infinite;
             }
 
             @keyframes preloadPulse {
@@ -66,7 +76,11 @@
     </head>
     <body class="font-sans antialiased">
         {{-- ✅ Preload screen before React app is mounted --}}
-        <div id="preload-screen">Loading...</div>
+        <div id="preload-screen">
+            <span id="preload-title">
+                Loading...
+            </span>
+        </div>
 
         {{-- ✅ React / Inertia app mount point --}}
         @inertia

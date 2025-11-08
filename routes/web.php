@@ -3,7 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Http;
+
 
 
 
@@ -16,19 +18,28 @@ Route::get('/test-api', function () {
 
 // Sitemap ruta
 Route::get('/sitemap.xml', function () {
+    // List your important routes here
     $urls = [
         URL::to('/'),
         URL::to('/dashboard'),
         URL::to('/wallet'),
+        URL::to('/wallet/view'),
+        URL::to('/wallet/connect'),
         URL::to('/ai'),
         URL::to('/markets'),
-        URL::to('/roadmap'),
         URL::to('/contracts'),
+        URL::to('/roadmap'),
+        URL::to('/watchlist'),
     ];
 
-    $xmlContent = view('sitemap', compact('urls'));
+    // Add dynamic markets (optional)
+    $symbols = ['BTC', 'ETH', 'AVAX', 'SOL']; // Example
+    foreach ($symbols as $symbol) {
+        $urls[] = URL::to("/markets/{$symbol}");
+    }
 
-    return Response::make($xmlContent, 200)
+    return response()
+        ->view('sitemap', compact('urls'))
         ->header('Content-Type', 'application/xml');
 });
 
@@ -46,30 +57,45 @@ Route::post('/register', [AuthController::class, 'register']);
 
 // Dashboard (kao /dashboard)
 // Only one dashboard route
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->name('dashboard');
+Route::prefix('dashboard')->group(function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/{system}', [DashboardController::class, 'system'])->name('dashboard.system');
+    Route::get('/{system}/{node}', [DashboardController::class, 'node'])->name('dashboard.node');
+});
 
 // Redirect "/" to "/dashboard"
 Route::get('/', function () {
     return redirect()->route('dashboard');
 });
 
-// Markets lista (dropdown stavka) — ali renderira isti Dashboard
-Route::get('/markets', function () {
-    return Inertia::render('Markets', [
-        'mode' => 'markets',
-    ]);
-})->name('markets');
+// 🪐 MARKETS STAR SYSTEM
+Route::prefix('markets')->group(function () {
+    // System center (the star itself — when you zoom into it)
+    Route::get('/', fn() => Inertia::render('Markets', [
+        'mode' => 'system',
+    ]))->name('markets.system');
 
-Route::get('/markets/{symbol}', function ($symbol) {
-    return Inertia::render('Markets', [
-        'mode' => 'markets',
-    ], [
-        'symbol' => $symbol,
-    ]);
-})->name('markets.symbol');
+    // Planets (subroutes of the Markets system)
+    Route::get('/overview', fn() => Inertia::render('Markets', [
+        'mode' => 'overview',
+    ]))->name('markets.overview');
 
+    Route::get('/compare', fn() => Inertia::render('Markets', [
+        'mode' => 'compare',
+    ]))->name('markets.compare');
+
+    Route::get('/watchlist', fn() => Inertia::render('Markets', [
+        'mode' => 'watchlist',
+    ]))->name('markets.watchlist');
+
+    // Deep-level detail (specific token planet)
+    Route::get('/token/{symbol}', function ($symbol) {
+        return Inertia::render('Markets', [
+            'mode' => 'detail',
+            'symbol' => $symbol,
+        ]);
+    })->name('markets.token');
+});
 
 
 // Contracts
@@ -88,20 +114,44 @@ Route::get('/ai', function () {
 
 
 
-// Roadmap (dropdown stavka) / Overview
-    /* Route::get('/about', function () {
+// 🪐 OVERVIEW STAR SYSTEM
+Route::prefix('overview')->group(function () {
+    // Star system center — when you zoom into the Overview star
+    Route::get('/', function () {
+        return Inertia::render('Overview', [
+            'mode' => 'system', // Default planet view
+        ]);
+    })->name('overview.system');
+
+    // Planet 1 — About
+    Route::get('/about', function () {
         return Inertia::render('Overview', [
             'mode' => 'about',
         ]);
-    })->name('about'); */
+    })->name('overview.about');
 
-    // roadmap opens about
+    // Planet 2 — Roadmap
     Route::get('/roadmap', function () {
         return Inertia::render('Overview', [
-            'mode' => 'about',
+            'mode' => 'roadmap',
         ]);
-    })->name('about');
-// Roadmap (dropdown stavka) / Overview
+    })->name('overview.roadmap');
+
+    // Planet 3 — News
+    Route::get('/news', function () {
+        return Inertia::render('Overview', [
+            'mode' => 'news',
+        ]);
+    })->name('overview.news');
+
+    // Planet 4 — Social
+    Route::get('/social', function () {
+        return Inertia::render('Overview', [
+            'mode' => 'social',
+        ]);
+    })->name('overview.social');
+});
+
 
 
 

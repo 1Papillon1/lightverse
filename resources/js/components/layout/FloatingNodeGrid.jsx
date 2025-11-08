@@ -1,38 +1,79 @@
 // FloatingNodeGrid.jsx
 import FloatingNode from "@/components/visuals/FloatingNode";
+import { useContext } from "react";
+import { RootStoreContext } from "@/stores/RootStore";
+import { useLoader } from "@react-three/fiber";
+import { TextureLoader } from "three";
+import { Inertia } from "@inertiajs/inertia";
 
-const nodeData = [
-  { type: "wallet", name: "Wallet", id: "wallet", route: "/wallet" },
-  { type: "market", name: "Markets", id: "market", route: "/markets" },
-  { type: "contract", name: "Contracts", id: "contract", route: "/contracts" },
-  { type: "roadmap", name: "Roadmap", id: "roadmap", route: "/roadmap" },
-  { type: "ai", name: "Wzkr AI", id: "ai", route: "/ai" }
-];
+/// 🌌 Systems + Nodes
+const systems = {
+  galaxy: [
+    { id: "wallet", name: "Wallet", route: "/wallet" },
+    { id: "markets", name: "Markets", route: "/markets" },
+    { id: "contracts", name: "Contracts", route: "/contracts" },
+    { id: "overview", name: "Overview", route: "/overview" },
+    { id: "ai", name: "Wzkr AI", route: "/ai" },
+  ],
+  markets: [
+    { id: "overview", name: "Overview", route: "/markets/overview" },
+    { id: "compare", name: "Compare", route: "/markets/compare" },
+    { id: "watchlist", name: "Watchlist", route: "/markets/watchlist" },
+  ],
+  overview: [
+    { id: "about", name: "About", route: "/overview/about" },
+    { id: "roadmap", name: "Roadmap", route: "/overview/roadmap" },
+    { id: "news", name: "News", route: "/overview/news" },
+    { id: "social", name: "Social", route: "/overview/social" },
+  ],
+};
 
-export default function FloatingNodeGrid({ onSelect, onNodeHover }) {
+export default function FloatingNodeGrid({
+  activeSystem = "galaxy",
+  onSelect,
+  onNodeHover,
+}) {
+  const rootStore = useContext(RootStoreContext);
+  const universeStore = rootStore.universeStore;
+
+
+  const textures = {
+    wallet: useLoader(TextureLoader, "/textures/wallet_node_4k.jpg"),
+    markets: useLoader(TextureLoader, "/textures/market_node_4k.jpg"),
+    contracts: useLoader(TextureLoader, "/textures/contract_node_4k.jpg"),
+    overview: useLoader(TextureLoader, "/textures/roadmap_node_4k.jpg"),
+    ai: useLoader(TextureLoader, "/textures/ai_node_4k.jpg"),
+  };
+
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-  const radius = isMobile ? 4.3 : 7.5;
+  const radius = isMobile ? 4.3 : 15.5;
   const verticalScale = isMobile ? 0.4 : 2.4;
 
-  return nodeData.map((node, i) => {
-    const angle = (i / nodeData.length) * Math.PI * 2;
-    const x = Math.cos(angle * 0.91) * radius * 1.45;
-    const z = Math.sin(angle * 0.9) * radius;
-    const y = Math.sin(i * 0.1) * verticalScale * 0.8;
+  const nodeSet = systems[activeSystem] || systems.galaxy;
+  const systemTexture = textures[activeSystem] || textures.markets;
+
+  return nodeSet.map((node, i) => {
+    const angle = (i / nodeSet.length) * Math.PI * 2;
+    const x = Math.cos(angle * 0.93) * radius * 1.45;
+    const z = Math.sin(angle * 0.95) * radius;
+    const y = Math.sin(i * 1.1) * verticalScale * 0.9;
 
     return (
       <FloatingNode
         key={node.id}
-        type={node.type}
-        position={[x * 0.7, y * 3.7, z]}
+        type={node.id}
+        position={[x * 0.7, y * 3.9, z]}
+        texture={systemTexture}
         onClick={() => {
-          onSelect?.(node.id, [x * 0.7, y * 3.7, z], node.route); 
-          
-   
-          if (node.id === "ai") {
          
-            rootStore.tutorialStore.completeTutorialOnNodeClick();
-          }
+          universeStore.setActiveSystem({ id: activeSystem, pos: [x, y, z] });
+          universeStore.setZoomLevel("node");
+
+      
+          Inertia.visit(node.route, {
+            preserveState: true,
+            preserveScroll: true,
+          });
         }}
         onHover={(info) =>
           onNodeHover?.(info ? { ...info, label: node.name } : null)

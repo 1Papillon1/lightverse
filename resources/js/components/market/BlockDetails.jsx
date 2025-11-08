@@ -7,7 +7,7 @@ import { RootStoreContext } from "@/stores/RootStore";
 import { runInAction } from "mobx";
 import BlockGraph  from "./BlockGraph";
 
-
+/// Market Block Details View
 const BlockDetails = observer(({ symbol }) => {
   const { marketStore: store } = useContext(RootStoreContext);
 
@@ -154,7 +154,7 @@ const BlockDetails = observer(({ symbol }) => {
   camera={{ position: [0, 0, 6], fov: 110 }}
   style={{ width: "100%", height: "80%" }}
   className="canvas--graph"
-  onWheel={handleWheel} // dodano
+  onWheel={handleWheel} 
    onCreated={({ camera }) => {
     cameraRef.current = camera;
   }}
@@ -162,17 +162,17 @@ const BlockDetails = observer(({ symbol }) => {
   <ambientLight intensity={0.3} />
   <directionalLight position={[0, 3, 5]} intensity={0.8} />
 
-  {/* Dodaj OrbitControls za pan-anje */}
+ 
   <OrbitControls
-    enableZoom={true}      // isključi zoom ako želiš
-    enableRotate={false}    // isključi rotaciju
-    enablePan={true}        // uključi pan-anje
-    panSpeed={1}            // brzina pomicanja mišem
+    enableZoom={true}      
+    enableRotate={false}   
+    enablePan={true}        
+    panSpeed={1}           
     minDistance={2.8}
     maxDistance={3}
     screenSpacePanning={true}
-    // ograniči pan samo horizontalno, spreči vertikalno: 
-    // onPan i event handlers bila bi robusnija, ali ovo je OK za osnovu
+ 
+ 
   />
 
   <BlockGraph symbol={symbol} zoom={3} />

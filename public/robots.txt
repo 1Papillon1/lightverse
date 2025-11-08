@@ -1,4 +1,3 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://crypto.fitapp.cloud/sitemap.xml
+User-agent:*
+Disalow:/wp-admin/
+Sitemap:https://cchain.fitapp.cloud/?sitemap.xml

@@ -1,0 +1,73 @@
+/* glitch.scss */
+
+.glitch {
+  position: relative;
+  color: #00ffff;
+  text-shadow: 0 0 5px #00ffff, 0 0 15px #ff00ff;
+  font-family: 'Orbitron', monospace;
+  letter-spacing: 1px;
+}
+
+/* When active, trigger the flicker and distortions */
+.glitch.active {
+  animation: glitch-flicker 0.3s linear;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  width: 100%;
+  background: transparent;
+  overflow: hidden;
+  color: inherit;
+  opacity: 0; /* default invisible until active */
+}
+
+/* Only animate pseudo elements when glitchActive = true */
+.glitch.active::before,
+.glitch.active::after {
+  opacity: 1;
+}
+
+.glitch.active::before {
+  left: 2px;
+  text-shadow: -2px 0 magenta;
+  animation: glitch-top 0.3s ease-in-out;
+}
+
+.glitch.active::after {
+  left: -2px;
+  text-shadow: -2px 0 cyan;
+  animation: glitch-bottom 0.3s ease-in-out;
+}
+
+/* Flicker effect */
+@keyframes glitch-flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    opacity: 1;
+  }
+  20%, 24%, 55% {
+    opacity: 0.2;
+  }
+}
+
+/* Random distortions */
+@keyframes glitch-top {
+  0% { clip-path: inset(0 0 80% 0); }
+  20% { clip-path: inset(0 0 30% 0); transform: translate(-2px, -2px); }
+  40% { clip-path: inset(0 0 50% 0); transform: translate(2px, 2px); }
+  60% { clip-path: inset(0 0 60% 0); transform: translate(-1px, 1px); }
+  80% { clip-path: inset(0 0 40% 0); transform: translate(1px, -1px); }
+  100% { clip-path: inset(0 0 80% 0); transform: none; }
+}
+
+@keyframes glitch-bottom {
+  0% { clip-path: inset(80% 0 0 0); }
+  20% { clip-path: inset(30% 0 0 0); transform: translate(2px, 2px); }
+  40% { clip-path: inset(50% 0 0 0); transform: translate(-2px, -1px); }
+  60% { clip-path: inset(60% 0 0 0); transform: translate(1px, -1px); }
+  80% { clip-path: inset(40% 0 0 0); transform: translate(-1px, 1px); }
+  100% { clip-path: inset(80% 0 0 0); transform: none; }
+}

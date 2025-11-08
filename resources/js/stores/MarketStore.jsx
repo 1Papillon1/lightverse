@@ -34,6 +34,7 @@ class MarketStore {
   // User interaction
   comparisonMode = false;
   comparedMarkets = []; 
+  baseMarket = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -72,8 +73,8 @@ class MarketStore {
           ? "http://127.0.0.1:8000/"
           : "https://cchain.fitapp.cloud";
 
-     /* const response = await fetch(`${baseUrl}/test-api`);   */   
-    const response = await fetch(`http://127.0.0.1:8000/test-api`);    
+   const response = await fetch(`${baseUrl}/test-api`);  
+  /*  const response = await fetch(`http://127.0.0.1:8000/test-api`);    */ 
  
        const data = await response.json();
 
@@ -118,12 +119,14 @@ class MarketStore {
   // Actions: pagination
   nextPage() {
     if (this.currentPage < this.totalPages) {
+      this.selectedMarket = null;
       this.currentPage += 1;
     }
   }
 
   prevPage() {
     if (this.currentPage > 1) {
+      this.selectedMarket = null; 
       this.currentPage -= 1;
     }
   }
@@ -272,6 +275,13 @@ setPriceChangePeriod(period) {
 
   removeComparedMarket(marketId) {
     this.comparedMarkets = this.comparedMarkets.filter(m => m.id !== marketId);
+    if (this.comparedMarkets.length === 0) {
+      this.comparisonMode = false;
+    }
+  }
+
+  setAsBaseMarket(market) {
+    this.baseMarket = market;
   }
 
 

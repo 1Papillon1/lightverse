@@ -1,26 +1,29 @@
 // ReturnToOrbitButton.jsx
-import React from "react";
-import { FaRocket } from "react-icons/fa";
-import { Inertia } from "@inertiajs/inertia";
+import React, { useContext } from "react";
+import { observer } from "mobx-react-lite";
+import { RootStoreContext } from "@/stores/RootStore";
 
+const ReturnToOrbitButton = observer(({ type }) => {
+  const { universeStore } = useContext(RootStoreContext);
 
-export default function ReturnToOrbitButton() {
+  const handleReturn = () => {
+    if (type === "system") {
+      universeStore.returnToSystemOrbit();
+    } else if (type === "galaxy") {
+      universeStore.returnToGalaxy();
+    }
+  };
 
-
-const handleReturn = () => {
-    
-    Inertia.visit("/dashboard", {
-      preserveState: true, 
-      preserveScroll: true, 
-    });
-    };
+  const label =
+    type === "galaxy"
+      ? "🚀 Return to Galactic View"
+      : "🪐 Return to System Orbit";
 
   return (
-    <div className="asidebar">
-      <button className="asidebar__button" onClick={() => handleReturn()}>
-        <FaRocket style={{ marginRight: "0.5rem" }} />
-        Back to Space
-      </button>
-    </div>
+    <button className="asidebar__button" onClick={handleReturn}>
+      {label}
+    </button>
   );
-}
+});
+
+export default ReturnToOrbitButton;

@@ -7,23 +7,14 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(9, 4, 26, 0.11);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
   z-index: 20;
   pointer-events: none;
+  background: rgba(9, 4, 26, 0.11);
   transition: opacity 0.3s ease-in-out;
-
-  &--tutorial {
-    animation: overlay-fade-in 0.4s ease;
-    padding: 1rem;
-  }
-
-  &--loader {
-    z-index: 100;
-  }
 
   &__content {
     pointer-events: auto;
@@ -34,6 +25,16 @@
     font-family: 'Orbitron', sans-serif;
     color: #fff;
     text-shadow: 0 0 8px #00ffff;
+  }
+
+  &__title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #fff;
+    text-shadow: 0px 0px 12px #8f00ff, 4px 4px 18px #9000ffa2;
+    letter-spacing: 2px;
+    animation: pulse 2s infinite;
   }
 
   &__text {
@@ -68,16 +69,19 @@
     background: linear-gradient(90deg, #00ffff, #8f00ff);
     color: #fff;
     border: none;
+    width: 90px;
     padding: 0.6rem 1.5rem;
     font-weight: bold;
-    font-size: 0.85rem;
+    font-size: 14px;
+    justify-content: center;
+    text-align: center;
     text-transform: uppercase;
     border-radius: 8px;
     cursor: pointer;
     box-shadow: 0 0 10px #00ffff80;
     transition: all 0.25s ease;
 
-    &--overlay:hover {
+    &:hover {
       transform: scale(1.08);
       box-shadow: 0 0 14px #0ff, 0 0 24px #8f00ff;
     }
@@ -88,74 +92,75 @@
     }
   }
 
-    &--menu {
-      justify-content: center; // Center vertically
-      background: rgba(9, 4, 26, 0.60);
-      animation: overlay-fade-in 0.5s ease;
-    }
-
-    &--comingsoon {
-    justify-content: center; // Center vertically
-    background: rgba(9, 4, 26, 0.30); 
+  // 🔹 Base modifier styles
+  &--centered {
+    justify-content: center;
     animation: overlay-fade-in 0.5s ease;
+  }
 
+  &--blurred {
     .overlay__content {
       background: rgba(0, 0, 0, 0.45);
       padding: 2rem 2.5rem;
       border-radius: 16px;
       box-shadow: 0 0 25px #00ffff55, 0 0 45px #8f00ff44;
       backdrop-filter: blur(8px);
+    }
+  }
 
-      .overlay__title {
-        font-size: 2.2rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        color: #fff;
-        text-shadow: 0 0 12px #8f00ff, 0 0 18px #00ffff;
-        letter-spacing: 2px;
-      }
+  // 🔹 Specific cases
+  &--tutorial {
+    animation: overlay-fade-in 0.4s ease;
+    padding: 1rem;
+  }
 
-      .overlay__text {
-        font-size: 1.25rem;
-        margin-bottom: 0.8rem;
-        color: #e0e0e0;
-      }
+  &--loader {
+    @extend .overlay--centered;
+    z-index: 100;
+  }
 
-      .overlay__instruction {
-        font-size: 1rem;
-        font-style: italic;
-        opacity: 0.9;
-        color: #00ffff;
-        text-shadow: 0 0 8px #00ffff88;
-      }
+  &--menu {
+    @extend .overlay--centered;
+    background: rgba(9, 4, 26, 0.6);
+  }
+
+  &--comingsoon {
+    @extend .overlay--centered;
+    @extend .overlay--blurred;
+    background: rgba(9, 4, 26, 0.3);
+
+    .overlay__title {
+      font-size: 2.2rem;
+      text-shadow: 0 0 12px #8f00ff, 0 0 18px #00ffff;
+    }
+
+    .overlay__text {
+      font-size: 1.25rem;
+      color: #e0e0e0;
+    }
+
+    .overlay__instruction {
+      font-size: 1rem;
+      opacity: 0.9;
+      text-shadow: 0 0 8px #00ffff88;
     }
   }
 
   &--auth {
-    justify-content: center; 
-    background: rgba(9, 4, 26, 0.30); 
-    animation: overlay-fade-in 0.5s ease;
+    @extend .overlay--centered;
+    @extend .overlay--blurred;
+    background: rgba(9, 4, 26, 0.3);
 
     .overlay__content {
-      background: rgba(0, 0, 0, 0.55);
-      padding: 2rem 2.5rem;
-      border-radius: 16px;
-      box-shadow: 0 0 25px #00ffff55, 0 0 45px #8f00ff44;
-      backdrop-filter: blur(8px);
-      width: 100%;
       max-width: 420px;
     }
 
     .overlay__title {
       font-size: 1.8rem;
-      font-weight: 700;
       margin-bottom: 1.5rem;
-      color: #fff;
       text-shadow: 0 0 10px #8f00ff, 0 0 15px #00ffff;
-      letter-spacing: 1px;
     }
   }
-
 }
 
 // Animations

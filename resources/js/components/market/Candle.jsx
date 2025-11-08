@@ -3,6 +3,8 @@ import React from 'react';
 import { Html } from '@react-three/drei';
 import { formatTimeLabel } from '../../utils/dateUtil';
 
+
+/// Candlestick (+/- price change) representation for market charts
 const Candle = ({ x, open, high, low, close, time, timeY, pctChange, interval }) => {
   const wickHeight = high - low;
   const wickCenter = (high + low) / 2;
@@ -18,19 +20,19 @@ const Candle = ({ x, open, high, low, close, time, timeY, pctChange, interval })
 
   return (
     <group position={[x, 0, 0]}>
-      {/* wick */}
+      
       <mesh position={[0, wickCenter, 0]}>
         <cylinderGeometry args={[0.02, 0.02, wickHeight, 6]} />
         <meshBasicMaterial color={color} />
       </mesh>
 
-      {/* body */}
+    
       <mesh position={[0, bodyCenter, 0]}>
         <boxGeometry args={[0.1, bodyHeight, 0.1]} />
         <meshBasicMaterial color={color} />
       </mesh>
 
-      {/* % label */}
+
       <Html
         position={[0, topY, 0]}
         style={{
@@ -44,7 +46,7 @@ const Candle = ({ x, open, high, low, close, time, timeY, pctChange, interval })
         <div>{pctText}</div>
       </Html>
 
-      {/* time label */}
+   
       <Html
         position={[0, timeY, 0]}
         style={{

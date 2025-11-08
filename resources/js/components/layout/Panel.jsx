@@ -1,5 +1,4 @@
 // Panel.jsx
-
 import { useContext, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { RootStoreContext } from "@/stores/RootStore";
@@ -18,11 +17,9 @@ const Panel = observer(() => {
 
         const newCrypto = {
             name: document.querySelector('.panel__table input[type="text"]').value,
-            // get by id
             price: document.getElementById('price').value,
             value: document.getElementById('value').value
         }
-
         if (newCrypto.name && newCrypto.price && newCrypto.value) {
             rootStore.adminStore.addCrypto(newCrypto);
             document.getElementById('name').value = '';

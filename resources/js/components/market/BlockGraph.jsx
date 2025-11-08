@@ -12,7 +12,7 @@ const GRAPH_HEIGHT = 4;
 const HALF_HEIGHT = GRAPH_HEIGHT / 2;
 
 
-
+/// Market Block Graph view
 const BlockGraph = observer(({ zoom = 1 }) => {
   const { marketStore } = useContext(RootStoreContext);
   const raw = marketStore.chartData;
@@ -20,7 +20,7 @@ const BlockGraph = observer(({ zoom = 1 }) => {
 
   const data = raw.slice(-MAX_CANDLES);
 
-  // izračun min, max, raspon i centar
+
   const prices = data.flatMap(d => [d.high, d.low]);
   const maxPrice = Math.max(...prices);
   const minPrice = Math.min(...prices);

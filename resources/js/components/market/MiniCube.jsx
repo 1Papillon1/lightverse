@@ -1,8 +1,10 @@
 // MiniCube.jsx
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import gsap from 'gsap';
 
+
+/// Mini Cube animated explosion effect
 export const MiniCube = ({ position, origin, delay = 0, opacity }) => {
   const ref = useRef();
 

