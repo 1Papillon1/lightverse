@@ -9,43 +9,27 @@ export default function Terrain({ type = "token" }) {
   // 🌍 Map of main systems to textures
   const textureMap = {
     wallet: "/textures/wallet_node_4k.jpg",
-    token: "/textures/market_node_4k.jpg",
-    contract: "/textures/contract_node_4k.jpg",
-    roadmap: "/textures/roadmap_node_4k.jpg",
+    markets: "/textures/market_node_4k.jpg",
+    contracts: "/textures/contract_node_4k.jpg",
+    overview: "/textures/roadmap_node_4k.jpg",
     ai: "/textures/ai_node_4k.jpg",
-    overview: "/textures/roadmap_node_4k.jpg", // fallback for Overview system
+    token: "/textures/market_node_4k.jpg", // default/fallback
   };
 
-  // 🌐 Map subnodes → parent terrain
-  const fallbackMap = {
-    about: "overview",
-    roadmap: "overview",
-    news: "overview",
-    social: "overview",
+  // 🎨 Resolve URL
+  const textureURL = textureMap[type] || textureMap.token;
+  console.log("🪐 Terrain type:", type, "→ texture:", textureURL);
 
-    overview: "overview", // safe default
-    compare: "markets",
-    watchlist: "markets",
-  };
-
-  // 🧠 Resolve the correct texture type
-  const resolvedType = useMemo(() => {
-    // If this is a subnode, inherit its parent terrain type
-    if (fallbackMap[type]) return fallbackMap[type];
-    // Otherwise, use type directly
-    return type;
-  }, [type]);
-
-  // 🎨 Load appropriate texture
-  const textureURL = textureMap[resolvedType] || textureMap.token;
+  // 🎨 Load texture
   const texture = useLoader(TextureLoader, textureURL);
 
   useEffect(() => {
+    if (!texture) return;
     texture.wrapS = texture.wrapT = RepeatWrapping;
     texture.repeat.set(16, 16);
   }, [texture]);
 
-  // 📏 Adjust terrain Y-position & rotation per viewport
+  // 📏 Position + rotation
   const positionY = useMemo(() => {
     if (viewport.width >= 20) return -22;
     if (viewport.width >= 15) return -20;
@@ -54,13 +38,8 @@ export default function Terrain({ type = "token" }) {
   }, [viewport.width]);
 
   const rotationX = useMemo(() => {
-    if (resolvedType === "wallet") return 2;
-    return 1.6;
-  }, [resolvedType]);
-
-  const argsScale = useMemo(() => {
-    return [140, 140];
-  }, [resolvedType]);
+    return type === "wallet" ? 2 : 1.6;
+  }, [type]);
 
   return (
     <mesh
@@ -70,9 +49,8 @@ export default function Terrain({ type = "token" }) {
       scale={[12, 6, 1]}
       receiveShadow
     >
-      <planeGeometry args={argsScale} />
+      <planeGeometry args={[140, 140]} />
       <meshStandardMaterial map={texture} />
     </mesh>
   );
 }
-

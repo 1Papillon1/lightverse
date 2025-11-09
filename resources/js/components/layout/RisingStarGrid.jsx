@@ -1,4 +1,5 @@
-import { useContext, useState, useEffect } from "react";
+// RisingStarGrid.jsx
+import { useContext } from "react";
 import RisingStar from "@/components/visuals/RisingStar";
 import { RootStoreContext } from "@/stores/RootStore";
 
@@ -10,18 +11,9 @@ const starConfigs = [
   { id: "ai", label: "Wzkr AI", theme: "lightbrown", position: [25, 15, -60] },
 ];
 
+/// Starfield - representing main Systems
 export default function RisingStarGrid({ onSelect }) {
   const { universeStore } = useContext(RootStoreContext);
-  const [activeStar, setActiveStar] = useState(null);
-
-  // 🧠 Auto-close on outside click (left or right)
-  useEffect(() => {
-    const close = (e) => {
-      if (e.button === 0 || e.button === 2) setActiveStar(null);
-    };
-    window.addEventListener("mousedown", close);
-    return () => window.removeEventListener("mousedown", close);
-  }, []);
 
   return (
     <>
@@ -31,17 +23,15 @@ export default function RisingStarGrid({ onSelect }) {
             position={star.position}
             theme={star.theme}
             label={star.label}
-            systemId={star.id}
-            isActive={activeStar === star.id}
-            onToggleContext={() =>
-              setActiveStar((prev) => (prev === star.id ? null : star.id))
-            }
           />
+
           <mesh
             position={star.position}
             onClick={() => {
+  
               universeStore.setActiveSystem({ id: star.id, pos: star.position });
               universeStore.setZoomLevel("system");
+
               onSelect?.(star.id, star.position);
             }}
           >

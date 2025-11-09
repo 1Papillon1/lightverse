@@ -5,28 +5,7 @@ import { RootStoreContext } from "@/stores/RootStore";
 import { useLoader } from "@react-three/fiber";
 import { TextureLoader } from "three";
 import { Inertia } from "@inertiajs/inertia";
-
-/// 🌌 Systems + Nodes
-const systems = {
-  galaxy: [
-    { id: "wallet", name: "Wallet", route: "/wallet" },
-    { id: "markets", name: "Markets", route: "/markets" },
-    { id: "contracts", name: "Contracts", route: "/contracts" },
-    { id: "overview", name: "Overview", route: "/overview" },
-    { id: "ai", name: "Wzkr AI", route: "/ai" },
-  ],
-  markets: [
-    { id: "overview", name: "Overview", route: "/markets/overview" },
-    { id: "compare", name: "Compare", route: "/markets/compare" },
-    { id: "watchlist", name: "Watchlist", route: "/markets/watchlist" },
-  ],
-  overview: [
-    { id: "about", name: "About", route: "/overview/about" },
-    { id: "roadmap", name: "Roadmap", route: "/overview/roadmap" },
-    { id: "news", name: "News", route: "/overview/news" },
-    { id: "social", name: "Social", route: "/overview/social" },
-  ],
-};
+import { systems } from "@/config/systems";
 
 export default function FloatingNodeGrid({
   activeSystem = "galaxy",
