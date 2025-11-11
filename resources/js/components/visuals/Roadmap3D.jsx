@@ -1,5 +1,5 @@
-import React, { useRef, useState, useMemo } from "react";
-import { useFrame } from "@react-three/fiber";
+import React, { useRef, useState, useMemo, useEffect } from "react";
+import { useFrame, useLoader } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import { a, useSpring } from "@react-spring/three";
@@ -10,68 +10,76 @@ const Roadmap3D = ({ milestones = [] }) => {
   const [dragOffset, setDragOffset] = useState(0);
   const [active, setActive] = useState(null);
 
-  // Default milestones with more lore-rich descriptions and years
+  const textureUrl = "/textures/circle_texture.jpg";
+  const texture = useLoader(THREE.TextureLoader, textureUrl);
+
+  useEffect(() => {
+    if (texture) {
+      texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(1, 1);
+    }
+  }, [texture]);
+
+  // 🪐 2025–2028 Vision Roadmap
   const data = useMemo(
     () =>
       milestones.length
         ? milestones
         : [
             {
-              title: "Genesis",
-              year: "2023",
-              desc: "The conception of the Light Web protocol – the first spark of a decentralized 3D blockchain network born from the fusion of cryptography and virtual topology.",
+              title: "Genesis – The Spark",
+              year: "2025 • Phase 0",
+              desc: "Birth of the Light Web — conceptual spark of the decentralized 3D blockchain. Core architecture, protocol design, and universe topology defined.",
               y: 0,
             },
             {
-              title: "Awakening",
-              year: "2024",
-              desc: "Initial blockchain integration and light-node testnets deployed across early clusters. The awakening of the first autonomous node-entities.",
+              title: "Formation – Universe Systems",
+              year: "2025 • Phase 1",
+              desc: "Universe implementation begins. Laravel + React + Three.js foundation established. Stars, systems, and node mapping structure created.",
               y: 3,
             },
             {
-              title: "Expansion",
-              year: "2025",
-              desc: "Full-scale Light Web network expansion. Launch of immersive 3D universe interface, allowing traversal between functional blockchain planets.",
+              title: "Resonance – Node Environments",
+              year: "2025 • Phase 2",
+              desc: "Node scenes defined as 3D data planets. Each node visualizes live blockchain metrics, connecting functional blockchain layers in space.",
               y: 6,
             },
             {
-              title: "Convergence",
-              year: "2026",
-              desc: "Smart node contracts merge into the main protocol layer, enabling seamless cross-node data orchestration and planetary contract binding.",
+              title: "Fusion – Wallet & Market",
+              year: "2026 • Phase 3",
+              desc: "Wallet and market exchange nodes integrated. Real-time trading, blockchain data flow, and smart contract interactions in 3D space.",
               y: 9,
             },
             {
-              title: "Singularity",
-              year: "2027",
-              desc: "The AI Mesh awakens — Light Web achieves sentience-level adaptive routing, allowing AI-driven evolution of its digital universe.",
+              title: "Expansion – Outer Exchanges",
+              year: "2026 • Phase 4",
+              desc: "Acceptance of outer exchanges and multi-chain connectivity. External APIs visualized as orbiting stars; user-defined nodes introduced.",
               y: 12,
+            },
+            {
+              title: "Awareness – Wzkr AI",
+              year: "2027 • Phase 5",
+              desc: "The AI Navigator awakens — adaptive routing, predictive analytics, and guided navigation between nodes powered by Wzkr AI.",
+              y: 15,
+            },
+            {
+              title: "Convergence – Self-Organizing Network",
+              year: "2027 • Phase 6",
+              desc: "Nodes gain autonomy through on-chain governance. Cross-node coordination, user clusters, and self-balancing data flow established.",
+              y: 18,
+            },
+            {
+              title: "Singularity – Holographic Web",
+              year: "2028 • Phase 7",
+              desc: "The Light Web transcends screen-space — holographic 3D interfaces and AR/VR projection of live blockchain data achieved.",
+              y: 21,
             },
           ],
     [milestones]
   );
 
-  // Handle vertical drag for navigation
-  const handlePointerDown = (e) => {
-    setDragging(true);
-    setDragOffset(e.clientY);
-  };
 
-  const handlePointerUp = () => setDragging(false);
-
-  const handlePointerMove = (e) => {
-    if (dragging && groupRef.current) {
-      const delta = (e.clientY - dragOffset) * 0.01;
-      const nextY = THREE.MathUtils.clamp(
-        groupRef.current.position.y - delta,
-        -3,
-        3
-      );
-      groupRef.current.position.y = nextY;
-      setDragOffset(e.clientY);
-    }
-  };
-
-  // Smooth float motion
+  // 🌌 Gentle float motion
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
     if (groupRef.current && !dragging) {
@@ -82,33 +90,31 @@ const Roadmap3D = ({ milestones = [] }) => {
   return (
     <group
       ref={groupRef}
-      position={[0, 1.5, 20]} // pulled closer
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
-      onPointerMove={handlePointerMove}
+      position={[0, 2, 20]}
+     
     >
-      {/* Vertical beam */}
-      <mesh position={[0, 6, 0]}>
-        <cylinderGeometry args={[0.05, 0.05, 14, 16]} />
+      {/* Central beam */}
+      <mesh position={[0, 10.5, 0]}>
+        <cylinderGeometry args={[0.05, 0.05, 24, 16]} />
         <meshStandardMaterial
           emissive={new THREE.Color("#00ffff")}
-          emissiveIntensity={2.5}
+          emissiveIntensity={2.2}
           transparent
-          opacity={0.4}
+          opacity={0.35}
         />
       </mesh>
 
-      {/* Connecting arcs between milestones */}
+      {/* Interconnecting arcs */}
       {data.map((m, i) => {
         if (i === 0) return null;
         const prev = data[i - 1];
         const midY = (m.y + prev.y) / 2;
         const curve = new THREE.QuadraticBezierCurve3(
           new THREE.Vector3(0, prev.y, 0),
-          new THREE.Vector3(0.6, midY + 0.5, 0),
+          new THREE.Vector3(0.6, midY + 0.4, 0),
           new THREE.Vector3(0, m.y, 0)
         );
-        const points = curve.getPoints(20);
+        const points = curve.getPoints(24);
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
         return (
           <line key={`arc-${i}`}>
@@ -117,7 +123,7 @@ const Roadmap3D = ({ milestones = [] }) => {
               attach="material"
               color="#00ffff"
               transparent
-              opacity={0.3}
+              opacity={0.25}
             />
           </line>
         );
@@ -135,19 +141,20 @@ const Roadmap3D = ({ milestones = [] }) => {
           <a.group key={i} position={[0, m.y, 0]} scale={scale}>
             <mesh
               onClick={() => setActive(isActive ? null : i)}
-              onPointerOver={(e) => (e.stopPropagation(), (document.body.style.cursor = "pointer"))}
-              onPointerOut={(e) => (document.body.style.cursor = "auto")}
+              onPointerOver={(e) => (document.body.style.cursor = "pointer")}
+              onPointerOut={() => (document.body.style.cursor = "auto")}
             >
               <sphereGeometry args={[0.45, 32, 32]} />
               <meshStandardMaterial
-                emissive={isActive ? "#00ffff" : "#0077ff"}
+                map={texture}
+                emissive={isActive ? "#00ffff" : "#113344"}
                 emissiveIntensity={isActive ? 4 : 1.8}
-                color={isActive ? "#aaffff" : "#99ccff"}
+                color={isActive ? "#66ffff" : "#88ccff"}
               />
             </mesh>
 
-            {/* Year Label (Left) */}
-            <Html distanceFactor={9} position={[-2.5, 0.2, 0]} style={{ pointerEvents: "none" }}>
+            {/* Label Left (Year + Phase) */}
+            <Html distanceFactor={9} position={[-2, 0.2, 0]} style={{ pointerEvents: "none" }}>
               <div
                 style={{
                   color: "#00ffff",
@@ -155,46 +162,48 @@ const Roadmap3D = ({ milestones = [] }) => {
                   fontSize: "0.8rem",
                   textAlign: "right",
                   textShadow: "0 0 6px #00ffff",
+                  userSelect: "none",
+                  minWidth: "100px",
                 }}
               >
                 {m.year}
               </div>
             </Html>
 
-            {/* Floating Label (Right) */}
+            {/* Label Right (Title) */}
             <Html distanceFactor={9} position={[1, 0.2, 0]} style={{ pointerEvents: "none" }}>
               <div
                 style={{
                   color: "#b8eaff",
                   fontFamily: "Orbitron, sans-serif",
-                  fontSize: "0.8rem",
+                  fontSize: "0.85rem",
                   textShadow: "0 0 4px #00ffff",
                   userSelect: "none",
+                  minWidth: "160px",
                 }}
               >
                 {m.title}
               </div>
             </Html>
 
-            {/* Active Info Panel */}
+            {/* Active Info */}
             {isActive && (
-              <Html distanceFactor={8} position={[2, 0.5, 0]}>
+              <Html distanceFactor={8} position={[2.2, 0.6, 0]}>
                 <div
                   style={{
                     background: "rgba(0, 0, 0, 0.6)",
                     padding: "0.8rem 1rem",
                     borderRadius: "8px",
-                    width: "220px",
+                    width: "240px",
                     color: "#ccfaff",
                     fontFamily: "Rajdhani, sans-serif",
                     fontSize: "0.75rem",
                     border: "1px solid #00ffff",
-                    boxShadow: "0 0 10px #00ffff88",
-                    userSelect: "none",
+                    boxShadow: "0 0 12px #00ffff88",
                   }}
                 >
                   <strong style={{ color: "#00ffff" }}>{m.title}</strong>
-                  <p style={{ marginTop: "0.3rem" }}>{m.desc}</p>
+                  <p style={{ marginTop: "0.4rem" }}>{m.desc}</p>
                 </div>
               </Html>
             )}
