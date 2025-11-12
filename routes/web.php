@@ -45,19 +45,20 @@ Route::get('/sitemap.xml', function () {
 
 
 // Authentication routes
+Route::get('/login', fn () => Inertia::render('Authorization', ['mode' => 'login']))->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-Route::post('/logout',   [AuthController::class, 'logout'])->name('logout');
 
-Route::post('/register', [AuthController::class, 'register']);
+Route::get('/register', fn () => Inertia::render('Authorization', ['mode' => 'signup']))->name('register');
+Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 
 
- 
+
 
 
 // Dashboard (kao /dashboard)
 // Only one dashboard route
-Route::prefix('dashboard')->group(function () {
+Route::middleware('auth')->prefix('dashboard')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/{system}', [DashboardController::class, 'system'])->name('dashboard.system');
     Route::get('/{system}/{node}', [DashboardController::class, 'node'])->name('dashboard.node');
@@ -65,7 +66,9 @@ Route::prefix('dashboard')->group(function () {
 
 // Redirect "/" to "/dashboard"
 Route::get('/', function () {
-    return redirect()->route('dashboard');
+    return auth()->check()
+        ? redirect()->route('dashboard')
+        : redirect()->route('login');
 });
 
 // 🪐 MARKETS STAR SYSTEM
