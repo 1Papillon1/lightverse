@@ -16,6 +16,10 @@ Route::get('/test-api', function () {
     return $response->body(); // Ili ->json() da vidiš JSON odmah
 });
 
+Route::middleware('auth')->get('/logs', function () {
+    return redirect()->route('log-viewer.index');
+})->name('logs.index');
+
 // Sitemap ruta
 Route::get('/sitemap.xml', function () {
     // List your important routes here

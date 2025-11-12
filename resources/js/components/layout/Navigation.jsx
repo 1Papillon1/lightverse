@@ -17,6 +17,10 @@ const Navigation = observer(({ horizontal = false }) => {
   const [isDropdownActive, setIsDropdownActive] = useState(false);
 
   const toggleDropdown = () => setIsDropdownActive((prev) => !prev);
+  const handleLogout = () => {
+    setIsDropdownActive(false);
+    userStore.logout();
+  };
 
   return (
     <>
@@ -70,7 +74,7 @@ const Navigation = observer(({ horizontal = false }) => {
                     <li className="dropdown__item">
                       <button
                         className="dropdown__link"
-                        onClick={() => userStore.logout()}
+                        onClick={handleLogout}
                       >
                         Logout
                       </button>

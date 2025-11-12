@@ -1,5 +1,6 @@
 // UserStore.js
 import { makeAutoObservable } from "mobx";
+import { router } from "@inertiajs/react";
 
 class UserStore {
   rootStore;
@@ -46,8 +47,18 @@ class UserStore {
   }
 
   logout() {
-    this.user = null;
-    this.authorized = false;
+    router.post(
+      "/logout",
+      {},
+      {
+        preserveScroll: true,
+        onFinish: () => {
+          this.user = null;
+          this.authorized = false;
+          this.closeOverlay();
+        },
+      }
+    );
   }
 }
 

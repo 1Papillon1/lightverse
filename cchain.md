@@ -22,6 +22,12 @@ Updated: 2025-11-12
 - Added GET routes for `/login` and `/register` serving the `Authorization` Inertia page to resolve “Method Not Allowed” errors while keeping POST handlers for submission.
 - Ensured `AuthController` imports `App\Models\User` so registration persists new users.
 - Guarded `/dashboard` routes with the `auth` middleware and made `/` route send guests to `/login`, so unauthenticated visitors land on the login screen instead of a half-loaded dashboard scene.
+- Hooked the frontend logout action into Inertia’s `POST /logout` route so the server session actually terminates when the dropdown logout button is clicked.
+- Installed `opcodesio/log-viewer` (v3.21.1), published assets, and exposed an authenticated `/logs` shortcut to the package UI.
+- Dashboard controller now logs `dashboard.visit` events with JSON context (user, URL, IP, agent) whenever an authenticated user hits any dashboard view.
+- Auth controller now logs `auth.register`, `auth.login`, and `auth.logout` events with user/IP/User-Agent context for easier forensic tracking.
+- Published Clockwork assets and configuration (`config/clockwork.php`); `.env` enables continuous data collection so the profiler at `/clockwork` is ready in all environments.
+- Default `APP_URL` in `config/app.php` updated to `https://cchain.fitapp.cloud` to keep CLI-generated links consistent when `.env` is absent or misconfigured.
 
 ## Outstanding Work
 
