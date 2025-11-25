@@ -1,6 +1,7 @@
 // Login.jsx
 import React from "react";
 import { useForm } from "@inertiajs/react";
+import { Inertia } from "@inertiajs/inertia";
 
 const Login = () => {
   const { data, setData, post, processing, errors } = useForm({
@@ -15,11 +16,20 @@ const Login = () => {
     });
   };
 
+  const openSignup = (e) => {
+    e.preventDefault();
+    // keep SPA behavior and preserve state
+    Inertia.visit("/register", {
+      preserveState: true,
+      preserveScroll: true,
+    });
+  };
+
   return (
     <div className="overlay overlay--auth">
       <div className="overlay__content">
         <h1 className="overlay__title">Login</h1>
-        <form className="form" onSubmit={handleLogin}>
+        <form className="form" onSubmit={handleLogin} role="form" aria-label="Login form">
           <div className="form__group">
             <input
               type="email"
@@ -52,6 +62,21 @@ const Login = () => {
             </button>
           </div>
         </form>
+
+        <div className="overlay__footer">
+          <div className="auth__switch">
+            Don't have an account?{" "}
+            <a
+              href="?mode=signup"
+              onClick={openSignup}
+              role="button"
+              tabIndex={0}
+              aria-label="Switch to sign up"
+            >
+              Sign Up
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );

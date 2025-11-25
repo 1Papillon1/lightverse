@@ -5,6 +5,7 @@ import MarketStore from "./MarketStore";
 import TutorialStore from "./TutorialStore";
 import AdminStore from "./AdminStore";
 import UniverseStore from "./UniverseStore";
+import NarratorStore from "./NarratorStore";
 import { makeAutoObservable } from "mobx";
 
 
@@ -17,6 +18,7 @@ class RootStore {
     marketStore;
     tutorialStore;
     adminStore;
+    narratorStore;
     universeStore;
 
     constructor() {
@@ -26,6 +28,7 @@ class RootStore {
         this.tutorialStore = new TutorialStore(this);
         this.adminStore = new AdminStore(this);
         this.universeStore = new UniverseStore(this);
+        this.narratorStore = new NarratorStore(this);
         makeAutoObservable(this);
     }
 

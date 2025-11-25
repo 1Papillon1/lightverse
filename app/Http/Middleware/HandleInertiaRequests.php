@@ -71,6 +71,12 @@ class HandleInertiaRequests extends Middleware
 
             // stanje sidebar-a iz kolačića
             'sidebarOpen' => $request->cookie('sidebar_state') === 'true',
+       
+            'flash' => [
+            'success'          => fn () => $request->session()->get('success'),
+            'welcome_narrator' => fn () => $request->session()->get('welcome_narrator'),
+        ],
+       
         ];
     }
 }

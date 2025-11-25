@@ -73,8 +73,7 @@
         width: 100%;
 
         &--horizontal {
-            width: 80%;
-            margin-left: 15vw;
+            width: 90%;
             justify-content: flex-end;
             align-items: center;
         }
@@ -118,7 +117,7 @@
    }
 
    &__wallet {
-    margin-left: 1rem;
+    margin-right: 2%;
    }
     
 
@@ -132,17 +131,20 @@
     text-transform: uppercase;
     z-index: 9;
 
+    /*
+     box-shadow: 0 4px 10px rgba(90, 15, 200, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+     */
+
     &__icon {
         width: 24px;
         height: auto;
-        transition: filter 0.3s ease-in-out;
-    
-        // isto kao hover, ali tamnija verzija
-        filter: invert(40%) sepia(10%) saturate(0%) hue-rotate(287deg) brightness(70%) contrast(70%) drop-shadow(0 0 2px #ffffff5e);
-    
-        &:hover {
-            cursor: pointer;
-        }
+         transition: all 0.3s ease;
+            filter: drop-shadow(0 4px 10px  rgba(90, 15, 200, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.2));
+          &:hover {
+    transform: scale(1.1);
+    filter: drop-shadow(0 8px 15px rgba(107, 29, 230, 0.7), inset 0 3px 5px rgba(255, 255, 255, 0.3));
+    cursor: pointer;
+  }
     }
 
     &__text {
@@ -162,7 +164,7 @@
         transition: color 0.3s ease;
         display: block;
         letter-spacing: 1px;
-        margin-left: 2rem;
+        margin-left: 1rem;
     }
 
     &--vertical {
@@ -197,6 +199,12 @@
             > .tooltip {
                 opacity: 1;
                 transform: translateX(-60px) translateY(-40px); // lagani pomak dolje
+            }
+
+            // for text 
+            .navigation__link__text {
+                color: #fff;
+                transition: color 0.3s ease;
             }
 
            

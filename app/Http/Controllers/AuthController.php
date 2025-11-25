@@ -31,7 +31,8 @@ class AuthController extends Controller
 
         // Inertia redirect s flash porukom
         return redirect()->route('dashboard')
-                         ->with('success', 'Registration successful!');
+                        ->with('welcome_narrator', true)
+                        ->with('success', 'Registration successful!');
     }
 
     public function login(Request $request): RedirectResponse

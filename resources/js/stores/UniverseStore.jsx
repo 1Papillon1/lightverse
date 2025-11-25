@@ -48,8 +48,15 @@ class UniverseStore {
   }
 
   // --- Detect zoom state from URL ---
-  detectFromUrl() {
+ detectFromUrl() {
     const path = window.location.pathname.split("/").filter(Boolean);
+
+    // ⛔ AUTH ROUTES → always galactic
+    if (path[0] === "login" || path[0] === "register") {
+        this.setZoomLevel("galaxy");
+        this.activeSystem = null;
+        return;
+    }
 
     if (path.length === 0 || path[0] === "dashboard") {
       this.setZoomLevel("galaxy");
@@ -61,6 +68,7 @@ class UniverseStore {
       this.setZoomLevel("node");
       this.activeSystem = { id: path[0] };
     }
+
   }
 }
 

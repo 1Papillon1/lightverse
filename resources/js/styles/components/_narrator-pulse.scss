@@ -1,0 +1,146 @@
+/*
+  narrator-pulse.scss
+*/
+
+.narrator-pulse {
+  position: fixed;
+  bottom: 50px;
+  left: 50px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  z-index: 50;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  // 🔵 EXPANDED MENU
+  &--open {
+    .narrator-pulse__menu {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+  }
+
+  // Center ball
+  &__inner {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    opacity: 0.6;
+    background: radial-gradient(
+      circle at 30% 30%,
+      rgba(255, 255, 255, 0.1),
+      rgba(0, 0, 0, 1)
+    );
+    box-shadow: 0 0 6px rgba(128, 0, 255, 0.48);
+    transition: all 0.3s ease;
+
+    &--active {
+      opacity: 1;
+      box-shadow: 0 0 30px rgba(128, 0, 255, 0.9);
+      animation: narratorPulse 1.2s infinite ease-in-out;
+    }
+  }
+
+  // Menu container
+  &__menu {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    padding-top: 200px;
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(0.7);
+    transition: 0.25s ease;
+    z-index: -1;
+   
+  }
+
+  // Generic menu item wrapper
+  &__menu-item {
+    position: absolute;
+    width: 120px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  // Buttons inside items
+  &__menu-item button {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid #a000ff;
+    background: rgba(30, 0, 60, 0.8);
+    color: #fff;
+    font-size: 20px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    transition: 0.22s ease;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(60, 0, 120, 0.95);
+      transform: scale(1.12);
+      box-shadow: 0 0 15px #c300ff;
+    }
+
+
+
+  }
+
+  // Label text
+  &__label {
+    color: #fff;
+    font-size: 14px;
+    opacity: 0.95;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  //
+  // 🔵 RADIAL POSITIONS
+  //
+
+ // Prva ikona (najniža, preklapa se s orbom)
+&__menu-item--top {
+  bottom: 240px;
+  left: 75px;
+}
+
+// Druga ikona (iznad prve)
+&__menu-item--top-right {
+  bottom: 300px; // 80 + 60
+  left: 75px;
+}
+
+// Treća ikona (najviša)
+&__menu-item--right {
+  bottom: 360px; // 140 + 60
+  left: 75px;
+}
+}
+
+// Pulse animation
+@keyframes narratorPulse {
+  0% {
+    box-shadow: 0 0 8px rgba(160, 0, 255, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(160, 0, 255, 1);
+    transform: scale(1.08);
+  }
+  100% {
+    box-shadow: 0 0 8px rgba(160, 0, 255, 0.6);
+    transform: scale(1);
+  }
+}

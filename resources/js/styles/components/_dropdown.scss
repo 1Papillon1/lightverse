@@ -52,6 +52,8 @@
     }
   }
 
+  
+
   // -----------------------------------
   // Vertical dropdown
   // -----------------------------------
@@ -113,6 +115,73 @@
     &:hover {
       background: rgba(255, 255, 255, 0.1);
       cursor: pointer;
+    }
+  }
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 130%;
+  right: 4%;
+  background: rgba(12, 8, 26, 0.85);
+  border: 1px solid rgba(143, 0, 255, 0.4);
+  box-shadow: 0 0 15px #8f00ff55, 0 0 35px #00ffff33;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  transform: translateY(-15px);
+  pointer-events: none;
+  transition: all 0.25s ease;
+  width: 180px;
+
+  &--active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem 0;
+    text-align: left;
+
+   
+     
+  }
+
+  &__label {
+      width: 70%;
+  }
+
+  &__icon {
+    flex-grow: 4;
+    width: 10%;
+  }
+
+ 
+
+  button {
+    display: flex;
+    align-items: center;
+    text-align: left;
+    justify-content: space-between;
+    gap: 0.5rem;
+    background: transparent;
+    border: none;
+    color: #ccefff;
+    font-family: "Orbitron", sans-serif;
+    font-size: 0.9rem;
+    padding: 0.6rem 1.2rem;
+    width: 100%;
+    transition: color 0.2s, background 0.3s;
+   
+
+    &:hover {
+      color: #fff;
+      background: rgba(144, 0, 255, 0.1);
+      cursor: pointer;
+      text-shadow: 0 0 12px #8f00ff, 0 0 22px #00ffff;
     }
   }
 }

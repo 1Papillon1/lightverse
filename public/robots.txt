@@ -1,3 +1,5 @@
 User-agent:*
 Disalow:/wp-admin/
+Disallow: /resources/audio/
+Disallow: /audio/
 Sitemap:https://cchain.fitapp.cloud/?sitemap.xml

@@ -27,6 +27,9 @@ const Navigation = observer(({ horizontal = false }) => {
       {horizontal && (
         <nav className="navigation navigation--horizontal">
           <ul className="navigation__list navigation__list--horizontal">
+            <li className="navigation__wallet">
+              <WalletConnectButton />
+            </li>
             <li className="navigation__account">
               <img
                 src={accountIcon}
@@ -34,62 +37,36 @@ const Navigation = observer(({ horizontal = false }) => {
                 alt="account"
                 onClick={toggleDropdown}
               />
-              <div
-                className={
-                  "dropdown dropdown--horizontal" +
-                  (isDropdownActive ? " dropdown--active" : "")
-                }
-              >
-                <ul className="dropdown__list">
-                  {!isLoggedIn && (
-                    <>
-                      <li className="dropdown__item">
-                        <button
-                          className="dropdown__link"
-                          onClick={() => userStore.toggleOverlay("login")}
-                        >
-                          Login
-                        </button>
-                      </li>
-                      <li className="dropdown__item">
-                        <button
-                          className="dropdown__link"
-                          onClick={() => userStore.toggleOverlay("signup")}
-                        >
-                          Sign up
-                        </button>
-                      </li>
-                    </>
-                  )}
-
-                  <li className="dropdown__item">
-                    <button
-                      className="dropdown__link"
-                      onClick={() => userStore.toggleOverlay("settings")}
-                    >
-                      Settings
-                    </button>
-                  </li>
-                  {isLoggedIn && (
-                    <li className="dropdown__item">
-                      <button
-                        className="dropdown__link"
-                        onClick={handleLogout}
-                      >
-                        Logout
-                      </button>
-                    </li>
-                  )}
-                </ul>
-              </div>
+            <div
+              className={`user-dropdown ${isDropdownActive ? "user-dropdown--active" : ""}`}
+            >
+              <ul className="user-dropdown__list">
+                <li>
+                  <button className="user-dropdown__list__button" onClick={() => userStore.toggleOverlay("settings")}>
+                    <span className="user-dropdown__icon">⚙️</span>
+                    <span className="user-dropdown__label">Settings</span>
+                  </button>
+                </li>
+                <li>
+                  <button className="user-dropdown__list__button" onClick={() => userStore.toggleOverlay("wallet")}>
+                    <span className="user-dropdown__icon">💳</span>
+                    <span className="user-dropdown__label">Wallet</span>
+                  </button>
+                </li>
+                <li>
+                  <button className="user-dropdown__list__button" onClick={handleLogout}>
+                    <span className="user-dropdown__icon">🚪</span>
+                    <span className="user-dropdown__label">Logout</span>
+                  </button>
+                </li>
+              </ul>
+            </div>
 
               {username && (
                 <span className="navigation__link__label">{username}</span>
               )}
             </li>
-            <li className="navigation__wallet">
-              <WalletConnectButton />
-            </li>
+          
           </ul>
         </nav>
       )}

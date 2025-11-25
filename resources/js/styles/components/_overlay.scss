@@ -103,7 +103,7 @@
       background: rgba(0, 0, 0, 0.45);
       padding: 2rem 2.5rem;
       border-radius: 16px;
-      box-shadow: 0 0 25px #00ffff55, 0 0 45px #8f00ff44;
+      box-shadow: 0 0 2px #00ffff55, 0 0 5px #8f00ff44, 0 0 10px #00ffff33;
       backdrop-filter: blur(8px);
     }
   }
@@ -132,6 +132,7 @@
     .overlay__title {
       font-size: 2.2rem;
       text-shadow: 0 0 12px #8f00ff, 0 0 18px #00ffff;
+      user-select: none;
     }
 
     .overlay__text {
@@ -156,9 +157,32 @@
     }
 
     .overlay__title {
-      font-size: 1.8rem;
+      font-size: 24px;
       margin-bottom: 1.5rem;
       text-shadow: 0 0 10px #8f00ff, 0 0 15px #00ffff;
+      user-select: none;
+    }
+  }
+}
+
+.auth__switch {
+  margin-top: 0.25rem;
+  font-size: 0.95rem;
+  color: #b8eaff;
+  text-shadow: 0 0 6px #00ffff;
+  user-select: none;
+
+  a {
+    color: #ff33ff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+    transition: color 0.15s ease, transform 0.12s ease;
+    &:hover,
+    &:focus {
+      color: #ffffff;
+      transform: translateY(-1px);
+      outline: none;
     }
   }
 }
