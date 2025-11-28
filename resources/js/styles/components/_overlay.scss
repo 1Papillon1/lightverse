@@ -154,6 +154,7 @@
 
     .overlay__content {
       max-width: 420px;
+      margin-bottom: 15vh;
     }
 
     .overlay__title {
@@ -196,5 +197,20 @@
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+
+@media screen and (max-width: 480px) {
+  
+  .overlay--auth {
+    .overlay__content {
+      width: 70vw;
+      margin-bottom: 15vh;
+    }
+
+    .overlay__title {
+      font-size: 20px;
+    }
   }
 }
