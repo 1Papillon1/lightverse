@@ -125,7 +125,12 @@ const UniverseScene = observer(({ onSceneSelect }) => {
         <SparkleFieldGroup />
         <AsteroidField count={35} radius={450} repulsionRadius={100} />
 
-        <OrbitControls ref={orbitRef} enablePan={false} enableZoom={true} />
+        <OrbitControls ref={orbitRef} enablePan={false} enableZoom={true} 
+ 
+            minDistance={universeStore.zoomLevel === "system" ? 20 : 160}
+            maxDistance={universeStore.zoomLevel === "system" ? 50 : 220}
+        
+        />
 
         {/* 🌠 Galaxy level */}
         {universeStore.zoomLevel === "galaxy" && (

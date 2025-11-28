@@ -1,5 +1,15 @@
-User-agent:*
-Disalow:/wp-admin/
-Disallow: /resources/audio/
-Disallow: /audio/
-Sitemap:https://cchain.fitapp.cloud/?sitemap.xml
+User-agent: *
+Disallow: /vendor/
+Disallow: /storage/
+Disallow: /bootstrap/
+Disallow: /node_modules/
+Disallow: /app/
+Disallow: /config/
+Disallow: /database/
+Disallow: /resources/
+Disallow: /routes/
+Disallow: /tests/
+
+Allow: /public/
+
+Sitemap:https://cchain.fitapp.cloud/sitemap.xml

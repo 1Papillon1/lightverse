@@ -74,9 +74,12 @@
     bottom: 0.5rem;
 
     &__button {
-      width: 180px;
-      font-size: 11px;
+      width: 200px;
+      font-size: 10px;
       padding: 8px 16px;
+      margin-bottom: 0.75rem;
+      margin-right: 0.5rem;
+      font-weight: 400;
     }
   }
 }

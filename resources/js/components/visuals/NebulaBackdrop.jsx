@@ -62,8 +62,8 @@ export default function NebulaBackdrop({ rotate = false }) {
 
   return (
     <group ref={groupRef}>
-      <mesh scale={[1, 1, 1]}>
-        <sphereGeometry args={[320, 256, 256]} />
+      <mesh scale={[1.5, 1.5, 1.5]}>
+        <sphereGeometry args={[290, 122, 122]} />
         <primitive object={material} />
       </mesh>
     </group>

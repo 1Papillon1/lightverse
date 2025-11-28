@@ -319,10 +319,14 @@
     }
 
     .navigation__list--horizontal {
-    width: 70%;
+    width: 90%;
     margin-right: 0;
-    
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 5%;
     }
+
+    
 
     .mobile__menu__button {
         display: block;
