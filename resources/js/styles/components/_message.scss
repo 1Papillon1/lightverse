@@ -1,0 +1,102 @@
+/*
+    message.scss
+*/
+
+.message {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  padding: 18px 28px;
+  border-radius: 14px;
+
+  background: rgba(40, 0, 80, 0.55);
+  border: 1px solid rgba(120, 200, 255, 0.25);
+
+  box-shadow: 0 0 25px rgba(0, 150, 255, 0.4),
+              0 10px 40px rgba(0, 0, 0, 0.4);
+
+  backdrop-filter: blur(14px);
+
+  color: #b0dfff;
+  animation: messageSlideIn 0.35s ease-out;
+}
+
+/* SUCCESS MODIFIER */
+.message--success {
+  border-color: rgba(0, 255, 200, 0.4);
+  box-shadow: 0 0 22px rgba(0, 255, 200, 0.4),
+              0 8px 35px rgba(0, 0, 0, 0.5);
+}
+
+/* ICON */
+.message__icon {
+  width: 26px;
+  height: 26px;
+  color: #8afcce;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 6px #53ffdb);
+}
+
+/* CONTENT */
+.message__content {
+  display: flex;
+  flex-direction: column;
+}
+
+/* TITLE */
+.message__title {
+  font-weight: 600;
+  font-size: 15px;
+  color: #e9faff;
+  text-shadow: 0 0 6px rgba(100, 200, 255, 0.6);
+}
+
+/* SUBTITLE */
+.message__subtitle {
+  font-size: 13px;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+/* CLOSE BUTTON */
+.message__close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  color: #bfeaff;
+  opacity: 0.7;
+  padding: 4px;
+
+  display: flex;
+  align-items: center;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.message__close svg {
+  width: 20px;
+  height: 20px;
+}
+
+.message__close:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* ANIMATION */
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

@@ -32,3 +32,9 @@ body::before {
     height: 100vh; 
     width: 100vw; 
 } 
+
+body.ui-locked .r3f-html {
+  pointer-events: none !important;
+  // smaller visibility 
+  opacity: 0.2 !important;
+}

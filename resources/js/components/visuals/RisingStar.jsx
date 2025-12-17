@@ -140,6 +140,7 @@ const RisingStar = observer(({ position, theme = "default", label = "🚧 Work i
                 transform: hovered ? "scale(1.08)" : "scale(1.0)",
                 transition: "all 0.3s ease",
               }}
+              className="r3f-html"
             >
               <div
                 className={`glitch ${glitchActive ? "active" : ""}`}

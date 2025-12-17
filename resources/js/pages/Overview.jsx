@@ -10,6 +10,8 @@ import News from "@/components/information/News";
 import Social from "@/components/information/Social";
 import UniverseBackdrop from "@/components/visuals/UniverseBackdrop"; // 🪐 Nebula-style background
 
+
+
 const Overview = observer(() => {
   const { mode } = usePage().props;
 
@@ -25,6 +27,7 @@ const Overview = observer(() => {
       {mode === "news" && <News />}
       {mode === "social" && <Social />}
       {(mode === "about" || !mode) && <About />}
+     
     </>
   );
 });

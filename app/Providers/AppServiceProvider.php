@@ -3,22 +3,22 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Models\User;
+use App\Models\LightwebCoinDrop;
+use App\Observers\UserObserver;
+use Illuminate\Support\Facades\Gate;
+use App\Policies\LightwebCoinDropPolicy;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
-        //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        //
+        User::observe(UserObserver::class);
+
+        Gate::policy(LightwebCoinDrop::class, LightwebCoinDropPolicy::class);
     }
 }

@@ -47,7 +47,7 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         return to_route('dashboard')
-    ->with('welcome_narrator', true)
-    ->with('success', 'Registration successful!');
+            ->with('welcome_narrator', true)
+            ->with('success', 'Registration successful!');
     }
 }

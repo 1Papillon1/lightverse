@@ -1,3 +1,4 @@
+// resources/js/stores/RootStore.js
 import { createContext, useContext } from "react";
 import UIStore from "./UIStore";
 import UserStore from "./UserStore";
@@ -6,13 +7,11 @@ import TutorialStore from "./TutorialStore";
 import AdminStore from "./AdminStore";
 import UniverseStore from "./UniverseStore";
 import NarratorStore from "./NarratorStore";
+import LightwebCoinStore from "./LightwebCoinStore";
 import { makeAutoObservable } from "mobx";
-
-
 
 class RootStore {
 
-    history;
     uiStore;
     userStore;
     marketStore;
@@ -20,6 +19,7 @@ class RootStore {
     adminStore;
     narratorStore;
     universeStore;
+    lightwebCoinStore;
 
     constructor() {
         this.uiStore = new UIStore(this);
@@ -29,7 +29,13 @@ class RootStore {
         this.adminStore = new AdminStore(this);
         this.universeStore = new UniverseStore(this);
         this.narratorStore = new NarratorStore(this);
+
+        this.lightwebCoinStore = new LightwebCoinStore(this);
+
         makeAutoObservable(this);
+
+        // 👇 ADD THIS
+        this.lightwebCoinStore.initialize();
     }
 
     navigate(navigateFn, path) {
@@ -42,6 +48,4 @@ class RootStore {
 export const rootStore = new RootStore();
 export const RootStoreContext = createContext(rootStore);
 
-export const useRootStore = () => {
-    return useContext(RootStoreContext);
-};
+export const useRootStore = () => useContext(RootStoreContext);

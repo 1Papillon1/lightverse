@@ -8,8 +8,8 @@ class UserStore {
   status = "";
   user = null;
 
-  // current overlay: "login" | "signup" | "settings" | null
-  activeOverlay = null;
+  activeOverlay = null; // <-- Add this
+
 
   constructor(rootStore) {
     this.rootStore = rootStore;
@@ -18,7 +18,7 @@ class UserStore {
 
   // --- Overlay handling ---
   openOverlay(name) {
-    if (["login", "signup", "settings"].includes(name)) {
+    if (["login", "signup", "settings", "achievements"].includes(name)) {
       this.activeOverlay = name;
     }
   }
@@ -46,20 +46,27 @@ class UserStore {
     }
   }
 
-  logout() {
-    router.post(
-      "/logout",
-      {},
-      {
-        preserveScroll: true,
-        onFinish: () => {
-          this.user = null;
-          this.authorized = false;
-          this.closeOverlay();
-        },
-      }
-    );
+ logout() {
+  router.post("/logout", {}, {
+    preserveScroll: true,
+    onFinish: () => {
+      this.user = null;
+      this.authorized = false;
+      this.closeOverlay();
+
+      // 🔥 RESET COIN STATE
+      this.rootStore.lightwebCoinStore.balance = 0;
+      this.rootStore.lightwebCoinStore.drops = [];
+    },
+  });
+}
+
+  // getters
+  get overlayActive() {
+    return !!this.activeOverlay;
   }
+
+ 
 }
 
 export default UserStore;

@@ -9,12 +9,18 @@ class UIStore {
     navigationLeft = true;
     navigationState = "main";
 
+
+    // ui loading
+    universeReady = false;
+
  
 
     constructor() {
         makeAutoObservable(this);
 
     }
+
+
 
     toggleAnimated() {
         this.animated = !this.animated;
@@ -40,10 +46,14 @@ class UIStore {
         this.triggerExplosion = false;
     }
 
-    
-  setActiveNode(node) {
-    this.activeNode = node;
-  }
+    // setters
+    setUniverseReady(val) {
+        this.universeReady = val;
+    }
+
+    setActiveNode(node) {
+        this.activeNode = node;
+    }
 
 }
 

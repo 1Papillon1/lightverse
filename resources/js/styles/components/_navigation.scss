@@ -108,6 +108,47 @@
             
    }
 
+    &__balance {
+    margin-right: 2%;
+    display: flex;
+    align-items: center;
+  }
+
+  &__balance__content {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: bold;
+    font-size: 16px;
+    color: variables.$color-text;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    user-select: none;
+
+    transition: all 0.3s ease;
+  }
+
+  &__balance__icon {
+    font-size: 18px;
+    filter: drop-shadow(0 4px 10px rgba(90, 15, 200, 0.5));
+    transition: transform 0.3s ease, filter 0.3s ease;
+  }
+
+  &__balance__value {
+    min-width: 24px;
+    text-align: right;
+  }
+
+  // Hover behavior consistent with icons
+  &__balance:hover {
+    cursor: default;
+
+    .navigation__balance__icon {
+      transform: scale(1.15);
+      filter: drop-shadow(0 8px 15px rgba(107, 29, 230, 0.7));
+    }
+  }
+
    &__account {
     display: flex;
     flex-direction: row;

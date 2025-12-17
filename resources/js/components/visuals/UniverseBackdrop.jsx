@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import Terrain from "@/components/visuals/Terrain";
@@ -6,8 +6,12 @@ import RotatingStars from "@/components/visuals/RotatingStars";
 import NebulaBackdrop from "./NebulaBackdrop";
 import { observer } from "mobx-react-lite";
 import { resolveTerrainType } from "@/utils/terrainResolver";
+import LoaderGate from "@/components/trackers/LoaderGate";
+import LightverseCoin from "@/components/visuals/LightverseCoin";
+import CoinPickupOrchestrator from "@/components/visuals/CoinPickupOrchestrator";
+import { useRootStore } from "@/stores/RootStore";
 
-// Try to import usePage safely
+// Safe usePage import
 let inertiaUsePage;
 try {
   inertiaUsePage = require("@inertiajs/react").usePage;
@@ -21,13 +25,19 @@ try {
 
 const UniverseBackdrop = observer(({ mode, children }) => {
   const orbitRef = useRef();
+  const { lightwebCoinStore } = useRootStore();
+
   const inertiaPage = inertiaUsePage ? inertiaUsePage() : null;
 
-  // 🧭 Safe route resolution
+  // Which terrain to render
   const currentUrl =
-    inertiaPage?.url || inertiaPage?.props?.url || window?.location?.pathname || "/";
+    inertiaPage?.url || inertiaPage?.props?.url || window.location.pathname;
+
   const resolvedType = mode || resolveTerrainType(currentUrl);
 
+
+
+  // Camera limiter
   function CameraLimiter() {
     const { camera } = useThree();
     const terrainSize = 70;
@@ -62,15 +72,26 @@ const UniverseBackdrop = observer(({ mode, children }) => {
   return (
     <div className="canvas__background">
       <Canvas camera={{ position: [0, 5, 30], fov: 75 }}>
+
         <ambientLight intensity={3} />
         <directionalLight position={[1, 5, 0]} intensity={15} castShadow />
         <pointLight position={[0, 5, 0]} intensity={3} color="#8f8fff" />
 
-        <RotatingStars />
-        <NebulaBackdrop rotate />
-        <Terrain type={resolvedType} />
+        <Suspense fallback={<LoaderGate />}>
+          <RotatingStars />
+          <NebulaBackdrop rotate />
+          <Terrain type={resolvedType} />
 
-        {children}
+          {/* Render page/system drops */}
+          {lightwebCoinStore.filteredDrops.map((drop) => (
+            <LightverseCoin key={drop.id} drop={drop} />
+          ))}
+
+          {/* Pickup animation controller */}
+          <CoinPickupOrchestrator />
+
+          {children}
+        </Suspense>
 
         <OrbitControls
           ref={orbitRef}

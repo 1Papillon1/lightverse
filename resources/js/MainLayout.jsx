@@ -13,6 +13,7 @@ import Signup from "@/components/authentication/Signup";
 import Settings from "@/pages/Settings";
 import NarratorPulse from "@/components/trackers/NarratorPulse";
 import AuriaHologram from "@/components/visuals/AuriaHologram";
+import AchievementsOverlay from "@/components/user/AchievementsOverlay";
 
 const MainLayout = observer(({ children }) => {
   const rootStore = useRootStore();
@@ -30,101 +31,83 @@ const MainLayout = observer(({ children }) => {
   const url = page.url;
   const props = page.props;
 
+
+
   useEffect(() => {
     // Always sync zoom/system state on any route change
+    console.log(userStore.overlayActive);
     universeStore.detectFromUrl();
 }, [url]);
 
   const isDashboard = url === "/" || url === "/dashboard";
   const isWallet = url === "/wallet";
-  const isAuth = url.startsWith("/login") || url.startsWith("/register");
+  
+
+  // Auth check
+  const isAuth =
+    url.startsWith("/login") ||
+    url.startsWith("/register") ||
+    url.startsWith("/email/verify");
 
 
 
-  // --- Tutorial start logic ---
-/*   useEffect(() => {
-    universeStore.detectFromUrl();
-
-    if (!tutorialStore.completed) {
-      if (isDashboard) tutorialStore.startTutorial("dashboard");
-      else if (isWallet) tutorialStore.startTutorial("wallet");
-    }
-  }, [url, tutorialStore, isDashboard, isWallet, universeStore]);
- */
-  // --- Narrator: welcome message ---
 useEffect(() => {
   if (props?.flash?.welcome_narrator) {
     narratorStore.playWelcome();
   }
 }, []);
 
- /*  useEffect(() => {
-    if (!tutorialStore.isActive) return;
-    narratorStore.playTutorialStep(
-      tutorialStore.activeScene,
-      tutorialStore.activeStep
-    );
-  }, [tutorialStore.isActive]);
-
-  // --- Narrator: play audio when step changes ---
-  useEffect(() => {
-    if (!tutorialStore.isActive) return;
-    narratorStore.playTutorialStep(
-      tutorialStore.activeScene,
-      tutorialStore.activeStep
-    );
-  }, [tutorialStore.activeStep]);
-
-  // --- Narrator: pause on login/signup/settings overlay ---
-  useEffect(() => {
-    if (userStore.activeOverlay) {
-      narratorStore.pause();
-    } else {
-      narratorStore.resume();
-    }
-  }, [userStore.activeOverlay]); */
+useEffect(() => {
+  if (userStore.overlayActive) {
+    document.body.classList.add("ui-locked");
+  } else {
+    document.body.classList.remove("ui-locked");
+  }
+}, [userStore.overlayActive]);
 
   return (
     <WalletProvider>
       <div className="App">
-        {uiStore.animated && !marketStore.sceneReady && <AirEffect />}
 
-        {!isAuth && 
-        (
+ 
+
+      {!isAuth && (
         <>
           <NarratorPulse />
           <AuriaHologram />
         </>
-        )}
-        
-        
+      )}
 
-        {!isAuth && <Navigation horizontal />}
+      {!isAuth && <Navigation horizontal />}
 
-        <div className="layout">{children}</div>
 
-        {/* Return Buttons */}
-        {!isDashboard && (
-          <div className="asidebar">
-            <div className="asidebar__footer">
-              {universeStore.zoomLevel === "system" && (
+      <div className="layout">
+        {children}
+      </div>
+
+
+      {!isDashboard && (
+        <div className="asidebar">
+          <div className="asidebar__footer">
+            {universeStore.zoomLevel === "system" && (
+              <ReturnToOrbitButton type="galaxy" />
+            )}
+            {universeStore.zoomLevel === "node" && (
+              <>
+                <ReturnToOrbitButton type="system" />
                 <ReturnToOrbitButton type="galaxy" />
-              )}
-              {universeStore.zoomLevel === "node" && (
-                <>
-                  <ReturnToOrbitButton type="system" />
-                  <ReturnToOrbitButton type="galaxy" />
-                </>
-              )}
-            </div>
+              </>
+            )}
           </div>
-        )}
+        </div>
+      )}
 
-        {isDashboard && <TutorialOverlay />}
+      {isDashboard && <TutorialOverlay />}
 
-        {userStore.activeOverlay === "login" && <Login />}
-        {userStore.activeOverlay === "signup" && <Signup />}
-        {userStore.activeOverlay === "settings" && <Settings />}
+      {userStore.activeOverlay === "login" && <Login />}
+      {userStore.activeOverlay === "signup" && <Signup />}
+      {userStore.activeOverlay === "settings" && <Settings />}
+      {userStore.activeOverlay === "achievements" && <AchievementsOverlay />}
       </div>
     </WalletProvider>
   );

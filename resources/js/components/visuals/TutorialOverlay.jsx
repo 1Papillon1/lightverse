@@ -73,7 +73,7 @@ const TutorialOverlay = observer(() => {
   if (!tutorialStore.isActive) return null;
 
   return (
-    <div className="overlay overlay--tutorial">
+    <div className="overlay overlay--tutorial" data-interactive="true">
       <div className="overlay__content">
         <p className="overlay__text">{stepText}</p>
         <p className="overlay__instruction">{instructionText}</p>

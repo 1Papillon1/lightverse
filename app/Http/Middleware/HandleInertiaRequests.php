@@ -51,13 +51,13 @@ class HandleInertiaRequests extends Middleware
             // inspirativni citat
             'quote' => [
                 'message' => trim($message),
-                'author'  => trim($author),
+                'author' => trim($author),
             ],
 
             // trenutno ulogirani korisnik (ili null ako nije autentificiran)
             'auth' => [
                 'user' => Auth::check() ? [
-                    'id'       => Auth::id(),
+                    'id' => Auth::id(),
                     'username' => Auth::user()->username,
                     // po potrebi možeš dodati i email, avatar, uloge…
                 ] : null,
@@ -71,12 +71,12 @@ class HandleInertiaRequests extends Middleware
 
             // stanje sidebar-a iz kolačića
             'sidebarOpen' => $request->cookie('sidebar_state') === 'true',
-       
+
             'flash' => [
-            'success'          => fn () => $request->session()->get('success'),
-            'welcome_narrator' => fn () => $request->session()->get('welcome_narrator'),
-        ],
-       
+                'success' => fn () => $request->session()->get('success'),
+                'welcome_narrator' => fn () => $request->session()->get('welcome_narrator'),
+            ],
+
         ];
     }
 }

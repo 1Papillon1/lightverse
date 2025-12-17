@@ -16,6 +16,8 @@ import SparkleFieldGroup from "@/components/visuals/SparkleFieldGroup";
 import AsteroidField from "@/components/visuals/AsteroidField";
 import ReturnToOrbitButton from "@/components/transitions/ReturnToOrbitButton";
 import RisingStar from "@/components/visuals/RisingStar";
+import LightverseCoin from "@/components/visuals/LightverseCoin";
+import CoinPickupOrchestrator from "@/components/visuals/CoinPickupOrchestrator";
 
 const starConfigs = [
   { id: "wallet", label: "Wallet", theme: "black", position: [-40, 2, 105] },
@@ -31,9 +33,9 @@ const UniverseScene = observer(({ onSceneSelect }) => {
   const [activeSystem, setActiveSystem] = useState(null);
   const [sceneReady, setSceneReady] = useState(false);
 
-  const { marketStore, universeStore } = useContext(RootStoreContext);
+  const { marketStore, universeStore, lightwebCoinStore } = useContext(RootStoreContext);
 
-  // 🌌 Preload textures
+  // preload textures
   useEffect(() => {
     const loader = new TextureLoader();
     const urls = [
@@ -45,11 +47,11 @@ const UniverseScene = observer(({ onSceneSelect }) => {
     ];
     Promise.all(urls.map((url) => new Promise((resolve) => loader.load(url, resolve)))).then(() => {
       marketStore.setSceneReady(true);
-      /* setSceneReady(true); */
+      setSceneReady(true);
     });
   }, [marketStore]);
 
-  // 🧭 Detect ?system= query param on dashboard
+  // detect ?system= param
   useEffect(() => {
     if (!sceneReady) return;
 
@@ -65,6 +67,8 @@ const UniverseScene = observer(({ onSceneSelect }) => {
       universeStore.setZoomLevel("galaxy");
     }
   }, [sceneReady]);
+
+
 
   const zoomIntoSystem = (id, pos) => {
     const camera = orbitRef.current?.object;
@@ -97,23 +101,6 @@ const UniverseScene = observer(({ onSceneSelect }) => {
 
   return (
     <>
-     {/*  {!sceneReady && <LoadingScreen />} */}
-
-      {/* 🚀 Orbit Return Buttons */}
-      {universeStore.zoomLevel !== "galaxy" && (
-        <div className="asidebar">
-          <div className="asidebar__footer">
-            {/* Always show “Return to Galactic View” in system or node */}
-            <ReturnToOrbitButton type="galaxy" />
-
-            {/* If currently in a node, also show “Return to System Orbit” */}
-            {universeStore.zoomLevel === "node" && (
-              <ReturnToOrbitButton type="system" />
-            )}
-          </div>
-        </div>
-      )}
-
       <Canvas camera={{ position: [0, 60, 240], fov: 80 }}>
         <TutorialZoomTracker />
         <ambientLight intensity={0.7} />
@@ -125,56 +112,68 @@ const UniverseScene = observer(({ onSceneSelect }) => {
         <SparkleFieldGroup />
         <AsteroidField count={35} radius={450} repulsionRadius={100} />
 
-        <OrbitControls ref={orbitRef} enablePan={false} enableZoom={true} 
- 
+        <OrbitControls ref={orbitRef} enablePan={false} enableZoom={true}
             minDistance={universeStore.zoomLevel === "system" ? 20 : 160}
             maxDistance={universeStore.zoomLevel === "system" ? 50 : 220}
-        
         />
 
-        {/* 🌠 Galaxy level */}
+        {/* galaxy level */}
         {universeStore.zoomLevel === "galaxy" && (
-          <RisingStarGrid onSelect={(id, pos) => zoomIntoSystem(id, pos)} />
+          <>
+            <RisingStarGrid onSelect={(id, pos) => zoomIntoSystem(id, pos)} />
+
+            {/* Render filtered drops for galaxy (and page drops) */}
+            {lightwebCoinStore.filteredDrops.map((drop) => (
+              <LightverseCoin key={drop.id} drop={drop} />
+            ))}
+
+            <CoinPickupOrchestrator />
+          </>
         )}
 
-        {/* 🌌 System level */}
-      {universeStore.zoomLevel === "system" && activeSystem && (
-  <group position={activeSystem.pos}>
-    {/* 🌟 Central static star in system view */}
-   <RisingStar
-  position={[0, 0, 0]}
-  theme={activeSystem.theme || "default"}
-  label={activeSystem.label || "Central Star"}
-  interactive={false} // disables hover and click
-/>
+        {/* system level */}
+        {universeStore.zoomLevel === "system" && activeSystem && (
+          <group position={activeSystem.pos}>
+            <RisingStar
+              position={[0, 0, 0]}
+              theme={activeSystem.theme || "default"}
+              label={activeSystem.label || "Central Star"}
+              interactive={false}
+            />
 
-    {/* 🌌 Floating nodes orbiting around the star */}
-    <FloatingNodeGrid
-      activeSystem={activeSystem.id}
-      onSelect={(nodeId, pos) => {
-        const camera = orbitRef.current?.object;
-        if (!camera) return;
-        const worldPos = [
-          activeSystem.pos[0] + pos[0],
-          activeSystem.pos[1] + pos[1],
-          activeSystem.pos[2] + pos[2],
-        ];
+            <FloatingNodeGrid
+              activeSystem={activeSystem.id}
+              onSelect={(nodeId, pos) => {
+                const camera = orbitRef.current?.object;
+                if (!camera) return;
+                const worldPos = [
+                  activeSystem.pos[0] + pos[0],
+                  activeSystem.pos[1] + pos[1],
+                  activeSystem.pos[2] + pos[2],
+                ];
 
-        gsap.to(camera.position, {
-          x: worldPos[0] * 0.6,
-          y: worldPos[1] * 0.6,
-          z: worldPos[2] * 0.6,
-          duration: 0.8,
-          ease: "power2.inOut",
-          onComplete: () => {
-            universeStore.setZoomLevel("node");
-            Inertia.visit(`/${activeSystem.id}/${nodeId}`);
-          },
-        });
-      }}
-    />
-  </group>
-)}
+                gsap.to(camera.position, {
+                  x: worldPos[0] * 0.6,
+                  y: worldPos[1] * 0.6,
+                  z: worldPos[2] * 0.6,
+                  duration: 0.8,
+                  ease: "power2.inOut",
+                  onComplete: () => {
+                    universeStore.setZoomLevel("node");
+                    Inertia.visit(`/${activeSystem.id}/${nodeId}`);
+                  },
+                });
+              }}
+            />
+
+            {/* Render filtered drops for this system */}
+            {lightwebCoinStore.filteredDrops.map((drop) => (
+              <LightverseCoin key={drop.id} drop={drop} />
+            ))}
+
+            <CoinPickupOrchestrator />
+          </group>
+        )}
       </Canvas>
     </>
   );

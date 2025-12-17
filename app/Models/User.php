@@ -3,13 +3,14 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+
+class User extends Authenticatable implements MustVerifyEmail
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
@@ -21,6 +22,7 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
+        'initial_coins_spawned',   // ✅ first-login reward lock
     ];
 
     /**
@@ -34,15 +36,49 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Attribute casting.
      */
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'email_verified_at'      => 'datetime',
+            'password'              => 'hashed',
+            'initial_coins_spawned' => 'boolean',
         ];
+    }
+
+    /* -----------------------------------------------------------------
+     |  RELATIONSHIPS
+     | -----------------------------------------------------------------
+     */
+
+    // ✅ Wallet
+    public function balance()
+    {
+        return $this->hasOne(UserBalance::class);
+    }
+
+    // ✅ All coin drops ever
+    public function coinDrops()
+    {
+        return $this->hasMany(LightwebCoinDrop::class);
+    }
+
+    // ✅ Only available coins
+    public function activeCoinDrops()
+    {
+        return $this->hasMany(LightwebCoinDrop::class)
+            ->where('claimed', false)
+            ->where(function ($q) {
+                $q->whereNull('expires_at')
+                  ->orWhere('expires_at', '>', now());
+            });
+    }
+
+    public function achievements()
+    {
+        return $this->belongsToMany(Achievement::class, 'user_achievements')
+            ->withTimestamps()
+            ->withPivot('unlocked_at');
     }
 }

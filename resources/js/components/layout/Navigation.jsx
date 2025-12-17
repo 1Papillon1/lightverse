@@ -9,6 +9,7 @@ import WalletConnectButton from "@/components/wallet/WalletConnectButton";
 const Navigation = observer(({ horizontal = false }) => {
   const rootStore = useContext(RootStoreContext);
   const userStore = rootStore.userStore;
+  const coinStore = rootStore.lightwebCoinStore;
 
   const { auth } = usePage().props;
   const username = auth?.user?.username ?? null;
@@ -27,6 +28,16 @@ const Navigation = observer(({ horizontal = false }) => {
       {horizontal && (
         <nav className="navigation navigation--horizontal">
           <ul className="navigation__list navigation__list--horizontal">
+
+         <li className="navigation__balance">
+            <span className="navigation__link navigation__balance__content">
+              <span className="navigation__balance__icon">💠</span>
+              <span className="navigation__balance__value">
+                {coinStore.balance}
+              </span>
+            </span>
+          </li>
+
             <li className="navigation__wallet">
               <WalletConnectButton />
             </li>
@@ -41,6 +52,15 @@ const Navigation = observer(({ horizontal = false }) => {
               className={`user-dropdown ${isDropdownActive ? "user-dropdown--active" : ""}`}
             >
               <ul className="user-dropdown__list">
+                <li>
+                  <button
+                    className="user-dropdown__list__button"
+                    onClick={() => userStore.toggleOverlay("achievements")}
+                  >
+                    <span className="user-dropdown__icon">💠</span>
+                    <span className="user-dropdown__label">Achievements</span>
+                  </button>
+                </li>
                 <li>
                   <button className="user-dropdown__list__button" onClick={() => userStore.toggleOverlay("settings")}>
                     <span className="user-dropdown__icon">⚙️</span>
