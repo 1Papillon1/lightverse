@@ -1,30 +1,28 @@
 // resources/js/components/visuals/UniverseScene.jsx
 import { useEffect, useRef, useState, useContext } from "react";
 import { observer } from "mobx-react-lite";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useLoader } from "@react-three/fiber";
 import { Stars, OrbitControls } from "@react-three/drei";
 import gsap from "gsap";
 import { RootStoreContext } from "@/stores/RootStore";
-import LoadingScreen from "@/components/transitions/LoadingScreen";
-import { TextureLoader } from "three";
+import { TextureLoader, SRGBColorSpace, RepeatWrapping } from "three";
 import NebulaBackdrop from "@/components/visuals/NebulaBackdrop";
 import RisingStarGrid from "@/components/layout/RisingStarGrid";
 import FloatingNodeGrid from "@/components/layout/FloatingNodeGrid";
-import TutorialZoomTracker from "../trackers/TutorialZoomTracker";
-import { Inertia } from "@inertiajs/inertia";
+import TutorialZoomTracker from "@/components/trackers/TutorialZoomTracker";
 import SparkleFieldGroup from "@/components/visuals/SparkleFieldGroup";
 import AsteroidField from "@/components/visuals/AsteroidField";
-import ReturnToOrbitButton from "@/components/transitions/ReturnToOrbitButton";
 import RisingStar from "@/components/visuals/RisingStar";
 import LightverseCoin from "@/components/visuals/LightverseCoin";
 import CoinPickupOrchestrator from "@/components/visuals/CoinPickupOrchestrator";
+import { Inertia } from "@inertiajs/inertia";
 
 const starConfigs = [
-  { id: "wallet", label: "Wallet", theme: "black", position: [-40, 2, 105] },
-  { id: "markets", label: "Markets", theme: "orange", position: [59, 15, 85] },
-  { id: "contracts", label: "Contracts", theme: "gray", position: [85, -35, -17] },
-  { id: "overview", label: "Overview", theme: "darkbrown", position: [-65, -15, 8] },
-  { id: "ai", label: "Wzkr AI", theme: "lightbrown", position: [25, 15, -60] },
+  { id: "wallet", label: "Wallet", position: [-40, 2, 105] },
+  { id: "markets", label: "Markets", position: [59, 15, 85] },
+  { id: "contracts", label: "Contracts", position: [85, -35, -17] },
+  { id: "overview", label: "Overview", position: [-65, -15, 8] },
+  { id: "ai", label: "Wzkr AI", position: [25, 15, -60] },
 ];
 
 const UniverseScene = observer(({ onSceneSelect }) => {
@@ -33,25 +31,34 @@ const UniverseScene = observer(({ onSceneSelect }) => {
   const [activeSystem, setActiveSystem] = useState(null);
   const [sceneReady, setSceneReady] = useState(false);
 
-  const { marketStore, universeStore, lightwebCoinStore } = useContext(RootStoreContext);
+  const { marketStore, universeStore, lightwebCoinStore, userStore } =
+  useContext(RootStoreContext);
 
-  // preload textures
+  /* --------------------------------------------------
+     ✅ PRELOAD ALL SYSTEM TEXTURES (R3F-NATIVE)
+  -------------------------------------------------- */
+  const textures = useLoader(TextureLoader, [
+    "/textures/wallet_node_4k.jpg",
+    "/textures/market_node_4k.jpg",
+    "/textures/contract_node_4k.jpg",
+    "/textures/roadmap_node_4k.jpg",
+    "/textures/ai_node_4k.jpg",
+  ]);
+
   useEffect(() => {
-    const loader = new TextureLoader();
-    const urls = [
-      "/textures/wallet_node_4k.jpg",
-      "/textures/market_node_4k.jpg",
-      "/textures/contract_node_4k.jpg",
-      "/textures/roadmap_node_4k.jpg",
-      "/textures/ai_node_4k.jpg",
-    ];
-    Promise.all(urls.map((url) => new Promise((resolve) => loader.load(url, resolve)))).then(() => {
-      marketStore.setSceneReady(true);
-      setSceneReady(true);
+    textures.forEach((tex) => {
+      tex.colorSpace = SRGBColorSpace;
+      tex.wrapS = tex.wrapT = RepeatWrapping;
+      tex.needsUpdate = true;
     });
-  }, [marketStore]);
 
-  // detect ?system= param
+    marketStore.setSceneReady(true);
+    setSceneReady(true);
+  }, [textures, marketStore]);
+
+  /* --------------------------------------------------
+     URL ?system= detection
+  -------------------------------------------------- */
   useEffect(() => {
     if (!sceneReady) return;
 
@@ -60,15 +67,11 @@ const UniverseScene = observer(({ onSceneSelect }) => {
 
     if (systemParam) {
       const system = starConfigs.find((s) => s.id === systemParam);
-      if (system) {
-        zoomIntoSystem(system.id, system.position);
-      }
+      if (system) zoomIntoSystem(system.id, system.position);
     } else {
       universeStore.setZoomLevel("galaxy");
     }
   }, [sceneReady]);
-
-
 
   const zoomIntoSystem = (id, pos) => {
     const camera = orbitRef.current?.object;
@@ -93,89 +96,92 @@ const UniverseScene = observer(({ onSceneSelect }) => {
       duration: 1.4,
       ease: "power2.out",
       onUpdate: () => orbitRef.current?.target.set(...targetRef.current),
-      onComplete: () => {
-        onSceneSelect?.(id);
-      },
+      onComplete: () => onSceneSelect?.(id),
     });
   };
 
   return (
-    <>
-      <Canvas camera={{ position: [0, 60, 240], fov: 80 }}>
-        <TutorialZoomTracker />
-        <ambientLight intensity={0.7} />
-        <directionalLight position={[5, 5, 5]} intensity={1.2} />
-        <pointLight position={[0, 0, 8]} intensity={1.5} />
+    <Canvas
+      camera={{ position: [0, 60, 240], fov: 80 }}
+      gl={{ outputColorSpace: SRGBColorSpace }}   // ✅ CRITICAL FIX
+    >
+      <TutorialZoomTracker />
 
-        <NebulaBackdrop />
-        <Stars radius={250} depth={30} count={2000} factor={5} fade />
-        <SparkleFieldGroup />
-        <AsteroidField count={35} radius={450} repulsionRadius={100} />
+      <ambientLight intensity={0.7} />
+      <directionalLight position={[5, 5, 5]} intensity={1.2} />
+      <pointLight position={[0, 0, 8]} intensity={1.5} />
 
-        <OrbitControls ref={orbitRef} enablePan={false} enableZoom={true}
-            minDistance={universeStore.zoomLevel === "system" ? 20 : 160}
-            maxDistance={universeStore.zoomLevel === "system" ? 50 : 220}
-        />
+      <NebulaBackdrop />
+      <Stars radius={250} depth={30} count={2000} factor={5} fade />
+      <SparkleFieldGroup />
+      <AsteroidField count={35} radius={450} repulsionRadius={100} />
 
-        {/* galaxy level */}
-        {universeStore.zoomLevel === "galaxy" && (
-          <>
-            <RisingStarGrid onSelect={(id, pos) => zoomIntoSystem(id, pos)} />
+      <OrbitControls
+        ref={orbitRef}
+        enablePan={false}
+        enableZoom
+        minDistance={universeStore.zoomLevel === "system" ? 20 : 160}
+        maxDistance={universeStore.zoomLevel === "system" ? 50 : 220}
+      />
 
-            {/* Render filtered drops for galaxy (and page drops) */}
-            {lightwebCoinStore.filteredDrops.map((drop) => (
+      {/* ---------------- GALAXY ---------------- */}
+      {universeStore.zoomLevel === "galaxy" && (
+        <>
+          <RisingStarGrid onSelect={(id, pos) => zoomIntoSystem(id, pos)} />
+
+        
+          {userStore.authorized &&
+            lightwebCoinStore.filteredDrops.map(drop => (
               <LightverseCoin key={drop.id} drop={drop} />
-            ))}
+          ))}
 
-            <CoinPickupOrchestrator />
-          </>
-        )}
+          {userStore.authorized && <CoinPickupOrchestrator />}
+        </>
+      )}
 
-        {/* system level */}
-        {universeStore.zoomLevel === "system" && activeSystem && (
-          <group position={activeSystem.pos}>
-            <RisingStar
-              position={[0, 0, 0]}
-              theme={activeSystem.theme || "default"}
-              label={activeSystem.label || "Central Star"}
-              interactive={false}
-            />
+      {/* ---------------- SYSTEM ---------------- */}
+      {universeStore.zoomLevel === "system" && activeSystem && (
+        <group position={activeSystem.pos}>
+          <RisingStar
+            position={[0, 0, 0]}
+            label={activeSystem.label || "Central Star"}
+            interactive={false}
+          />
 
-            <FloatingNodeGrid
-              activeSystem={activeSystem.id}
-              onSelect={(nodeId, pos) => {
-                const camera = orbitRef.current?.object;
-                if (!camera) return;
-                const worldPos = [
-                  activeSystem.pos[0] + pos[0],
-                  activeSystem.pos[1] + pos[1],
-                  activeSystem.pos[2] + pos[2],
-                ];
+          <FloatingNodeGrid
+            activeSystem={activeSystem.id}
+            onSelect={(nodeId, pos) => {
+              const camera = orbitRef.current?.object;
+              if (!camera) return;
 
-                gsap.to(camera.position, {
-                  x: worldPos[0] * 0.6,
-                  y: worldPos[1] * 0.6,
-                  z: worldPos[2] * 0.6,
-                  duration: 0.8,
-                  ease: "power2.inOut",
-                  onComplete: () => {
-                    universeStore.setZoomLevel("node");
-                    Inertia.visit(`/${activeSystem.id}/${nodeId}`);
-                  },
-                });
-              }}
-            />
+              const worldPos = [
+                activeSystem.pos[0] + pos[0],
+                activeSystem.pos[1] + pos[1],
+                activeSystem.pos[2] + pos[2],
+              ];
 
-            {/* Render filtered drops for this system */}
-            {lightwebCoinStore.filteredDrops.map((drop) => (
-              <LightverseCoin key={drop.id} drop={drop} />
-            ))}
+              gsap.to(camera.position, {
+                x: worldPos[0] * 0.6,
+                y: worldPos[1] * 0.6,
+                z: worldPos[2] * 0.6,
+                duration: 0.8,
+                ease: "power2.inOut",
+                onComplete: () => {
+                  universeStore.setZoomLevel("node");
+                  Inertia.visit(`/${activeSystem.id}/${nodeId}`);
+                },
+              });
+            }}
+          />
 
-            <CoinPickupOrchestrator />
-          </group>
-        )}
-      </Canvas>
-    </>
+          {lightwebCoinStore.filteredDrops.map((drop) => (
+            <LightverseCoin key={drop.id} drop={drop} />
+          ))}
+
+          <CoinPickupOrchestrator />
+        </group>
+      )}
+    </Canvas>
   );
 });
 

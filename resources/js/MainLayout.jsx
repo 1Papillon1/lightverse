@@ -32,7 +32,13 @@ const MainLayout = observer(({ children }) => {
   const url = page.url;
   const props = page.props;
 
-
+useEffect(() => {
+  if (userStore.authorized) {
+    rootStore.lightwebCoinStore.initializeForUser();
+  } else {
+    rootStore.lightwebCoinStore.reset();
+  }
+}, [userStore.authorized]);
 
   useEffect(() => {
     // Always sync zoom/system state on any route change

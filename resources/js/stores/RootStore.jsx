@@ -36,8 +36,7 @@ class RootStore {
 
         makeAutoObservable(this);
 
-        // 👇 ADD THIS
-        this.lightwebCoinStore.initialize();
+    
     }
 
     navigate(navigateFn, path) {

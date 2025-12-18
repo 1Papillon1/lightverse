@@ -1,8 +1,8 @@
-// resources/js/stores/LightwebCoinStore.js
 import { makeAutoObservable, runInAction } from "mobx";
 import axios from "axios";
 
-let instance = null; // <-- Singleton guard
+/* 🔑 SINGLETON INSTANCE (REQUIRED) */
+let instance = null;
 
 export default class LightwebCoinStore {
     rootStore;
@@ -10,189 +10,111 @@ export default class LightwebCoinStore {
     drops = [];
     balance = 0;
 
+    initializedForUser = false;
+
     isPickupFrozen = false;
     activePickup = null;
     pickupProgress = 0;
 
-    pollingInterval = null;
-    alreadyInitialized = false;
-
-    coinPrototype = null;
-    
-
     constructor(rootStore) {
-        if (instance) return instance;       // return existing instance
-
+        if (instance) return instance;
         instance = this;
 
         this.rootStore = rootStore;
         makeAutoObservable(this);
-
-        return instance;
     }
 
-    // --------------------------
-    // Initialization (run once)
-    // --------------------------
-    initialize() {
-          if (this.alreadyInitialized) return;
-            this.alreadyInitialized = true;
+    /* --------------------------
+       AUTH-AWARE INITIALIZATION
+    -------------------------- */
+    initializeForUser() {
+        const userStore = this.rootStore.userStore;
 
-            this.fetchBalance();   // ✅ NEW
-            this.fetchDrops();     // existing
+        if (!userStore.authorized) return;
+        if (this.initializedForUser) return;
+
+        this.initializedForUser = true;
+        this.fetchBalance();
+        this.fetchDrops();
     }
 
-    // --------------------------
-    // API CALLS
-    // --------------------------
+    reset() {
+        this.drops = [];
+        this.balance = 0;
+        this.initializedForUser = false;
+        this.isPickupFrozen = false;
+        this.activePickup = null;
+        this.pickupProgress = 0;
+    }
+
+    /* --------------------------
+       API CALLS (GUARDED)
+    -------------------------- */
     async fetchDrops() {
+        if (!this.rootStore.userStore.authorized) return;
+
         try {
             const { data } = await axios.get("/lightcoins/drops", {
-                withCredentials: true
+                withCredentials: true,
             });
 
             runInAction(() => {
                 this.drops = data;
             });
-        } catch (e) {
-            console.error("fetchDrops error", e);
+        } catch {
+            // silent fail during auth transitions
         }
     }
-
-    // Optional: Only if you ever want re-enable polling later
-    startPolling(interval = 15000) {
-        if (this.pollingInterval) return;
-        this.pollingInterval = setInterval(() => this.fetchDrops(), interval);
-    }
-
-    stopPolling() {
-        if (!this.pollingInterval) return;
-        clearInterval(this.pollingInterval);
-        this.pollingInterval = null;
-    }
-
-    // --------------------------
-    // CLAIM COIN
-    // --------------------------
-    async claimDropServer(dropId) {
-        try {
-            const { data } = await axios.post(
-                `/lightcoins/claim/${dropId}`,
-                {},
-                { withCredentials: true }
-            );
-
-            runInAction(() => {
-                if (data.new_balance != null) this.balance = data.new_balance;
-                this.drops = this.drops.filter((d) => d.id !== dropId);
-            });
-
-            return { ok: true, data };
-        } catch (e) {
-            console.error("claimDrop error", e);
-            return { ok: false, error: e };
-        }
-    }
-
-    // --------------------------
-    // PICKUP UI FLOW CONTROL
-    // --------------------------
-   
 
     async fetchBalance() {
-    try {
-        const { data } = await axios.get("/lightcoins/balance", {
-            withCredentials: true,
-        });
+        if (!this.rootStore.userStore.authorized) return;
 
-        runInAction(() => {
-            this.balance = data.balance ?? 0;
-        });
-    } catch (e) {
-        console.error("fetchBalance error", e);
-    }
-}
+        try {
+            const { data } = await axios.get("/lightcoins/balance", {
+                withCredentials: true,
+            });
 
- beginPickup(dropId) {
-        if (this.isPickupFrozen) return false;
-        this.isPickupFrozen = true;
-        this.activePickup = dropId;
-        this.pickupProgress = 0;
-        return true;
+            runInAction(() => {
+                this.balance = data.balance ?? 0;
+            });
+        } catch {
+            // silent
+        }
     }
 
-    setPickupProgress(p) {
-        this.pickupProgress = Math.min(1, Math.max(0, p));
-    }
-
-    async finishPickup(dropId, serverNewBalance = null) {
-        this.isPickupFrozen = false;
-        this.activePickup = null;
-        this.pickupProgress = 0;
-
-        if (serverNewBalance != null) this.balance = serverNewBalance;
-
-        // Refresh drops after pickup
-        await this.fetchDrops();
-    }
-
-    
-
-    // --------------------------
-    // FILTERED DROPS (computed)
-    // --------------------------
+    /* --------------------------
+       COMPUTED (SAFE)
+    -------------------------- */
     get filteredDrops() {
+        if (!this.rootStore.userStore.authorized) return [];
+
         const universeStore = this.rootStore.universeStore;
         const zoom = universeStore?.zoomLevel || "galaxy";
         const activeSystem = universeStore?.activeSystem?.id || null;
 
-        const rawPath = window.location.pathname; 
-        const normalized = rawPath.replace(/\/$/, "").toLowerCase();
-        const nodeKey = normalized.startsWith("/")
-            ? normalized.substring(1)
-            : normalized;
+        const normalized = window.location.pathname
+            .replace(/\/$/, "")
+            .toLowerCase()
+            .replace(/^\//, "");
 
-        // ------------------------------
-        // GALAXY VIEW
-        // ------------------------------
         if (zoom === "galaxy") {
-            return this.drops.filter(d => 
-            d.spawn_location === "galaxy"
-            );
+            return this.drops.filter(d => d.spawn_location === "galaxy");
         }
 
-        // ------------------------------
-        // SYSTEM VIEW
-        // ------------------------------
         if (zoom === "system") {
             if (!activeSystem) return [];
-            return this.drops.filter(d =>
-            d.spawn_location === `system:${activeSystem}`
+            return this.drops.filter(
+                d => d.spawn_location === `system:${activeSystem}`
             );
         }
 
-        // ------------------------------
-        // NODE / PAGE VIEW
-        // ------------------------------
         if (zoom === "node") {
-            return this.drops.filter(d => {
-            if (!d.spawn_location) return false;
-
-            // system-level fallback
-            if (d.spawn_location === `system:${activeSystem}`) return true;
-
-            // page exact match
-            if (d.spawn_location === `page:${nodeKey}`) return true;
-
-            return false;
-            });
+            return this.drops.filter(d =>
+                d.spawn_location === `system:${activeSystem}` ||
+                d.spawn_location === `page:${normalized}`
+            );
         }
 
-        return this.drops;
-        }
-
-
-        setCoinPrototype(scene) {
-            this.coinPrototype = scene;
-            }
+        return [];
+    }
 }

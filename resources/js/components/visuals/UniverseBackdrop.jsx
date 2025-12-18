@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, Suspense } from "react";
+import React, { useRef, useEffect, Suspense, useContext } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import Terrain from "@/components/visuals/Terrain";
@@ -10,6 +10,7 @@ import LightverseCoin from "@/components/visuals/LightverseCoin";
 import CoinPickupOrchestrator from "@/components/visuals/CoinPickupOrchestrator";
 import { useRootStore } from "@/stores/RootStore";
 import { SRGBColorSpace } from "three";
+import { RootStoreContext } from "@/stores/RootStore";
 
 // Safe usePage import
 let inertiaUsePage;
@@ -25,7 +26,7 @@ try {
 
 const UniverseBackdrop = observer(({ mode, children }) => {
   const orbitRef = useRef();
-  const { lightwebCoinStore } = useRootStore();
+  const { lightwebCoinStore, userStore } = useContext(RootStoreContext);
 
   const inertiaPage = inertiaUsePage ? inertiaUsePage() : null;
 
@@ -34,7 +35,6 @@ const UniverseBackdrop = observer(({ mode, children }) => {
     inertiaPage?.url || inertiaPage?.props?.url || window.location.pathname;
 
   const resolvedType = mode || resolveTerrainType(currentUrl);
-
 
 
   // Camera limiter
@@ -87,11 +87,12 @@ const UniverseBackdrop = observer(({ mode, children }) => {
           type={resolvedType}
         />
 
-        {lightwebCoinStore.filteredDrops.map(drop => (
-          <LightverseCoin key={drop.id} drop={drop} />
+        {userStore.authorized &&
+          lightwebCoinStore.filteredDrops.map(drop => (
+            <LightverseCoin key={drop.id} drop={drop} />
         ))}
 
-        <CoinPickupOrchestrator />
+        {userStore.authorized && <CoinPickupOrchestrator />}
         {children}
       </Suspense>
 

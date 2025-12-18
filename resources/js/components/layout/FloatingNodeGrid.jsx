@@ -1,9 +1,9 @@
-// FloatingNodeGrid.jsx
+// resources/js/components/layout/FloatingNodeGrid.jsx
 import FloatingNode from "@/components/visuals/FloatingNode";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { RootStoreContext } from "@/stores/RootStore";
 import { useLoader } from "@react-three/fiber";
-import { TextureLoader } from "three";
+import { TextureLoader, SRGBColorSpace } from "three";
 import { Inertia } from "@inertiajs/inertia";
 import { systems } from "@/config/systems";
 
@@ -12,10 +12,9 @@ export default function FloatingNodeGrid({
   onSelect,
   onNodeHover,
 }) {
-  const rootStore = useContext(RootStoreContext);
-  const universeStore = rootStore.universeStore;
+  const { universeStore } = useContext(RootStoreContext);
 
-
+  /* ---------------- TEXTURES ---------------- */
   const textures = {
     wallet: useLoader(TextureLoader, "/textures/wallet_node_4k.jpg"),
     markets: useLoader(TextureLoader, "/textures/market_node_4k.jpg"),
@@ -23,6 +22,14 @@ export default function FloatingNodeGrid({
     overview: useLoader(TextureLoader, "/textures/roadmap_node_4k.jpg"),
     ai: useLoader(TextureLoader, "/textures/ai_node_4k.jpg"),
   };
+
+  // ✅ COLOR FIX
+  useEffect(() => {
+    Object.values(textures).forEach((tex) => {
+      tex.colorSpace = SRGBColorSpace;
+      tex.needsUpdate = true;
+    });
+  }, []);
 
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
   const radius = isMobile ? 4.3 : 15.5;
@@ -44,11 +51,9 @@ export default function FloatingNodeGrid({
         position={[x * 0.7, y * 3.9, z]}
         texture={systemTexture}
         onClick={() => {
-         
           universeStore.setActiveSystem({ id: activeSystem, pos: [x, y, z] });
           universeStore.setZoomLevel("node");
 
-      
           Inertia.visit(node.route, {
             preserveState: true,
             preserveScroll: true,
