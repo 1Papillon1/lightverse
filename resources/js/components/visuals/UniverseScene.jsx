@@ -31,7 +31,7 @@ const UniverseScene = observer(({ onSceneSelect }) => {
   const [activeSystem, setActiveSystem] = useState(null);
   const [sceneReady, setSceneReady] = useState(false);
 
-  const { marketStore, universeStore, lightwebCoinStore, userStore } =
+  const { marketStore, universeStore, lightwebCoinStore, userStore, visualLoadStore } =
   useContext(RootStoreContext);
 
   /* --------------------------------------------------
@@ -46,15 +46,18 @@ const UniverseScene = observer(({ onSceneSelect }) => {
   ]);
 
   useEffect(() => {
-    textures.forEach((tex) => {
-      tex.colorSpace = SRGBColorSpace;
-      tex.wrapS = tex.wrapT = RepeatWrapping;
-      tex.needsUpdate = true;
-    });
+  textures.forEach((tex) => {
+    tex.colorSpace = SRGBColorSpace;
+    tex.wrapS = tex.wrapT = RepeatWrapping;
+    tex.needsUpdate = true;
+  });
 
-    marketStore.setSceneReady(true);
-    setSceneReady(true);
-  }, [textures, marketStore]);
+  marketStore.setSceneReady(true);
+  setSceneReady(true);
+
+  // 🔑 THIS IS THE MISSING LINE
+  visualLoadStore.markUniverseReady();
+}, [textures]);
 
   /* --------------------------------------------------
      URL ?system= detection

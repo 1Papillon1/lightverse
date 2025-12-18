@@ -13,6 +13,7 @@ class LightwebCoinDrop extends Model
         'amount',
         'reason',
         'x', 'y', 'z',
+        'rot_x', 'rot_y', 'rot_z',   // ✅ NEW
         'spawn_location',
         'claimed',
         'claimed_at',

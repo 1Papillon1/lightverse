@@ -1,5 +1,4 @@
 // Login.jsx
-import React from "react";
 import { useForm } from "@inertiajs/react";
 import { Inertia } from "@inertiajs/inertia";
 

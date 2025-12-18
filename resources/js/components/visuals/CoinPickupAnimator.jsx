@@ -1,4 +1,5 @@
-import React, { useRef, useEffect } from "react";
+// CoinPickupAnimator.jsx
+import { useRef, useEffect } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils";
@@ -9,107 +10,98 @@ export default function CoinPickupAnimator() {
   const { camera, scene } = useThree();
   const store = useRootStore().lightwebCoinStore;
 
-  const anim = useRef({});
-  const temp = new THREE.Vector3();
+  // 🔑 Base model (already a clone from hook)
   const baseCoin = useCoinModel();
 
-  // Wallet screen position (top-right HUD)
+  const anim = useRef(null);
+  const temp = new THREE.Vector3();
+
+  // Wallet HUD screen position
   const WALLET_SCREEN_X = window.innerWidth - 60;
   const WALLET_SCREEN_Y = 50;
 
-  // Initialize animation when pickup starts
+  /* ----------------------------------
+     INIT PICKUP
+  ---------------------------------- */
   useEffect(() => {
     if (!store.activePickup) return;
 
-    const drop = store.drops.find(d => d.id === store.activePickup);
+    const drop = store.getDrop(store.activePickup);
     if (!drop) return;
 
     anim.current = {
       drop,
-      stage: "charging",
+      stage: "charge",
       t: 0,
-      duration: 4,
       visual: null,
-      start: null,
+      start: new THREE.Vector3(drop.x, drop.y, drop.z),
       end: null,
     };
   }, [store.activePickup]);
 
+  /* ----------------------------------
+     FRAME LOOP
+  ---------------------------------- */
   useFrame((_, delta) => {
-    const s = anim.current;
-    if (!s || !s.drop) return;
+    if (!anim.current) return;
 
-    /* -------------------------
-       1. Charging phase
+    const a = anim.current;
+
+    /* --------------------------
+       CHARGING PHASE
     -------------------------- */
-    if (s.stage === "charging") {
-      s.t += delta;
-      const p = Math.min(1, s.t / s.duration);
+    if (a.stage === "charge") {
+      a.t += delta;
+
+      const p = Math.min(1, a.t / 3);
       store.setPickupProgress(p);
 
       if (p >= 1) {
-        s.stage = "fly";
-        s.t = 0;
+        // Convert screen → world
+        const nx = (WALLET_SCREEN_X / window.innerWidth) * 2 - 1;
+        const ny = -(WALLET_SCREEN_Y / window.innerHeight) * 2 + 1;
+        temp.set(nx, ny, 0.4).unproject(camera);
+
+        a.end = temp.clone();
+        a.stage = "fly";
+        a.t = 0;
       }
       return;
     }
 
-    /* -------------------------
-       2. Prepare fly path
+    /* --------------------------
+       FLY PHASE (Bezier)
     -------------------------- */
-    if (!s.end) {
-      const nx = (WALLET_SCREEN_X / window.innerWidth) * 2 - 1;
-      const ny = -(WALLET_SCREEN_Y / window.innerHeight) * 2 + 1;
+    a.t += delta;
+    const p = Math.min(1, a.t / 0.8);
 
-      temp.set(nx, ny, 0.4).unproject(camera);
-
-      s.start = new THREE.Vector3(s.drop.x, s.drop.y, s.drop.z);
-      s.end = temp.clone();
-    }
-
-    /* -------------------------
-       3. Fly animation
-    -------------------------- */
-    s.t += delta;
-    const p = Math.min(1, s.t / 0.9);
-
-    const mid = s.start
+    const mid = a.start
       .clone()
-      .lerp(s.end, 0.5)
-      .add(new THREE.Vector3(0, 0.8, 0));
+      .lerp(a.end, 0.5)
+      .add(new THREE.Vector3(0, 1, 0));
 
-    const a = s.start.clone().lerp(mid, p);
-    const b = mid.clone().lerp(s.end, p);
-    const pos = a.lerp(b, p);
+    // 🔥 Correct quadratic Bézier
+    const a1 = a.start.clone().lerp(mid, p);
+    const a2 = mid.clone().lerp(a.end, p);
+    const pos = a1.lerp(a2, p);
 
-    if (!s.visual && baseCoin) {
-      s.visual = clone(baseCoin);
-      s.visual.scale.set(1, 1, 1);
-      scene.add(s.visual);
+    if (!a.visual && baseCoin) {
+      a.visual = clone(baseCoin);
+      scene.add(a.visual);
     }
 
-    if (s.visual) {
-      s.visual.position.copy(pos);
+    if (a.visual) {
+      a.visual.position.copy(pos);
     }
 
-    /* -------------------------
-       4. Finish
+    /* --------------------------
+       FINISH
     -------------------------- */
     if (p >= 1) {
-  if (s.visual) scene.remove(s.visual);
-
-  (async () => {
-    const res = await store.claimDropServer(s.drop.id);
-
-    // Even if server fails, unlock UI
-    await store.finishPickup(
-      s.drop.id,
-      res.ok ? res.data?.new_balance : null
-    );
-  })();
-
-  anim.current = {};
-}
+      if (a.visual) scene.remove(a.visual);
+      store.consumePickup(a.drop.id);
+      anim.current = null;
+    }
   });
 
   return null;

@@ -18,6 +18,7 @@ class UserStore {
      AUTH
   ------------------ */
 
+  // Fetch user coins on authorization
   onLoginSuccess(user) {
     this.authorized = true;
     this.user = user;

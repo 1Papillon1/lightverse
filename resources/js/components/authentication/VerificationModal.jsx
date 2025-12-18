@@ -1,5 +1,5 @@
 // VerificationModal.jsx
-import React, { useState } from "react";
+import { useState } from "react";
 
 const VerificationModal = ({ verificationId, onSuccess }) => {
   const [code, setCode] = useState("");

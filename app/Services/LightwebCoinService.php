@@ -11,24 +11,54 @@ use Carbon\Carbon;
 
 class LightwebCoinService
 {
+
+    // utils
+     protected function generateCoordinates(): array
+    {
+        return [
+            'x' => rand(-30, 30),
+            'y' => rand(2, 8),
+            'z' => rand(-20, 20),
+        ];
+    }
+
+    protected function generateRotation(): array
+        {
+            return [
+                'x' => rand(0, 628) / 100, // 0 → 2π
+                'y' => rand(0, 628) / 100,
+                'z' => rand(0, 628) / 100,
+            ];
+        }
+
+
     /**
      * Spawn ONE coin
      */
-    public function spawnDrop(User $user, string $reason, string $location)
-    {
-        $coords = $this->generateCoordinates();
+   public function spawnDrop(User $user, string $reason, string $location)
+{
+    $coords = $this->generateCoordinates();
+    $rotation = $this->generateRotation();
 
-        return LightwebCoinDrop::create([
-            'user_id'        => $user->id,
-            'reason'         => $reason,
-            'x'              => $coords['x'],
-            'y'              => $coords['y'],
-            'z'              => $coords['z'],
-            'spawn_location' => $location,
-            'expires_at'     => now()->addHours(24),
-            'claimed'        => false,
-        ]);
-    }
+    return LightwebCoinDrop::create([
+        'user_id'        => $user->id,
+        'reason'         => $reason,
+
+        // Position
+        'x'              => $coords['x'],
+        'y'              => $coords['y'],
+        'z'              => $coords['z'],
+
+        // 🔁 Rotation (PERSISTED)
+        'rot_x'          => $rotation['x'],
+        'rot_y'          => $rotation['y'],
+        'rot_z'          => $rotation['z'],
+
+        'spawn_location' => $location,
+        'expires_at'     => now()->addHours(24),
+        'claimed'        => false,
+    ]);
+}
 
     /**
      * Spawn many coins (loop)
@@ -76,14 +106,7 @@ class LightwebCoinService
         return $balance;
     }
 
-    protected function generateCoordinates(): array
-    {
-        return [
-            'x' => rand(-30, 30),
-            'y' => rand(2, 8),
-            'z' => rand(-20, 20),
-        ];
-    }
+   
 
     /**
      * FIRST LOGIN REWARD = exactly 5 coins

@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useGLTF } from "@react-three/drei";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils";
-import { useRootStore } from "@/stores/RootStore";
 
 export function useCoinModel() {
   const { scene } = useGLTF("/resources/models/coin/lightverse_coin.glb");
@@ -19,5 +18,6 @@ export function useCoinModel() {
     scene.updateMatrixWorld(true);
   }, [scene]);
 
+  // ✅ RETURNS A CLONE — SAFE TO USE DIRECTLY
   return clone(scene);
 }
