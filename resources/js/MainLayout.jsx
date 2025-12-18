@@ -13,6 +13,7 @@ import Signup from "@/components/authentication/Signup";
 import Settings from "@/pages/Settings";
 import NarratorPulse from "@/components/trackers/NarratorPulse";
 import AuriaHologram from "@/components/visuals/AuriaHologram";
+import UniverseBootLoader from "@/components/loaders/UniverseBootLoader";
 import AchievementsOverlay from "@/components/user/AchievementsOverlay";
 
 const MainLayout = observer(({ children }) => {
@@ -49,6 +50,11 @@ const MainLayout = observer(({ children }) => {
     url.startsWith("/register") ||
     url.startsWith("/email/verify");
 
+useEffect(() => {
+  if (isAuth) {
+    rootStore.visualLoadStore.reset();
+  }
+}, [isAuth]);
 
 
 useEffect(() => {
@@ -66,50 +72,54 @@ useEffect(() => {
 }, [userStore.overlayActive]);
 
   return (
-    <WalletProvider>
-      <div className="App">
+    <>
+      <UniverseBootLoader />
 
- 
+      <WalletProvider>
+        <div className="App">
 
-      {!isAuth && (
-        <>
-          <NarratorPulse />
-          <AuriaHologram />
-        </>
-      )}
+  
 
-      {!isAuth && <Navigation horizontal />}
+        {!isAuth && (
+          <>
+            <NarratorPulse />
+            <AuriaHologram />
+          </>
+        )}
 
-
-      <div className="layout">
-        {children}
-      </div>
+        {!isAuth && <Navigation horizontal />}
 
 
-      {!isDashboard && (
-        <div className="asidebar">
-          <div className="asidebar__footer">
-            {universeStore.zoomLevel === "system" && (
-              <ReturnToOrbitButton type="galaxy" />
-            )}
-            {universeStore.zoomLevel === "node" && (
-              <>
-                <ReturnToOrbitButton type="system" />
-                <ReturnToOrbitButton type="galaxy" />
-              </>
-            )}
-          </div>
+        <div className="layout">
+          {children}
         </div>
-      )}
 
-      {isDashboard && <TutorialOverlay />}
 
-      {userStore.activeOverlay === "login" && <Login />}
-      {userStore.activeOverlay === "signup" && <Signup />}
-      {userStore.activeOverlay === "settings" && <Settings />}
-      {userStore.activeOverlay === "achievements" && <AchievementsOverlay />}
-      </div>
-    </WalletProvider>
+        {!isDashboard && (
+          <div className="asidebar">
+            <div className="asidebar__footer">
+              {universeStore.zoomLevel === "system" && (
+                <ReturnToOrbitButton type="galaxy" />
+              )}
+              {universeStore.zoomLevel === "node" && (
+                <>
+                  <ReturnToOrbitButton type="system" />
+                  <ReturnToOrbitButton type="galaxy" />
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {isDashboard && <TutorialOverlay />}
+
+        {userStore.activeOverlay === "login" && <Login />}
+        {userStore.activeOverlay === "signup" && <Signup />}
+        {userStore.activeOverlay === "settings" && <Settings />}
+        {userStore.activeOverlay === "achievements" && <AchievementsOverlay />}
+        </div>
+      </WalletProvider>
+    </>
   );
 });
 

@@ -6,10 +6,10 @@ import RotatingStars from "@/components/visuals/RotatingStars";
 import NebulaBackdrop from "./NebulaBackdrop";
 import { observer } from "mobx-react-lite";
 import { resolveTerrainType } from "@/utils/terrainResolver";
-import LoaderGate from "@/components/trackers/LoaderGate";
 import LightverseCoin from "@/components/visuals/LightverseCoin";
 import CoinPickupOrchestrator from "@/components/visuals/CoinPickupOrchestrator";
 import { useRootStore } from "@/stores/RootStore";
+import { SRGBColorSpace } from "three";
 
 // Safe usePage import
 let inertiaUsePage;
@@ -71,27 +71,29 @@ const UniverseBackdrop = observer(({ mode, children }) => {
 
   return (
     <div className="canvas__background">
-      <Canvas camera={{ position: [0, 5, 30], fov: 75 }}>
+      <Canvas camera={{ position: [0, 5, 30], fov: 75 }}
+      gl={{ outputColorSpace: SRGBColorSpace }}
+      >
 
         <ambientLight intensity={3} />
         <directionalLight position={[1, 5, 0]} intensity={15} castShadow />
         <pointLight position={[0, 5, 0]} intensity={3} color="#8f8fff" />
 
-        <Suspense fallback={<LoaderGate />}>
-          <RotatingStars />
-          <NebulaBackdrop rotate />
-          <Terrain type={resolvedType} />
+       <Suspense fallback={null}>
+        <RotatingStars />
+        <NebulaBackdrop rotate />
+        <Terrain
+          key={resolvedType}   // 🔑 CRITICAL
+          type={resolvedType}
+        />
 
-          {/* Render page/system drops */}
-          {lightwebCoinStore.filteredDrops.map((drop) => (
-            <LightverseCoin key={drop.id} drop={drop} />
-          ))}
+        {lightwebCoinStore.filteredDrops.map(drop => (
+          <LightverseCoin key={drop.id} drop={drop} />
+        ))}
 
-          {/* Pickup animation controller */}
-          <CoinPickupOrchestrator />
-
-          {children}
-        </Suspense>
+        <CoinPickupOrchestrator />
+        {children}
+      </Suspense>
 
         <OrbitControls
           ref={orbitRef}
