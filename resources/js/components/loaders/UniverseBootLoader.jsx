@@ -4,7 +4,7 @@ import { useRootStore } from "@/stores/RootStore";
 const UniverseBootLoader = observer(() => {
   const { visualLoadStore } = useRootStore();
 
-  if (visualLoadStore.universeReady) return null;
+   if (visualLoadStore.universeReady) return null; 
 
   return (
     <div className="universe-boot">

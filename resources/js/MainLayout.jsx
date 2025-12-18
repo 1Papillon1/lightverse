@@ -35,12 +35,13 @@ const MainLayout = observer(({ children }) => {
   ---------------------------------- */
   useEffect(() => {
     const inertiaUser = props?.auth?.user;
+ 
 
-    if (inertiaUser && !userStore.authorized) {
+    if (inertiaUser) {
       userStore.onLoginSuccess(inertiaUser);
     }
 
-    if (!inertiaUser && userStore.authorized) {
+    if (!inertiaUser) {
       userStore.logout();
     }
   }, [props?.auth?.user]);
@@ -49,6 +50,7 @@ const MainLayout = observer(({ children }) => {
      💰 COINS LIFECYCLE (AUTH-DRIVEN)
   ---------------------------------- */
   useEffect(() => {
+   
     if (userStore.authorized) {
       rootStore.lightwebCoinStore.initializeForUser();
     } else {

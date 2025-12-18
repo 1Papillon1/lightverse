@@ -11,7 +11,12 @@ const Login = () => {
   const handleLogin = (e) => {
     e.preventDefault();
     post("/login", {
-      onError: (errs) => console.error(errs),
+      onError: (errs) => {
+        console.error(errs);
+        if (errs.email) {
+          setData({'email': '', 'password': ''})
+        }
+      },
     });
   };
 
@@ -39,7 +44,7 @@ const Login = () => {
               onChange={(e) => setData("email", e.target.value)}
               required
             />
-            {errors.email && <p className="error">{errors.email}</p>}
+            {errors.email && <p className="status error">{errors.email}</p>}
           </div>
 
           <div className="form__group">

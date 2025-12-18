@@ -11,6 +11,14 @@ $color-muted: #a3a3a3;      // Mutirani (sekundarni) tekst
 $color-purple-start: #7a6ff0; // Početna boja gradijenta
 $color-purple-end: #2c2a4a;   // Završna boja gradijenta
 
+// status
+$color-error: #ff3860;        // Bright red for errors
+$color-success: #00d1b2;      // Accent green-blue for success
+$color-info: #7a6ff0;         // Primary purple for info messages
+$color-warning: #ffcc00;      // Yellow for warnings
+$color-tip: #4fd1ff;          // Cyan/light blue for tips
+
+
 
 $block-width: 60vw;
 $block-height: 60vw;

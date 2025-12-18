@@ -37,6 +37,7 @@ const UniverseBackdrop = observer(({ mode, children }) => {
   const resolvedType = mode || resolveTerrainType(currentUrl);
 
 
+
   // Camera limiter
   function CameraLimiter() {
     const { camera } = useThree();

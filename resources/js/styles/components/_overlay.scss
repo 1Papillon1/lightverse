@@ -40,7 +40,7 @@
     color: #fff;
     text-shadow: 0px 0px 12px #8f00ff, 4px 4px 18px #9000ffa2;
     letter-spacing: 2px;
-    animation: pulse 2s infinite;
+    animation: titlepulse 2.4s ease-in-out infinite;
   }
 
   &__text {
@@ -329,6 +329,17 @@
       transform: translateY(-1px);
       outline: none;
     }
+  }
+}
+
+@keyframes titlepulse {
+   0%, 100% {
+    transform:  scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform:  scale(0.92);
+    opacity: 0.8;
   }
 }
 
