@@ -1,9 +1,11 @@
 // LightwebCoinStore.js
 import { makeAutoObservable, runInAction } from "mobx";
 import axios from "axios";
+import parseSpawnLocation from "./utils/parseSpawnLocation";
 
 
 let instance = null;
+
 
 
 export default class LightwebCoinStore {
@@ -19,7 +21,9 @@ initializedForUser = false;
 
 isPickupFrozen = false;
 activePickup = null;
-pickupProgress = 0;
+
+
+
 consumed = new Set();
 
 
@@ -47,7 +51,6 @@ this.balance = 0;
 this.initializedForUser = false;
 this.isPickupFrozen = false;
 this.activePickup = null;
-this.pickupProgress = 0;
 this.consumed.clear();
 }
 
@@ -57,6 +60,9 @@ const { data } = await axios.get("/lightcoins/drops", { withCredentials: true })
 runInAction(() => (this.drops = data));
 }
 
+isBeingPickedUp(id) {
+  return this.activePickup === id;
+}
 
 async fetchBalance() {
 const { data } = await axios.get("/lightcoins/balance", { withCredentials: true });
@@ -65,19 +71,13 @@ runInAction(() => (this.balance = data.balance ?? 0));
 
 
 beginPickup(id) {
-  if (this.isPickupFrozen) return;
-  if (this.activePickup) return;
-  if (this.consumed.has(id)) return;
+  if (this.isPickupFrozen || this.activePickup || this.consumed.has(id)) return;
 
   this.isPickupFrozen = true;
   this.activePickup = id;
-  this.pickupProgress = 0;
 }
 
 
-setPickupProgress(p) {
-this.pickupProgress = p;
-}
 
 
 getDrop(id) {
@@ -105,6 +105,7 @@ async consumePickup(id) {
   } catch {
     // rollback on failure
     runInAction(() => {
+ 
       this.consumed.delete(id);
       this.isPickupFrozen = false;
       this.activePickup = null;
@@ -116,7 +117,7 @@ async consumePickup(id) {
     this.balance = res.data?.new_balance ?? this.balance + 1;
     this.drops = this.drops.filter(d => d.id !== id);
     this.activePickup = null;
-    this.pickupProgress = 0;
+  
     this.isPickupFrozen = false;
   });
 }
@@ -125,37 +126,44 @@ async consumePickup(id) {
 get filteredDrops() {
   if (!this.rootStore.userStore.authorized) return [];
 
-  const universeStore = this.rootStore.universeStore;
-  const zoom = universeStore.zoomLevel;
-  const activeSystem = universeStore.activeSystem?.id || null;
+  const zoom = this.rootStore.universeStore.zoomLevel;
+  const activeSystem = this.rootStore.universeStore.activeSystem?.id || null;
 
-  const normalizedPath = window.location.pathname
-    .replace(/\/$/, "")
-    .toLowerCase()
-    .replace(/^\//, ""); // e.g. "overview/about"
+  console.log(
+  "🪙 Visible drops:",
+  this.drops.map(d => ({
+    id: d.id,
+    loc: d.spawn_location,
+    parsed: parseSpawnLocation(d.spawn_location),
+  }))
+);
+
+  const pathname = window.location.pathname
+    .replace(/^\/+/, "")
+    .replace(/\//g, ".");
 
   return this.drops.filter(d => {
-    const loc = d.spawn_location;
-    if (!loc) return false;
+    const parsed = parseSpawnLocation(d.spawn_location);
+    if (!parsed) return false;
 
     /* 🌌 GALAXY */
     if (zoom === "galaxy") {
-      return loc === "galaxy";
+      return parsed.type === "galaxy";
     }
 
-    /* 🪐 SYSTEM ROOT (/overview) */
+    /* 🪐 SYSTEM */
     if (zoom === "system") {
-      return loc === `system:${activeSystem}`;
+      return (
+        parsed.type === "system" &&
+        parsed.value === activeSystem
+      );
     }
 
-    /* 📄 NODE (/overview/about, etc.) */
+    /* 📄 NODE (page) */
     if (zoom === "node") {
       return (
-        // page-specific coin
-        loc === `page:${normalizedPath}` ||
-
-        // system coin shared across all nodes of this system
-        loc === `system:${activeSystem}`
+        parsed.type === "page" &&
+        parsed.value === pathname
       );
     }
 

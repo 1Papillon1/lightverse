@@ -89,9 +89,16 @@ const UniverseBackdrop = observer(({ mode, children }) => {
         />
 
         {userStore.authorized &&
-          lightwebCoinStore.filteredDrops.map(drop => (
+        lightwebCoinStore.filteredDrops
+          .filter(drop =>
+            !(
+              lightwebCoinStore.activePickup === drop.id &&
+              lightwebCoinStore.pickupPhase === "flying"
+            )
+          )
+          .map(drop => (
             <LightverseCoin key={drop.id} drop={drop} />
-        ))}
+          ))}
 
         {userStore.authorized && <CoinPickupOrchestrator />}
         {children}

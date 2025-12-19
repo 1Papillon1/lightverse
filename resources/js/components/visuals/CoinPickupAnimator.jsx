@@ -11,7 +11,6 @@ const CoinPickupAnimator = observer(() => {
   const store = useRootStore().lightwebCoinStore;
 
   const baseCoin = useCoinModel();
-
   const anim = useRef(null);
   const temp = new THREE.Vector3();
 
@@ -19,7 +18,7 @@ const CoinPickupAnimator = observer(() => {
   const WALLET_SCREEN_Y = 50;
 
   /* ----------------------------------
-     INIT PICKUP
+     INIT PICKUP (instant)
   ---------------------------------- */
   useEffect(() => {
     if (!store.activePickup) return;
@@ -29,45 +28,37 @@ const CoinPickupAnimator = observer(() => {
 
     anim.current = {
       drop,
-      stage: "charge",
       t: 0,
       visual: null,
+      finished: false,
       start: new THREE.Vector3(drop.x, drop.y, drop.z),
       end: null,
     };
   }, [store.activePickup]);
 
   /* ----------------------------------
-     FRAME LOOP
+     FRAME LOOP (fly only)
   ---------------------------------- */
   useFrame((_, delta) => {
     if (!anim.current) return;
 
     const a = anim.current;
+    a.t += delta;
 
-    /* -------- CHARGE -------- */
-    if (a.stage === "charge") {
-      a.t += delta;
-      const p = Math.min(1, a.t / 3);
-      store.setPickupProgress(p);
+    const p = Math.min(1, a.t / 1.2); // fly duration
 
-      if (p >= 1) {
-        const nx = (WALLET_SCREEN_X / window.innerWidth) * 2 - 1;
-        const ny = -(WALLET_SCREEN_Y / window.innerHeight) * 2 + 1;
-        temp.set(nx, ny, 0.4).unproject(camera);
-
-        a.end = temp.clone();
-        a.stage = "fly";
-        a.t = 0;
-      }
-      return;
+    if (!a.end) {
+      const nx = (WALLET_SCREEN_X / window.innerWidth) * 2 - 1;
+      const ny = -(WALLET_SCREEN_Y / window.innerHeight) * 2 + 1;
+      temp.set(nx, ny, 0.4).unproject(camera);
+      a.end = temp.clone();
     }
 
-    /* -------- FLY -------- */
-    a.t += delta;
-    const p = Math.min(1, a.t / 0.8);
+    const mid = a.start
+      .clone()
+      .lerp(a.end, 0.5)
+      .add(new THREE.Vector3(0, 1, 0));
 
-    const mid = a.start.clone().lerp(a.end, 0.5).add(new THREE.Vector3(0, 1, 0));
     const a1 = a.start.clone().lerp(mid, p);
     const a2 = mid.clone().lerp(a.end, p);
     const pos = a1.lerp(a2, p);
@@ -79,15 +70,23 @@ const CoinPickupAnimator = observer(() => {
 
     if (a.visual) {
       a.visual.position.copy(pos);
+      a.visual.traverse(o => {
+        if (o.material) {
+          o.material.transparent = true;
+          o.material.opacity = 1 - p;
+        }
+      });
     }
 
-    /* -------- FINISH -------- */
-    if (p >= 1) {
+    if (p >= 1 && !a.finished) {
+      a.finished = true;
+
       if (a.visual && scene) {
         try {
           scene.remove(a.visual);
         } catch {}
       }
+
       store.consumePickup(a.drop.id);
       anim.current = null;
     }

@@ -35,7 +35,7 @@ const MainLayout = observer(({ children }) => {
   ---------------------------------- */
 useEffect(() => {
   const inertiaUser = props?.auth?.user;
-
+console.log(universeStore.zoomLevel);
 
   if (inertiaUser && !userStore.authorized) {
     userStore.onLoginSuccess(inertiaUser);
@@ -50,8 +50,12 @@ useEffect(() => {
      🌌 UNIVERSE SYNC ON ROUTE CHANGE
   ---------------------------------- */
   useEffect(() => {
+  try {
     universeStore.detectFromUrl();
-  }, [url]);
+  } catch (e) {
+    console.error("detectFromUrl failed", e);
+  }
+}, [url]);
 
   /* ----------------------------------
      🧭 AUTH ROUTES

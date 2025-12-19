@@ -7,19 +7,21 @@ import * as THREE from "three";
 export default function LightverseCoin({ drop }) {
   const store = useRootStore().lightwebCoinStore;
 
-  // 🔒 Consumed coins NEVER render
-  if (store.isConsumed(drop.id)) return null;
+  // ❌ Do not render consumed or active pickup coin
+  if (
+    store.isConsumed(drop.id) ||
+    store.activePickup === drop.id
+  ) {
+    return null;
+  }
 
   const rootRef = useRef();
   const centerRef = useRef();
-
   const model = useCoinModel();
 
   const [hovered, setHovered] = useState(false);
   const phase = useRef(Math.random() * Math.PI * 2);
   const baseY = drop.y;
-
-  const isActive = store.activePickup === drop.id;
 
   /* ----------------------------------
      MODEL CENTERING
@@ -51,19 +53,17 @@ export default function LightverseCoin({ drop }) {
   }, []);
 
   /* ----------------------------------
-     FRAME LOOP
+     IDLE ANIMATION
   ---------------------------------- */
   useFrame((_, delta) => {
     const g = rootRef.current;
     if (!g) return;
 
-    if (!isActive) {
-      g.rotation.y += delta * 0.35;
-      phase.current += delta * 1.4;
-      g.position.y = baseY + Math.sin(phase.current) * 0.16;
-    }
+    g.rotation.y += delta * 0.35;
+    phase.current += delta * 1.4;
+    g.position.y = baseY + Math.sin(phase.current) * 0.16;
 
-    const targetScale = hovered || isActive ? 1.15 : 1.0;
+    const targetScale = hovered ? 1.15 : 1.0;
     g.scale.lerp(
       new THREE.Vector3(targetScale, targetScale, targetScale),
       0.15
@@ -71,7 +71,7 @@ export default function LightverseCoin({ drop }) {
   });
 
   /* ----------------------------------
-     CLICK
+     CLICK → PICKUP
   ---------------------------------- */
   const handleClick = (e) => {
     e.stopPropagation();
@@ -79,8 +79,9 @@ export default function LightverseCoin({ drop }) {
     store.beginPickup(drop.id);
   };
 
-  const yOffset =
-  drop.spawn_location.startsWith("system:") ? 0 : 0.6;
+  const yOffset = drop.spawn_location.startsWith("system:")
+    ? 0
+    : 0.6;
 
   return (
     <group
@@ -91,22 +92,7 @@ export default function LightverseCoin({ drop }) {
     >
       <group ref={centerRef} />
 
-      {/* ⏳ CHARGE RING */}
-      {isActive && (
-        <mesh position={[0, 1.6, 0]}>
-          <ringGeometry
-            args={[0.35, 0.45, 32, 1, 0, Math.PI * 2 * store.pickupProgress]}
-          />
-          <meshBasicMaterial
-            color="#8f8fff"
-            transparent
-            opacity={0.9}
-            side={THREE.DoubleSide}
-          />
-        </mesh>
-      )}
-
-      {/* 🫥 HITBOX */}
+      {/* HITBOX */}
       <mesh
         onPointerOver={(e) => {
           e.stopPropagation();
