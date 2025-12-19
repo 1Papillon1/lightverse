@@ -131,36 +131,36 @@ get filteredDrops() {
 
   const normalizedPath = window.location.pathname
     .replace(/\/$/, "")
-    .toLowerCase();
+    .toLowerCase()
+    .replace(/^\//, ""); // e.g. "overview/about"
 
-  // ----------------------------
-  // 🌌 GALAXY (dashboard only)
-  // ----------------------------
-  if (zoom === "galaxy") {
-    return this.drops.filter(
-      d => d.spawn_location === "galaxy"
-    );
-  }
+  return this.drops.filter(d => {
+    const loc = d.spawn_location;
+    if (!loc) return false;
 
-  // ----------------------------
-  // 🪐 SYSTEM (e.g. /markets)
-  // ----------------------------
-  if (zoom === "system") {
-    if (!activeSystem) return [];
-    return this.drops.filter(
-      d => d.spawn_location === `system:${activeSystem}`
-    );
-  }
+    /* 🌌 GALAXY */
+    if (zoom === "galaxy") {
+      return loc === "galaxy";
+    }
 
-  // ----------------------------
-  // 📄 NODE / PAGE (exact match)
-  // ----------------------------
-  if (zoom === "node") {
-    return this.drops.filter(
-      d => d.spawn_location === `page:${normalizedPath.replace(/^\//, "")}`
-    );
-  }
+    /* 🪐 SYSTEM ROOT (/overview) */
+    if (zoom === "system") {
+      return loc === `system:${activeSystem}`;
+    }
 
-  return [];
+    /* 📄 NODE (/overview/about, etc.) */
+    if (zoom === "node") {
+      return (
+        // page-specific coin
+        loc === `page:${normalizedPath}` ||
+
+        // system coin shared across all nodes of this system
+        loc === `system:${activeSystem}`
+      );
+    }
+
+    return false;
+  });
 }
+
 }

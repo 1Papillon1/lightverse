@@ -33,30 +33,18 @@ const MainLayout = observer(({ children }) => {
   /* ----------------------------------
      🔑 INERTIA → MOBX AUTH SYNC
   ---------------------------------- */
-  useEffect(() => {
-    const inertiaUser = props?.auth?.user;
+useEffect(() => {
+  const inertiaUser = props?.auth?.user;
+
+
+  if (inertiaUser && !userStore.authorized) {
+    userStore.onLoginSuccess(inertiaUser);
+  }
+
  
+}, [props?.auth?.user]);
 
-    if (inertiaUser) {
-      userStore.onLoginSuccess(inertiaUser);
-    }
 
-    if (!inertiaUser) {
-      userStore.logout();
-    }
-  }, [props?.auth?.user]);
-
-  /* ----------------------------------
-     💰 COINS LIFECYCLE (AUTH-DRIVEN)
-  ---------------------------------- */
-  useEffect(() => {
-   
-    if (userStore.authorized) {
-      rootStore.lightwebCoinStore.initializeForUser();
-    } else {
-      rootStore.lightwebCoinStore.reset();
-    }
-  }, [userStore.authorized]);
 
   /* ----------------------------------
      🌌 UNIVERSE SYNC ON ROUTE CHANGE

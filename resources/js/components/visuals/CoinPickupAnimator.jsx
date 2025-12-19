@@ -1,22 +1,20 @@
-// CoinPickupAnimator.jsx
 import { useRef, useEffect } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils";
 import { useRootStore } from "@/stores/RootStore";
 import { useCoinModel } from "@/utils/useCoinModel";
+import { observer } from "mobx-react-lite";
 
-export default function CoinPickupAnimator() {
+const CoinPickupAnimator = observer(() => {
   const { camera, scene } = useThree();
   const store = useRootStore().lightwebCoinStore;
 
-  // 🔑 Base model (already a clone from hook)
   const baseCoin = useCoinModel();
 
   const anim = useRef(null);
   const temp = new THREE.Vector3();
 
-  // Wallet HUD screen position
   const WALLET_SCREEN_X = window.innerWidth - 60;
   const WALLET_SCREEN_Y = 50;
 
@@ -47,17 +45,13 @@ export default function CoinPickupAnimator() {
 
     const a = anim.current;
 
-    /* --------------------------
-       CHARGING PHASE
-    -------------------------- */
+    /* -------- CHARGE -------- */
     if (a.stage === "charge") {
       a.t += delta;
-
       const p = Math.min(1, a.t / 3);
       store.setPickupProgress(p);
 
       if (p >= 1) {
-        // Convert screen → world
         const nx = (WALLET_SCREEN_X / window.innerWidth) * 2 - 1;
         const ny = -(WALLET_SCREEN_Y / window.innerHeight) * 2 + 1;
         temp.set(nx, ny, 0.4).unproject(camera);
@@ -69,23 +63,16 @@ export default function CoinPickupAnimator() {
       return;
     }
 
-    /* --------------------------
-       FLY PHASE (Bezier)
-    -------------------------- */
+    /* -------- FLY -------- */
     a.t += delta;
     const p = Math.min(1, a.t / 0.8);
 
-    const mid = a.start
-      .clone()
-      .lerp(a.end, 0.5)
-      .add(new THREE.Vector3(0, 1, 0));
-
-    // 🔥 Correct quadratic Bézier
+    const mid = a.start.clone().lerp(a.end, 0.5).add(new THREE.Vector3(0, 1, 0));
     const a1 = a.start.clone().lerp(mid, p);
     const a2 = mid.clone().lerp(a.end, p);
     const pos = a1.lerp(a2, p);
 
-    if (!a.visual && baseCoin) {
+    if (!a.visual && baseCoin && scene) {
       a.visual = clone(baseCoin);
       scene.add(a.visual);
     }
@@ -94,15 +81,33 @@ export default function CoinPickupAnimator() {
       a.visual.position.copy(pos);
     }
 
-    /* --------------------------
-       FINISH
-    -------------------------- */
+    /* -------- FINISH -------- */
     if (p >= 1) {
-      if (a.visual) scene.remove(a.visual);
+      if (a.visual && scene) {
+        try {
+          scene.remove(a.visual);
+        } catch {}
+      }
       store.consumePickup(a.drop.id);
       anim.current = null;
     }
   });
 
+  /* ----------------------------------
+     CLEANUP
+  ---------------------------------- */
+  useEffect(() => {
+    return () => {
+      if (anim.current?.visual && scene) {
+        try {
+          scene.remove(anim.current.visual);
+        } catch {}
+      }
+      anim.current = null;
+    };
+  }, [scene]);
+
   return null;
-}
+});
+
+export default CoinPickupAnimator;

@@ -7,13 +7,12 @@ import * as THREE from "three";
 export default function LightverseCoin({ drop }) {
   const store = useRootStore().lightwebCoinStore;
 
-  // 🔒 HARD EXIT — consumed coins NEVER render
+  // 🔒 Consumed coins NEVER render
   if (store.isConsumed(drop.id)) return null;
 
   const rootRef = useRef();
   const centerRef = useRef();
 
-  // ✅ Already a clone
   const model = useCoinModel();
 
   const [hovered, setHovered] = useState(false);
@@ -23,7 +22,7 @@ export default function LightverseCoin({ drop }) {
   const isActive = store.activePickup === drop.id;
 
   /* ----------------------------------
-     MODEL CENTERING (NO EXTRA CLONE)
+     MODEL CENTERING
   ---------------------------------- */
   useEffect(() => {
     if (!model || !centerRef.current) return;
@@ -38,12 +37,12 @@ export default function LightverseCoin({ drop }) {
     centerRef.current.add(model);
 
     return () => {
-      centerRef.current.remove(model);
+      centerRef.current?.remove(model);
     };
   }, [model]);
 
   /* ----------------------------------
-     CURSOR SAFETY CLEANUP
+     CURSOR CLEANUP
   ---------------------------------- */
   useEffect(() => {
     return () => {
@@ -72,7 +71,7 @@ export default function LightverseCoin({ drop }) {
   });
 
   /* ----------------------------------
-     CLICK HANDLER
+     CLICK
   ---------------------------------- */
   const handleClick = (e) => {
     e.stopPropagation();
@@ -80,16 +79,19 @@ export default function LightverseCoin({ drop }) {
     store.beginPickup(drop.id);
   };
 
+  const yOffset =
+  drop.spawn_location.startsWith("system:") ? 0 : 0.6;
+
   return (
     <group
       ref={rootRef}
-      position={[drop.x, drop.y, drop.z]}
+      position={[drop.x, drop.y + yOffset, drop.z]}
       rotation={[drop.rot_x, drop.rot_y, drop.rot_z]}
       renderOrder={9999}
     >
       <group ref={centerRef} />
 
-      {/* ⏳ Pickup progress ring */}
+      {/* ⏳ CHARGE RING */}
       {isActive && (
         <mesh position={[0, 1.6, 0]}>
           <ringGeometry
@@ -104,7 +106,7 @@ export default function LightverseCoin({ drop }) {
         </mesh>
       )}
 
-      {/* 🫥 Invisible hitbox */}
+      {/* 🫥 HITBOX */}
       <mesh
         onPointerOver={(e) => {
           e.stopPropagation();
