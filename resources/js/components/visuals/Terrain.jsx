@@ -13,6 +13,7 @@ export default function Terrain({ type = "token" }) {
     markets: "/textures/market_node_4k.jpg",
     contracts: "/textures/contract_node_4k.jpg",
     overview: "/textures/roadmap_node_4k.jpg",
+    identity: "/textures/identity_node_4k.jpg",
     ai: "/textures/ai_node_4k.jpg",
     token: "/textures/market_node_4k.jpg",
   };

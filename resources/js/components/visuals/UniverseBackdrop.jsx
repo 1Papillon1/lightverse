@@ -26,7 +26,8 @@ try {
 
 const UniverseBackdrop = observer(({ mode, children }) => {
   const orbitRef = useRef();
-  const { lightwebCoinStore, userStore } = useContext(RootStoreContext);
+  const { universeStore, lightwebCoinStore, userStore } =
+  useContext(RootStoreContext);
 
   const inertiaPage = inertiaUsePage ? inertiaUsePage() : null;
 
@@ -34,7 +35,23 @@ const UniverseBackdrop = observer(({ mode, children }) => {
   const currentUrl =
     inertiaPage?.url || inertiaPage?.props?.url || window.location.pathname;
 
-  const resolvedType = mode || resolveTerrainType(currentUrl);
+    // 1️⃣ explicit override (rare, manual)
+  let resolvedType = mode;
+
+  // 2️⃣ STAR CONTEXT (this is the fix)
+  if (!resolvedType && universeStore.activeSystem?.id) {
+    resolvedType = universeStore.activeSystem.id;
+  }
+
+  // 3️⃣ URL fallback (legacy logic, coins, safety)
+  if (!resolvedType) {
+    resolvedType = resolveTerrainType(currentUrl);
+  }
+
+ // log active system terrain 
+  useEffect(() => {
+    console.log("Resolved Terrain Type:", resolvedType);
+  }, [resolvedType]);
 
 
 
@@ -84,7 +101,7 @@ const UniverseBackdrop = observer(({ mode, children }) => {
         <RotatingStars />
         <NebulaBackdrop rotate />
         <Terrain
-          key={resolvedType}   // 🔑 CRITICAL
+          key={resolvedType}
           type={resolvedType}
         />
 
