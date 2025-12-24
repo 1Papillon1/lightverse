@@ -64,7 +64,7 @@
         </style>
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
-        <link rel="icon" href="/favicon.ico" type="image/x-icon">
+        <link rel="icon" href="/logo.ico" type="image/x-icon">
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600|orbitron:400,500" rel="stylesheet" />

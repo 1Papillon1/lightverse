@@ -8,6 +8,7 @@ const starConfigs = [
   { id: "markets", label: "Markets", theme: "orange", position: [59, 15, 85] },
   { id: "contracts", label: "Contracts", theme: "gray", position: [85, -35, -17] },
   { id: "overview", label: "Overview", theme: "darkbrown", position: [-65, -15, 8] },
+  { id: "identity", label: "Identity", theme: "lightbrown", position: [0, 30, -100] },
   { id: "ai", label: "Wzkr AI", theme: "lightbrown", position: [25, 15, -60] },
 ];
 

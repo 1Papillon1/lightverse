@@ -50,6 +50,7 @@ console.log(universeStore.zoomLevel);
      🌌 UNIVERSE SYNC ON ROUTE CHANGE
   ---------------------------------- */
   useEffect(() => {
+   
   try {
     universeStore.detectFromUrl();
   } catch (e) {
@@ -108,20 +109,29 @@ console.log(universeStore.zoomLevel);
           {!isDashboard && (
             <div className="asidebar">
               <div className="asidebar__footer">
-                {universeStore.zoomLevel === "system" && (
-                  <ReturnToOrbitButton type="galaxy" />
+               {universeStore.canReturnToSystem && (
+                  <ReturnToOrbitButton type="system" />
                 )}
-                {universeStore.zoomLevel === "node" && (
-                  <>
-                    <ReturnToOrbitButton type="system" />
-                    <ReturnToOrbitButton type="galaxy" />
-                  </>
+
+                {universeStore.canReturnToGalaxy && (
+                  <ReturnToOrbitButton type="galaxy" />
                 )}
               </div>
             </div>
           )}
 
-          {isDashboard && <TutorialOverlay />}
+          {isDashboard && (
+            <>
+            <TutorialOverlay />
+            {universeStore.zoomLevel === "system" && (
+              <div className="asidebar">
+              <div className="asidebar__footer">
+                <ReturnToOrbitButton type="galaxy" />
+                </div>
+              </div>
+            )}
+            </>
+            )}
 
           {userStore.activeOverlay === "login" && <Login />}
           {userStore.activeOverlay === "signup" && <Signup />}

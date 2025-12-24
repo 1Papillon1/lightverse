@@ -19,6 +19,10 @@ export const systems = {
     { id: "news", name: "News", route: "/overview/news" },
     { id: "social", name: "Social", route: "/overview/social" },
   ],
+  identity: [
+    { id: "achievements", name: "Achievements", route: "/identity/achievements" },
+    { id: "build", name: "Build", route: "/identity/build" },
+  ],
   ai: [
     { id: "assistant", name: "Assistant", route: "/ai/assistant" },
     { id: "trainer", name: "Trainer", route: "/ai/trainer" },

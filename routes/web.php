@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\LightwebCoinController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Api\UserAchievementController;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use App\Models\LightwebCoinDrop;
@@ -144,6 +145,31 @@ Route::get('/', function () {
         : redirect()->route('login');
 });
 
+
+
+Route::prefix('identity')->group(function () {
+    Route::get('/', fn () => Inertia::render('Identity', [
+        'mode' => 'system',
+    ]))->name('identity');
+
+ 
+    Route::get('/achievements', fn () => Inertia::render('Identity', [
+        'mode' => 'achievements',
+    ]))->name('identity.achievements');
+
+    Route::get('/build', fn () => Inertia::render('Identity', [
+        'mode' => 'build',
+    ]))->name('identity.build');
+
+});
+
+Route::middleware(['auth'])->prefix('identity')->group(function () {
+    Route::get('/achievements/data', [
+        UserAchievementController::class,
+        'index'
+    ]);
+});
+
 // 🪐 MARKETS STAR SYSTEM
 Route::prefix('markets')->group(function () {
     // System center (the star itself — when you zoom into it)
@@ -246,3 +272,4 @@ Route::get('/wallet/connect', function () {
 })->name('wallet.connect');
 
 /* }); */
+

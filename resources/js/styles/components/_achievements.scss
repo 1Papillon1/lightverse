@@ -1,0 +1,114 @@
+/* achievements.scss */
+
+.achievements {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 14;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* CARD */
+.achievements__card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transition: transform 0.45s ease, opacity 0.45s ease;
+}
+
+.achievements__card--ghost {
+  opacity: 0.35;
+}
+
+.achievements__core {
+  width: 240px;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+
+  background: rgba(0, 0, 0, 0.6);
+  color: #ccfaff;
+
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.75rem;
+
+  border: 1px solid #00ffff;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.55);
+
+  text-align: left;
+}
+
+.achievements__core h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  color: #00ffff;
+}
+
+.achievements__core p {
+  margin-top: 0.4rem;
+  line-height: 1.4;
+}
+
+.achievements__core span {
+   font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  color: #00ffff;
+  display: block;
+}
+
+/* PROJECTOR */
+.achievements__projector {
+  position: absolute;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #7ffcff, #0ff2);
+  box-shadow: 0 0 40px #7ffcff;
+  z-index: 2;
+}
+
+/* LIGHT CONE */
+.achievements::before {
+  content: "";
+  position: absolute;
+  bottom: 90px;
+  left: 50%;
+  width: 700px;
+  height: 700px;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    ellipse at bottom,
+    rgba(127, 252, 255, 0.22),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* CONTROLS */
+.achievements__controls {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 60px;
+  z-index: 20;
+}
+
+.achievements__controls .section__button {
+  transform: scale(1.3);
+  margin: 0 10vw;
+  margin-bottom: 7vh;
+}
+
+.achievements__controls .section__button:hover {
+  transform: scale(1.45);
+}

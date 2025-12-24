@@ -42,6 +42,7 @@ const UniverseScene = observer(({ onSceneSelect }) => {
     "/textures/market_node_4k.jpg",
     "/textures/contract_node_4k.jpg",
     "/textures/roadmap_node_4k.jpg",
+    "/textures/identity_node_4k.jpg",
     "/textures/ai_node_4k.jpg",
   ]);
 

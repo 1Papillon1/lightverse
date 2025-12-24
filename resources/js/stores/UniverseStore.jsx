@@ -9,6 +9,26 @@ class UniverseStore {
     makeAutoObservable(this);
   }
 
+    get isGalaxy() {
+    return this.zoomLevel === "galaxy";
+  }
+
+  get isSystem() {
+    return this.zoomLevel === "system";
+  }
+
+  get isNode() {
+    return this.zoomLevel === "node";
+  }
+
+  get canReturnToGalaxy() {
+    return this.isSystem || this.isNode;
+  }
+
+  get canReturnToSystem() {
+    return this.isNode;
+  }
+
   // --- Core setters ---
   setZoomLevel(level) {
     if (!["galaxy", "system", "node"].includes(level)) return;
@@ -49,27 +69,31 @@ class UniverseStore {
 
   // --- Detect zoom state from URL ---
  detectFromUrl() {
-    const path = window.location.pathname.split("/").filter(Boolean);
+  const path = window.location.pathname.split("/").filter(Boolean);
 
-    // ⛔ AUTH ROUTES → always galactic
-    if (path[0] === "login" || path[0] === "register") {
-        this.setZoomLevel("galaxy");
-        this.activeSystem = null;
-        return;
-    }
-
-    if (path.length === 0 || path[0] === "dashboard") {
-      this.setZoomLevel("galaxy");
-      this.activeSystem = null;
-    } else if (path.length === 1) {
-      this.setZoomLevel("system");
-      this.activeSystem = { id: path[0] };
-    } else if (path.length >= 2) {
-      this.setZoomLevel("node");
-      this.activeSystem = { id: path[0] };
-    }
-
+  if (["login", "register", "email"].includes(path[0])) {
+    this.zoomLevel = "galaxy";
+    this.activeSystem = null;
+    return;
   }
+
+  if (path.length === 0 || path[0] === "dashboard") {
+    this.zoomLevel = "galaxy";
+    this.activeSystem = null;
+    return;
+  }
+
+  // SYSTEM ROOT ONLY
+  if (path.length === 1) {
+    this.zoomLevel = "system";
+    this.activeSystem = { id: path[0] };
+    return;
+  }
+
+  // NODE VIEW
+  this.zoomLevel = "node";
+  this.activeSystem = { id: path[0] };
+}
 }
 
 export default UniverseStore;

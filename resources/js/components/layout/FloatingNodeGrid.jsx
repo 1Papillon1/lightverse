@@ -20,6 +20,7 @@ export default function FloatingNodeGrid({
     markets: useLoader(TextureLoader, "/textures/market_node_4k.jpg"),
     contracts: useLoader(TextureLoader, "/textures/contract_node_4k.jpg"),
     overview: useLoader(TextureLoader, "/textures/roadmap_node_4k.jpg"),
+    identity: useLoader(TextureLoader, "/textures/identity_node_4k.jpg"),
     ai: useLoader(TextureLoader, "/textures/ai_node_4k.jpg"),
   };
 
