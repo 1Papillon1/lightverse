@@ -6,6 +6,7 @@ import MainLayout from "@/MainLayout";
 import { Head } from "@inertiajs/react";
 import { usePage } from "@inertiajs/react";
 import UniverseBackdrop from "@/components/visuals/UniverseBackdrop";
+/* import SkeletonBot  from "@/components/model/SkeletonBot"; */
 
 const Build = observer(() => {
 
@@ -18,7 +19,14 @@ const Build = observer(() => {
     return (
         <>
                <Head title="Build" />
-                   
+                    {/*  <UniverseBackdrop mode="identity">
+                        
+                        <SkeletonBot
+                        position={[0, -2, 22]}
+                        scale={1.5}
+                        rotation={[0, -360/Math.PI, 0.2]}
+                        />
+                    </UniverseBackdrop> */}
                     </>
     );
 }
