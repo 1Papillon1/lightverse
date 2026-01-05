@@ -11,6 +11,7 @@ import CoinPickupOrchestrator from "@/components/visuals/CoinPickupOrchestrator"
 import { useRootStore } from "@/stores/RootStore";
 import { SRGBColorSpace } from "three";
 import { RootStoreContext } from "@/stores/RootStore";
+import AmbientShip from "@/components/visuals/AmbientShip";
 
 // Safe usePage import
 let inertiaUsePage;
@@ -116,7 +117,7 @@ const UniverseBackdrop = observer(({ mode, children }) => {
           .map(drop => (
             <LightverseCoin key={drop.id} drop={drop} />
           ))}
-
+         {!userStore.authorized && <AmbientShip />}
         {userStore.authorized && <CoinPickupOrchestrator />}
         {children}
       </Suspense>

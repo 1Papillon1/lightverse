@@ -6,6 +6,7 @@ const Login = () => {
   const { data, setData, post, processing, errors } = useForm({
     email: "",
     password: "",
+    remember: false,
   });
 
   const handleLogin = (e) => {
@@ -59,6 +60,18 @@ const Login = () => {
             />
             {errors.password && <p className="error">{errors.password}</p>}
           </div>
+
+          <div className="form__group form__group--remember">
+          <label className="form__remember">
+            <input
+              type="checkbox"
+              name="remember"
+              className="form__remember-input"
+            />
+            <span className="form__remember-box"></span>
+            <span className="form__remember-text">Remember me</span>
+          </label>
+        </div>
 
           <div className="form__group">
             <button type="submit" className="button" disabled={processing}>
