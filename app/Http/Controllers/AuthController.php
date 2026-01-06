@@ -107,6 +107,9 @@ class AuthController extends Controller
         $user = $request->user();
         $user->refresh();
 
+        // get user roles
+        $user->load('roles');
+
         Log::info('LOGIN SUCCESSFUL - POST-REFRESH', [
             'user_id' => $user->id,
             'username' => $user->username,
@@ -115,6 +118,8 @@ class AuthController extends Controller
             'is_verified' => $user->hasVerifiedEmail(),
             'ip' => $request->ip(),
         ]);
+
+       
 
         // Block if not verified
         if (! $user->hasVerifiedEmail()) {

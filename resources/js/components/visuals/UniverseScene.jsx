@@ -15,6 +15,7 @@ import AsteroidField from "@/components/visuals/AsteroidField";
 import RisingStar from "@/components/visuals/RisingStar";
 import LightverseCoin from "@/components/visuals/LightverseCoin";
 import CoinPickupOrchestrator from "@/components/visuals/CoinPickupOrchestrator";
+import { usePage } from "@inertiajs/react";
 import { Inertia } from "@inertiajs/inertia";
 
 const starConfigs = [
@@ -27,6 +28,8 @@ const starConfigs = [
 
 const UniverseScene = observer(({ onSceneSelect }) => {
   const orbitRef = useRef();
+  const { auth } = usePage().props;
+  const isAdmin = !!auth?.user?.is_admin;
   const targetRef = useRef([0, 0, 0]);
   const [activeSystem, setActiveSystem] = useState(null);
   const [sceneReady, setSceneReady] = useState(false);
@@ -129,7 +132,7 @@ const UniverseScene = observer(({ onSceneSelect }) => {
       />
 
       {/* ---------------- GALAXY ---------------- */}
-      {universeStore.zoomLevel === "galaxy" && (
+      {universeStore.zoomLevel === "galaxy" && !isAdmin && (
         <>
           <RisingStarGrid onSelect={(id, pos) => zoomIntoSystem(id, pos)} />
 
@@ -144,7 +147,7 @@ const UniverseScene = observer(({ onSceneSelect }) => {
       )}
 
       {/* ---------------- SYSTEM ---------------- */}
-      {universeStore.zoomLevel === "system" && activeSystem && (
+      {universeStore.zoomLevel === "system" && activeSystem && !isAdmin && (
         <group position={activeSystem.pos}>
           <RisingStar
             position={[0, 0, 0]}

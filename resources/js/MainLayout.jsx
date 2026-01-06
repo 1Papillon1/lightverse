@@ -18,6 +18,8 @@ import Signup from "@/components/authentication/Signup";
 import Settings from "@/pages/Settings";
 import AchievementsOverlay from "@/components/user/AchievementsOverlay";
 
+import AdminPanel from "@/components/admin/AdminPanel";
+
 const MainLayout = observer(({ children }) => {
   const rootStore = useRootStore();
   const {
@@ -133,6 +135,7 @@ console.log(universeStore.zoomLevel);
             </>
             )}
 
+          {userStore.activeOverlay === "admin" && <AdminPanel />}
           {userStore.activeOverlay === "login" && <Login />}
           {userStore.activeOverlay === "signup" && <Signup />}
           {userStore.activeOverlay === "settings" && <Settings />}

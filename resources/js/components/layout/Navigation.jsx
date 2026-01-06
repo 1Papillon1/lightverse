@@ -1,96 +1,137 @@
-// Navigation.jsx
 import { useContext, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { RootStoreContext } from "@/stores/RootStore";
 import { usePage } from "@inertiajs/react";
+
 import accountIcon from "@/assets/icons/account_circle.svg";
 import WalletConnectButton from "@/components/wallet/WalletConnectButton";
 
 const Navigation = observer(({ horizontal = false }) => {
-  const rootStore = useContext(RootStoreContext);
-  const userStore = rootStore.userStore;
-  const coinStore = rootStore.lightwebCoinStore;
+  const { userStore, lightwebCoinStore: coinStore } =
+    useContext(RootStoreContext);
 
   const { auth } = usePage().props;
-  const username = auth?.user?.username ?? null;
-  const isLoggedIn = Boolean(auth?.user);
+
+  const user = auth?.user ?? null;
+  const username = user?.username ?? "";
+  const isAdmin = user?.is_admin === true;
+  const isLoggedIn = Boolean(user);
 
   const [isDropdownActive, setIsDropdownActive] = useState(false);
 
-  const toggleDropdown = () => setIsDropdownActive((prev) => !prev);
+  const toggleDropdown = () => setIsDropdownActive((v) => !v);
+
   const handleLogout = () => {
     setIsDropdownActive(false);
     userStore.logout();
   };
 
-  return (
-    <>
-      {horizontal && (
-        <nav className="navigation navigation--horizontal">
-          <ul className="navigation__list navigation__list--horizontal">
+  if (!horizontal || !isLoggedIn) return null;
 
-         <li className="navigation__balance">
-            <span className="navigation__link navigation__balance__content">
-              <span className="navigation__balance__icon">💠</span>
-              <span className="navigation__balance__value">
-                {coinStore.balance}
+  return (
+    <nav className="navigation navigation--horizontal">
+      <ul className="navigation__list navigation__list--horizontal">
+        {/* ---------------- LEFT SIDE ---------------- */}
+        {!isAdmin && (
+          <>
+            <li className="navigation__balance">
+              <span className="navigation__link navigation__balance__content">
+                <span className="navigation__balance__icon">💠</span>
+                <span className="navigation__balance__value">
+                  {coinStore.balance}
+                </span>
               </span>
-            </span>
-          </li>
+            </li>
 
             <li className="navigation__wallet">
               <WalletConnectButton />
             </li>
-            <li className="navigation__account">
-              <img
-                src={accountIcon}
-                className="navigation__link__icon icon"
-                alt="account"
-                onClick={toggleDropdown}
-              />
-            <div
-              className={`user-dropdown ${isDropdownActive ? "user-dropdown--active" : ""}`}
-            >
-              <ul className="user-dropdown__list">
-                <li>
-                  <button
-                    className="user-dropdown__list__button"
-                    onClick={() => userStore.toggleOverlay("achievements")}
-                  >
-                    <span className="user-dropdown__icon">💠</span>
-                    <span className="user-dropdown__label">Achievements</span>
-                  </button>
-                </li>
-                <li>
-                  <button className="user-dropdown__list__button" onClick={() => userStore.toggleOverlay("settings")}>
-                    <span className="user-dropdown__icon">⚙️</span>
-                    <span className="user-dropdown__label">Settings</span>
-                  </button>
-                </li>
-                <li>
-                  <button className="user-dropdown__list__button" onClick={() => userStore.toggleOverlay("wallet")}>
-                    <span className="user-dropdown__icon">💳</span>
-                    <span className="user-dropdown__label">Wallet</span>
-                  </button>
-                </li>
-                <li>
-                  <button className="user-dropdown__list__button" onClick={handleLogout}>
-                    <span className="user-dropdown__icon">🚪</span>
-                    <span className="user-dropdown__label">Logout</span>
-                  </button>
-                </li>
-              </ul>
-            </div>
+          </>
+        )}
 
-              {username && (
-                <span className="navigation__link__label">{username}</span>
+        {isAdmin && (
+          <li>
+            <button
+              className="navigation__admin-button"
+              onClick={() => userStore.toggleOverlay("admin")}
+            >
+              <span className="navigation__admin-icon">🛠️</span>
+              <span className="navigation__admin-label">Admin Panel</span>
+            </button>
+          </li>
+        )}
+
+        {/* ---------------- ACCOUNT ---------------- */}
+        <li className="navigation__account">
+          <img
+            src={accountIcon}
+            className="navigation__link__icon icon"
+            alt="account"
+            onClick={toggleDropdown}
+          />
+
+          <div
+            className={`user-dropdown ${
+              isDropdownActive ? "user-dropdown--active" : ""
+            }`}
+          >
+            <ul className="user-dropdown__list">
+              {!isAdmin && (
+                <>
+                  <li>
+                    <button
+                      className="user-dropdown__list__button"
+                      onClick={() =>
+                        userStore.toggleOverlay("achievements")
+                      }
+                    >
+                      <span className="user-dropdown__icon">💠</span>
+                      <span className="user-dropdown__label">
+                        Achievements
+                      </span>
+                    </button>
+                  </li>
+
+                  <li>
+                    <button
+                      className="user-dropdown__list__button"
+                      onClick={() => userStore.toggleOverlay("wallet")}
+                    >
+                      <span className="user-dropdown__icon">💳</span>
+                      <span className="user-dropdown__label">Wallet</span>
+                    </button>
+                  </li>
+                </>
               )}
-            </li>
-          
-          </ul>
-        </nav>
-      )}
-    </>
+
+              <li>
+                <button
+                  className="user-dropdown__list__button"
+                  onClick={() => userStore.toggleOverlay("settings")}
+                >
+                  <span className="user-dropdown__icon">⚙️</span>
+                  <span className="user-dropdown__label">Settings</span>
+                </button>
+              </li>
+
+              <li>
+                <button
+                  className="user-dropdown__list__button"
+                  onClick={handleLogout}
+                >
+                  <span className="user-dropdown__icon">🚪</span>
+                  <span className="user-dropdown__label">Logout</span>
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          {username && (
+            <span className="navigation__link__label">{username}</span>
+          )}
+        </li>
+      </ul>
+    </nav>
   );
 });
 

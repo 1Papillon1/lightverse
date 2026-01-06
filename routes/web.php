@@ -8,7 +8,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Api\UserAchievementController;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
-use App\Models\LightwebCoinDrop;
+use App\Http\Controllers\AdminAchievementController;
+
 
 use Inertia\Inertia;
 
@@ -88,6 +89,12 @@ Route::middleware(['auth'])->prefix('lightcoins')->group(function () {
 
 
 });
+
+// Admin routes
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::post('/admin/achievements', [AdminAchievementController::class, 'store']);
+});
+
 
 
 Route::post('/email/verification-store-fingerprint', function (\Illuminate\Http\Request $request) {

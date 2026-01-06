@@ -59,7 +59,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => Auth::check() ? [
                     'id' => Auth::id(),
                     'username' => Auth::user()->username,
-                    // po potrebi možeš dodati i email, avatar, uloge…
+                    'is_admin' => Auth::user()->isAdmin(),
                 ] : null,
             ],
 

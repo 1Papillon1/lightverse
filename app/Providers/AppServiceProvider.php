@@ -20,5 +20,8 @@ class AppServiceProvider extends ServiceProvider
         User::observe(UserObserver::class);
 
         Gate::policy(LightwebCoinDrop::class, LightwebCoinDropPolicy::class);
+        
     }
+
+    
 }
