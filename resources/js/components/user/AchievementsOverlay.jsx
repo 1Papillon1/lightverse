@@ -3,18 +3,14 @@ import { observer } from "mobx-react-lite";
 import { useRootStore } from "@/stores/RootStore";
 
 const AchievementsOverlay = observer(() => {
-  const { userStore } = useRootStore();
-  const [isClosing, setIsClosing] = useState(false);
-
-  const close = () => {
-    setIsClosing(true);
-    setTimeout(() => {
-      userStore.closeOverlay();  
-    }, 600); // must match CSS animation duration
-  };
+    const { userStore } = useRootStore();
 
   return (
-    <div className={`overlay overlay--achievements ${isClosing ? "closing" : ""}`}>
+    <div
+      className={`overlay overlay--achievements ${
+        userStore.overlayClosing ? "closing" : ""
+      }`}
+    >
       
       {/* 🔥 PROJECTOR */}
       <div className="projector">
@@ -39,7 +35,12 @@ const AchievementsOverlay = observer(() => {
           </div>
         </div>
 
-        <button className="overlay__close" onClick={close}>Close</button>
+        <button
+          className="overlay__close"
+          onClick={() => userStore.closeOverlayAnimated()}
+        >
+          Close
+        </button>
 
       </div>
     </div>

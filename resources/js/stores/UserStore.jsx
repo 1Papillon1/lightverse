@@ -1,13 +1,15 @@
-// UserStore.js
 import { makeAutoObservable } from "mobx";
 import { router } from "@inertiajs/react";
 
 class UserStore {
   rootStore;
+
   authorized = false;
   status = "";
   user = null;
+
   activeOverlay = null;
+  overlayClosing = false;
 
   constructor(rootStore) {
     this.rootStore = rootStore;
@@ -18,13 +20,11 @@ class UserStore {
      AUTH
   ------------------ */
 
-  // Fetch user coins on authorization
   onLoginSuccess(user) {
     this.authorized = true;
     this.user = user;
     this.closeOverlay();
 
-    // 🔑 INIT COINS HERE
     this.rootStore.lightwebCoinStore.initializeForUser();
   }
 
@@ -36,7 +36,6 @@ class UserStore {
         this.user = null;
         this.closeOverlay();
 
-        // 🔑 SINGLE SOURCE OF TRUTH
         this.rootStore.lightwebCoinStore.reset();
       },
     });
@@ -47,17 +46,26 @@ class UserStore {
   ------------------ */
 
   openOverlay(name) {
-    if (["login", "signup", "settings", "achievements"].includes(name)) {
+    if (["login", "signup", "settings", "achievements", "admin"].includes(name)) {
       this.activeOverlay = name;
+      this.overlayClosing = false;
     }
+  }
+
+  closeOverlayAnimated() {
+    if (this.overlayClosing) return;
+
+    this.overlayClosing = true;
+
+    setTimeout(() => {
+      this.activeOverlay = null;
+      this.overlayClosing = false;
+    }, 600);
   }
 
   closeOverlay() {
     this.activeOverlay = null;
-  }
-
-  toggleOverlay(name) {
-    this.activeOverlay === name ? this.closeOverlay() : this.openOverlay(name);
+    this.overlayClosing = false;
   }
 
   get overlayActive() {
