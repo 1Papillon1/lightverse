@@ -21,6 +21,11 @@ const Navigation = observer(({ horizontal = false }) => {
 
   const toggleDropdown = () => setIsDropdownActive((v) => !v);
 
+  const openOverlay = (name) => {
+    setIsDropdownActive(false);
+    userStore.openOverlay(name);
+  };
+
   const handleLogout = () => {
     setIsDropdownActive(false);
     userStore.logout();
@@ -31,6 +36,7 @@ const Navigation = observer(({ horizontal = false }) => {
   return (
     <nav className="navigation navigation--horizontal">
       <ul className="navigation__list navigation__list--horizontal">
+
         {/* ---------------- LEFT SIDE ---------------- */}
         {!isAdmin && (
           <>
@@ -53,7 +59,7 @@ const Navigation = observer(({ horizontal = false }) => {
           <li>
             <button
               className="navigation__admin-button"
-              onClick={() => userStore.toggleOverlay("admin")}
+              onClick={() => openOverlay("admin")}
             >
               <span className="navigation__admin-icon">🛠️</span>
               <span className="navigation__admin-label">Admin Panel</span>
@@ -76,29 +82,18 @@ const Navigation = observer(({ horizontal = false }) => {
             }`}
           >
             <ul className="user-dropdown__list">
+
               {!isAdmin && (
                 <>
                   <li>
                     <button
                       className="user-dropdown__list__button"
-                      onClick={() =>
-                        userStore.toggleOverlay("achievements")
-                      }
+                      onClick={() => openOverlay("achievements")}
                     >
                       <span className="user-dropdown__icon">💠</span>
                       <span className="user-dropdown__label">
                         Achievements
                       </span>
-                    </button>
-                  </li>
-
-                  <li>
-                    <button
-                      className="user-dropdown__list__button"
-                      onClick={() => userStore.toggleOverlay("wallet")}
-                    >
-                      <span className="user-dropdown__icon">💳</span>
-                      <span className="user-dropdown__label">Wallet</span>
                     </button>
                   </li>
                 </>
@@ -107,7 +102,7 @@ const Navigation = observer(({ horizontal = false }) => {
               <li>
                 <button
                   className="user-dropdown__list__button"
-                  onClick={() => userStore.toggleOverlay("settings")}
+                  onClick={() => openOverlay("settings")}
                 >
                   <span className="user-dropdown__icon">⚙️</span>
                   <span className="user-dropdown__label">Settings</span>
