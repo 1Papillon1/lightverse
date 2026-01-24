@@ -37,16 +37,7 @@ const { data, setData, post, processing, errors } = useForm({
       return;
     }
 
-    post("/register", {
-      onSuccess: () => {
-        setData({
-          username: "",
-          password: "",
-          password_confirmation: "",
-        });
-        Inertia.visit("/login");
-      },
-    });
+    post("/register");
   };
 
   const openLogin = (e) => {
