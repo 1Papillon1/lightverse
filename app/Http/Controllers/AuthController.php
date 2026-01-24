@@ -11,92 +11,45 @@ use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
-    public function register(Request $request): RedirectResponse
-    {
-        Log::info('REGISTER ATTEMPT', [
-            'username' => $request->username,
-            'email' => $request->email,
-            'ip' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]);
+   public function register(Request $request): RedirectResponse
+{
+    $request->validate([
+        'username' => 'required|string|max:255|unique:users,username',
+        'password' => 'required|string|min:8|confirmed',
+    ]);
 
-        $request->validate([
-            'username' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'password_confirmation' => 'required|string|min:8',
-        ]);
+    $user = User::create([
+        'username' => $request->username,
+        'password' => bcrypt($request->password),
+    ]);
 
-        try {
-            $user = User::create([
-                'username' => $request->username,
-                'email' => $request->email,
-                'password' => bcrypt($request->password),
-            ]);
+    Auth::login($user);
 
-            Log::info('USER CREATED', [
-                'user_id' => $user->id,
-                'username' => $user->username,
-                'email' => $user->email,
-                'email_verified_at' => $user->email_verified_at,
-                'implements_must_verify' => $user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail,
-            ]);
+    $this->logEvent($request, 'auth.register', $user);
 
-            // Store device fingerprint in cookie for verification later
-            $deviceFingerprint = $request->input('device_fingerprint');
-            if ($deviceFingerprint) {
-                cookie()->queue('device_fingerprint', $deviceFingerprint, 60 * 24 * 30); // 30 days
-                Log::info('DEVICE FINGERPRINT STORED IN COOKIE ON REGISTRATION', [
-                    'user_id' => $user->id,
-                    'fingerprint' => $deviceFingerprint,
-                ]);
-            }
-
-            // Dispatch Registered event - ovo automatski šalje verification email
-            Log::info('DISPATCHING REGISTERED EVENT', ['user_id' => $user->id]);
-            event(new Registered($user));
-            Log::info('REGISTERED EVENT DISPATCHED', ['user_id' => $user->id]);
-
-            Auth::login($user);
-            Log::info('USER LOGGED IN', ['user_id' => $user->id]);
-
-            $this->logEvent($request, 'auth.register', $user);
-
-            Log::info('REDIRECTING TO VERIFICATION NOTICE', ['user_id' => $user->id]);
-            return redirect()->route('verification.notice')
-                ->with('success', 'Registration successful! Please verify your email.');
-        } catch (\Exception $e) {
-            Log::error('REGISTRATION FAILED', [
-                'email' => $request->email,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-            throw $e;
-        }
-    }
+    return redirect()->intended('/dashboard');
+}
 
    public function login(Request $request): RedirectResponse
     {
         Log::info('LOGIN ATTEMPT', [
-            'email' => $request->email,
             'ip' => $request->ip(),
             'user_agent' => $request->userAgent(),
         ]);
 
         $credentials = $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required',
-        ]);
+    'username' => 'required|string',
+    'password' => 'required',
+]);
 
         $remember = $request->boolean('remember');
 
-        if (! Auth::attempt($credentials, $remember)) {
-            Log::warning('LOGIN FAILED - INVALID CREDENTIALS', [
-                'email' => $request->email,
-                'ip' => $request->ip(),
-            ]);
+        if (!Auth::attempt([
+            'username' => $credentials['username'],
+            'password' => $credentials['password'],
+        ], $remember)) {
             return back()->withErrors([
-                'email' => 'These credentials do not match our records.',
+                'username' => 'Invalid credentials',
             ]);
         }
 
@@ -113,25 +66,11 @@ class AuthController extends Controller
         Log::info('LOGIN SUCCESSFUL - POST-REFRESH', [
             'user_id' => $user->id,
             'username' => $user->username,
-            'email' => $user->email,
-            'email_verified_at' => $user->email_verified_at,
-            'is_verified' => $user->hasVerifiedEmail(),
             'ip' => $request->ip(),
         ]);
 
        
 
-        // Block if not verified
-        if (! $user->hasVerifiedEmail()) {
-            Log::warning('LOGIN BLOCKED - EMAIL NOT VERIFIED', [
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'ip' => $request->ip(),
-            ]);
-
-            return redirect()->route('verification.notice')
-                ->with('message', 'Please verify your email address to continue.');
-        }
 
         // Safe: attempt first-login spawn/unlock but do not let it break login
         try {
@@ -187,7 +126,7 @@ class AuthController extends Controller
             'user' => [
                 'id' => $user->id,
                 'username' => $user->username,
-                'email' => $user->email,
+                'email' => null,
             ],
             'ip' => $request->ip(),
             'user_agent' => $request->userAgent(),

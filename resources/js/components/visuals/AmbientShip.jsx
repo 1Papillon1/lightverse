@@ -8,13 +8,13 @@ const SPEED = 0.6;
 const TURN_SPEED = 0.02;
 const TRAIL_OFFSET = 1.2;
 
-// 🔑 CHANGE THIS IF NEEDED:
-// Try (0,1,0) or (1,0,0) if still sideways
+// Adjust if model faces wrong direction
 const MODEL_FORWARD = new THREE.Vector3(1, 0, 0);
 
 export default function AmbientShip() {
-  const shipGroup = useRef();   // position only
-  const model = useRef();       // visual orientation
+  const shipGroup = useRef();
+  const model = useRef();
+
   const velocity = useRef(new THREE.Vector3());
   const target = useRef(new THREE.Vector3());
   const trailPoints = useRef([]);
@@ -23,25 +23,42 @@ export default function AmbientShip() {
   const { scene } = useGLTF("/resources/models/ships/hover_ship_black.glb");
 
   /* ----------------------------------
-     🎨 Preserve materials
+     🎨 Preserve original materials
   ---------------------------------- */
   useEffect(() => {
     scene.traverse((obj) => {
-      if (obj.isMesh && obj.material) {
-        obj.castShadow = false;
-        obj.receiveShadow = false;
-        obj.material.emissive = new THREE.Color("#6b5cff");
-        obj.material.emissiveIntensity = 1.5;
-        obj.material.needsUpdate = true;
+      if (!obj.isMesh || !obj.material) return;
+
+      obj.castShadow = false;
+      obj.receiveShadow = false;
+
+      // Ensure correct color space for textures
+      if (obj.material.map) {
+        obj.material.map.colorSpace = THREE.SRGBColorSpace;
       }
+
+      // VERY subtle emissive boost (keeps texture intact)
+      if (obj.material.emissive) {
+        obj.material.emissive.set("#6b5cff");
+        obj.material.emissiveIntensity = 0.15;
+      }
+
+      obj.material.needsUpdate = true;
     });
   }, [scene]);
 
   /* ----------------------------------
-     📍 Init
+     📍 Initial position
   ---------------------------------- */
   useEffect(() => {
-    shipGroup.current.position.set(0, viewport.height * 0.25, 0);
+    if (!shipGroup.current) return;
+
+    shipGroup.current.position.set(
+      0,
+      viewport.height * 0.25,
+      0
+    );
+
     pickNewTarget();
   }, [viewport]);
 
@@ -54,50 +71,49 @@ export default function AmbientShip() {
   };
 
   /* ----------------------------------
-     🧵 Trail
+     🧵 Trail geometry
   ---------------------------------- */
-  const trailGeometry = useMemo(
-    () =>
-      new THREE.BufferGeometry().setFromPoints(
-        Array(TRAIL_LENGTH).fill(new THREE.Vector3())
-      ),
-    []
-  );
+  const trailGeometry = useMemo(() => {
+    const points = Array.from({ length: TRAIL_LENGTH }, () => new THREE.Vector3());
+    return new THREE.BufferGeometry().setFromPoints(points);
+  }, []);
 
   /* ----------------------------------
-     🧠 Animation
+     🧠 Animation loop
   ---------------------------------- */
   useFrame(() => {
     if (document.hidden) return;
 
     const ship = shipGroup.current;
-    if (!ship) return;
+    if (!ship || !model.current) return;
 
     // Movement
     const dir = target.current.clone().sub(ship.position).normalize();
     velocity.current.lerp(dir.multiplyScalar(SPEED), TURN_SPEED);
     ship.position.add(velocity.current);
 
-    // 🔥 THIS IS THE KEY PART
-    // Rotate model so its LOCAL forward matches velocity
+    // Orientation (model-local forward → velocity)
     const velocityDir = velocity.current.clone().normalize();
-    const quat = new THREE.Quaternion().setFromUnitVectors(
+    const targetQuat = new THREE.Quaternion().setFromUnitVectors(
       MODEL_FORWARD,
       velocityDir
     );
-    model.current.quaternion.slerp(quat, 0.2);
+    model.current.quaternion.slerp(targetQuat, 0.2);
 
     // Banking
     ship.rotation.z = -velocity.current.x * 0.4;
 
+    // New target
     if (ship.position.distanceTo(target.current) < 1) {
       pickNewTarget();
     }
 
-    // Trail behind ship
+    // Trail
     const backward = velocityDir.clone().multiplyScalar(-TRAIL_OFFSET);
     trailPoints.current.unshift(ship.position.clone().add(backward));
-    if (trailPoints.current.length > TRAIL_LENGTH) trailPoints.current.pop();
+    if (trailPoints.current.length > TRAIL_LENGTH) {
+      trailPoints.current.pop();
+    }
 
     trailGeometry.setFromPoints(trailPoints.current);
     trailGeometry.attributes.position.needsUpdate = true;
@@ -110,7 +126,11 @@ export default function AmbientShip() {
       </group>
 
       <line geometry={trailGeometry}>
-        <lineBasicMaterial color="#7f6bff" transparent opacity={0.1} />
+        <lineBasicMaterial
+          color="#7f6bff"
+          transparent
+          opacity={0.15}
+        />
       </line>
     </>
   );

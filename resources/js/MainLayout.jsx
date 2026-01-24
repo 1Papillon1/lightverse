@@ -65,8 +65,8 @@ console.log(universeStore.zoomLevel);
   ---------------------------------- */
   const isAuth =
     url.startsWith("/login") ||
-    url.startsWith("/register") ||
-    url.startsWith("/email/verify");
+    url.startsWith("/register");
+
 
  useEffect(() => {
   if (isAuth && !userStore.authorized) {

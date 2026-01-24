@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Auth\SecureLoginController;
-use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\LightwebCoinController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
@@ -58,17 +57,11 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/register', fn () => Inertia::render('Authorization', ['mode' => 'signup']))->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 
-Route::get('/email/verify', function () {
+/* Route::get('/email/verify', function () {
     $user = auth()->user();
 
-    \Illuminate\Support\Facades\Log::info('VERIFICATION NOTICE PAGE ACCESSED', [
-        'user_id' => $user?->id,
-        'email' => $user?->email,
-        'is_verified' => $user?->hasVerifiedEmail(),
-        'ip' => request()->ip(),
-    ]);
-
-    // Ako je već verificiran, redirect na dashboard
+  
+   
     if ($user && $user->hasVerifiedEmail()) {
         \Illuminate\Support\Facades\Log::info('ALREADY VERIFIED - REDIRECTING TO DASHBOARD', ['user_id' => $user->id]);
         return redirect()->route('dashboard');
@@ -79,7 +72,7 @@ Route::get('/email/verify', function () {
 
 Route::get('/email/verify/{id}/{hash}', VerifyEmailController::class)
     ->middleware(['auth', 'signed'])
-    ->name('verification.verify');
+    ->name('verification.verify'); */
 
 
 Route::middleware(['auth'])->prefix('lightcoins')->group(function () {
@@ -97,7 +90,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 
 
-Route::post('/email/verification-store-fingerprint', function (\Illuminate\Http\Request $request) {
+/* Route::post('/email/verification-store-fingerprint', function (\Illuminate\Http\Request $request) {
     $fingerprint = $request->input('device_fingerprint');
     if ($fingerprint) {
         session(['device_fingerprint' => $fingerprint]);
@@ -133,13 +126,14 @@ Route::post('/email/verification-notification', function (\Illuminate\Http\Reque
         return back()->with('error', 'Failed to send email. Please try again.');
     }
 })->middleware(['auth', 'throttle:6,1'])
-    ->name('verification.send');// Security Login
-Route::post('/secure-login', [SecureLoginController::class, 'login'])->name('secure.login')->middleware('throttle:10,1');
+    ->name('verification.send'); */
+    // Security Login
+/* Route::post('/secure-login', [SecureLoginController::class, 'login'])->name('secure.login')->middleware('throttle:10,1');
 Route::post('/secure-verify', [SecureLoginController::class, 'verifyCode'])->middleware('throttle:20,1');
-
+ */
 // Dashboard (kao /dashboard)
 // Only one dashboard route
-Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () {
+Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/{system}', [DashboardController::class, 'system'])->name('dashboard.system');
     Route::get('/{system}/{node}', [DashboardController::class, 'node'])->name('dashboard.node');

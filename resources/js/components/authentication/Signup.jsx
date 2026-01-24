@@ -1,21 +1,17 @@
 // Signup.jsx
 import { useForm } from "@inertiajs/react";
 import { Inertia } from "@inertiajs/inertia";
-import { getDeviceFingerprint } from "@/utils/deviceFingerprint";
 import PasswordRules from "@/utils/PasswordRules";
 import { useState, useMemo } from "react";
 
 const Signup = () => {
   const [showPasswordRules, setShowPasswordRules] = useState(false);
 
-  const { data, setData, post, processing, errors } = useForm({
-    username: "",
-    email: "",
-    password: "",
-    password_confirmation: "",
-    device_fingerprint: getDeviceFingerprint(),
-    device_name: navigator.userAgent,
-  });
+const { data, setData, post, processing, errors } = useForm({
+  username: "",
+  password: "",
+  password_confirmation: "",
+});
 
   // 🔐 Password rule validation (frontend)
   const isPasswordValid = useMemo(() => {
@@ -45,7 +41,6 @@ const Signup = () => {
       onSuccess: () => {
         setData({
           username: "",
-          email: "",
           password: "",
           password_confirmation: "",
         });
@@ -83,21 +78,7 @@ const Signup = () => {
             )}
           </div>
 
-          {/* Email */}
-          <div className="form__group">
-            <input
-              type="email"
-              className="form__input"
-              placeholder="Email"
-              value={data.email}
-              onChange={(e) => setData("email", e.target.value)}
-              required
-            />
-            {errors.email && (
-              <p className="error">{errors.email}</p>
-            )}
-          </div>
-
+       
           {/* Password */}
           <div className="form__group">
             <input

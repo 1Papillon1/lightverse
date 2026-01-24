@@ -10,103 +10,60 @@ use App\Services\LightwebCoinService;
 
 class UserObserver
 {
-    /**
-     * Handle the User "created" event.
-     */
     public function created(User $user): void
     {
-         
+        $this->createTrustedDevice($user, 'user_created');
     }
 
-    /**
-     * Handle the User "updated" event.
-     */
-    public function updated(User $user): void
+    protected function createTrustedDevice(User $user, string $reason): void
     {
-        // Detect if email was just verified
-        if ($user->wasChanged('email_verified_at') && $user->email_verified_at !== null) {
-            $this->handleEmailVerified($user);
-        }
-    }
-
-    /**
-     * Handle when user verifies their email
-     */
-    protected function handleEmailVerified(User $user): void
-    {
-        Log::info('EMAIL VERIFIED - Creating trusted device', [
-            'user_id' => $user->id,
-            'email' => $user->email,
-        ]);
-
-        // Get device info from session (stored when user visited verification page)
-        $deviceFingerprint = session('device_fingerprint');
         $ip = request()->ip();
         $userAgent = request()->userAgent();
+        $deviceFingerprint = session('device_fingerprint');
 
-        // Extract device name from user agent
-        $deviceName = $this->extractDeviceName($userAgent);
-
-        // Only create trusted device if we have fingerprint
-        if ($deviceFingerprint) {
-            // Check if device already exists
-            $existingDevice = TrustedDevice::where('user_id', $user->id)
-                ->where('device_fingerprint', $deviceFingerprint)
-                ->first();
-
-            if (!$existingDevice) {
-                TrustedDevice::create([
-                    'user_id' => $user->id,
-                    'device_fingerprint' => $deviceFingerprint,
-                    'device_name' => $deviceName,
-                    'ip' => $ip,
-                    'user_agent' => $userAgent,
-                    'last_seen_at' => Carbon::now(),
-                ]);
-
-                Log::info('TRUSTED DEVICE CREATED ON EMAIL VERIFICATION', [
-                    'user_id' => $user->id,
-                    'device_name' => $deviceName,
-                    'ip' => $ip,
-                    'fingerprint' => $deviceFingerprint,
-                ]);
-            } else {
-                Log::info('TRUSTED DEVICE ALREADY EXISTS', [
-                    'user_id' => $user->id,
-                    'device_fingerprint' => $deviceFingerprint,
-                ]);
-            }
-        } else {
-            Log::warning('NO DEVICE FINGERPRINT - Cannot create trusted device', [
+        if (! $deviceFingerprint) {
+            Log::warning('NO DEVICE FINGERPRINT - trusted device skipped', [
                 'user_id' => $user->id,
+                'reason' => $reason,
             ]);
+            return;
         }
+
+        $exists = TrustedDevice::where('user_id', $user->id)
+            ->where('device_fingerprint', $deviceFingerprint)
+            ->exists();
+
+        if ($exists) {
+            return;
+        }
+
+        TrustedDevice::create([
+            'user_id' => $user->id,
+            'device_fingerprint' => $deviceFingerprint,
+            'device_name' => $this->extractDeviceName($userAgent),
+            'ip' => $ip,
+            'user_agent' => $userAgent,
+            'last_seen_at' => Carbon::now(),
+        ]);
+
+        Log::info('TRUSTED DEVICE CREATED', [
+            'user_id' => $user->id,
+            'reason' => $reason,
+            'ip' => $ip,
+        ]);
     }
 
-    /**
-     * Extract device name from user agent
-     */
     protected function extractDeviceName(string $userAgent): string
     {
-        if (stripos($userAgent, 'mobile') !== false) {
-            return 'Mobile';
-        }
-        if (stripos($userAgent, 'chrome') !== false) {
-            return 'Chrome';
-        }
-        if (stripos($userAgent, 'firefox') !== false) {
-            return 'Firefox';
-        }
-        if (stripos($userAgent, 'safari') !== false) {
-            return 'Safari';
-        }
-        if (stripos($userAgent, 'edge') !== false) {
-            return 'Edge';
-        }
-
-        return 'Browser';
+        return match (true) {
+            stripos($userAgent, 'mobile') !== false => 'Mobile',
+            stripos($userAgent, 'chrome') !== false => 'Chrome',
+            stripos($userAgent, 'firefox') !== false => 'Firefox',
+            stripos($userAgent, 'safari') !== false => 'Safari',
+            stripos($userAgent, 'edge') !== false => 'Edge',
+            default => 'Browser',
+        };
     }
-
     /**
      * Handle the User "deleted" event.
      */

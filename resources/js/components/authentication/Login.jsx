@@ -3,23 +3,16 @@ import { useForm } from "@inertiajs/react";
 import { Inertia } from "@inertiajs/inertia";
 
 const Login = () => {
-  const { data, setData, post, processing, errors } = useForm({
-    email: "",
-    password: "",
-    remember: false,
-  });
+ const { data, setData, post, processing, errors } = useForm({
+  username: "",
+  password: "",
+  remember: false,
+});
 
   const handleLogin = (e) => {
-    e.preventDefault();
-    post("/login", {
-      onError: (errs) => {
-        console.error(errs);
-        if (errs.email) {
-          setData({'email': '', 'password': ''})
-        }
-      },
-    });
-  };
+  e.preventDefault();
+  post("/login");
+};
 
   const openSignup = (e) => {
     e.preventDefault();
@@ -37,15 +30,16 @@ const Login = () => {
         <form className="form" onSubmit={handleLogin} role="form" aria-label="Login form">
           <div className="form__group">
             <input
-              type="email"
+              type="text"
               className="form__input"
-              placeholder="Email address"
-              id="email"
-              value={data.email}
-              onChange={(e) => setData("email", e.target.value)}
+              placeholder="Username"
+              value={data.username}
+              onChange={(e) => setData("username", e.target.value)}
               required
             />
-            {errors.email && <p className="status error">{errors.email}</p>}
+           {errors.username && (
+              <p className="status error">{errors.username}</p>
+            )}
           </div>
 
           <div className="form__group">
@@ -65,8 +59,8 @@ const Login = () => {
           <label className="form__remember">
             <input
               type="checkbox"
-              name="remember"
-              className="form__remember-input"
+              checked={data.remember}
+              onChange={(e) => setData("remember", e.target.checked)}
             />
             <span className="form__remember-box"></span>
             <span className="form__remember-text">Remember me</span>

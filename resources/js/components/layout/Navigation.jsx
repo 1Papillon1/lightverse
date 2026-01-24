@@ -56,9 +56,9 @@ const Navigation = observer(({ horizontal = false }) => {
         )}
 
         {isAdmin && (
-          <li>
+          <li className="navigation__admin-button">
             <button
-              className="navigation__admin-button"
+              className="button"
               onClick={() => openOverlay("admin")}
             >
               <span className="navigation__admin-icon">🛠️</span>
