@@ -57,14 +57,15 @@ const Login = () => {
 
           <div className="form__group form__group--remember">
           <label className="form__remember">
-            <input
-    type="checkbox"
-    checked={data.remember}
-    onChange={(e) => setData("remember", e.target.checked)}
-  />
-  <span className="form__remember-box"></span>
-  <span className="form__remember-text">Remember me</span>
-          </label>
+          <input
+            type="checkbox"
+            className="form__remember-input"
+            checked={data.remember}
+            onChange={(e) => setData("remember", e.target.checked)}
+          />
+          <span className="form__remember-box"></span>
+          <span className="form__remember-text">Remember me</span>
+        </label>
         </div>
 
           <div className="form__group">
