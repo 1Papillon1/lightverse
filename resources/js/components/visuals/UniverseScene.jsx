@@ -28,6 +28,7 @@ const starConfigs = [
 
 const UniverseScene = observer(({ onSceneSelect }) => {
   const orbitRef = useRef();
+  const canvasRef = useRef();
   const { auth } = usePage().props;
   const isAdmin = !!auth?.user?.is_admin;
   const targetRef = useRef([0, 0, 0]);
@@ -35,33 +36,48 @@ const UniverseScene = observer(({ onSceneSelect }) => {
   const [sceneReady, setSceneReady] = useState(false);
 
   const { marketStore, universeStore, lightwebCoinStore, userStore, visualLoadStore } =
-  useContext(RootStoreContext);
+    useContext(RootStoreContext);
 
   /* --------------------------------------------------
      ✅ PRELOAD ALL SYSTEM TEXTURES (R3F-NATIVE)
   -------------------------------------------------- */
   const textures = useLoader(TextureLoader, [
-    "/textures/wallet_node_4k.jpg",
-    "/textures/market_node_4k.jpg",
-    "/textures/contract_node_4k.jpg",
-    "/textures/roadmap_node_4k.jpg",
-    "/textures/identity_node_4k.jpg",
-    "/textures/ai_node_4k.jpg",
+    "/textures/wallet_node_2k.jpg",      // ✅ Reduced from 4k to 2k
+    "/textures/market_node_2k.jpg",
+    "/textures/contract_node_2k.jpg",
+    "/textures/roadmap_node_2k.jpg",
+    "/textures/identity_node_2k.jpg",
+    "/textures/ai_node_2k.jpg",
   ]);
 
+  /* --------------------------------------------------
+     ✅ TEXTURE SETUP + CLEANUP ON UNMOUNT
+  -------------------------------------------------- */
   useEffect(() => {
-  textures.forEach((tex) => {
-    tex.colorSpace = SRGBColorSpace;
-    tex.wrapS = tex.wrapT = RepeatWrapping;
-    tex.needsUpdate = true;
-  });
+    textures.forEach((tex) => {
+      tex.colorSpace = SRGBColorSpace;
+      tex.wrapS = tex.wrapT = RepeatWrapping;
+      tex.needsUpdate = true;
+    });
 
-  marketStore.setSceneReady(true);
-  setSceneReady(true);
+    marketStore.setSceneReady(true);
+    setSceneReady(true);
+    visualLoadStore.markUniverseReady();
 
-  // 🔑 THIS IS THE MISSING LINE
-  visualLoadStore.markUniverseReady();
-}, [textures]);
+    // ✅ CLEANUP: Dispose textures on unmount to prevent memory leaks
+    return () => {
+      textures.forEach((tex) => {
+        if (tex && tex.dispose) {
+          tex.dispose();
+        }
+      });
+
+      // Clear OrbitControls
+      if (orbitRef.current && orbitRef.current.dispose) {
+        orbitRef.current.dispose();
+      }
+    };
+  }, [textures]);
 
   /* --------------------------------------------------
      URL ?system= detection
@@ -109,8 +125,28 @@ const UniverseScene = observer(({ onSceneSelect }) => {
 
   return (
     <Canvas
+      ref={canvasRef}
       camera={{ position: [0, 60, 240], fov: 80 }}
-      gl={{ outputColorSpace: SRGBColorSpace }}   // ✅ CRITICAL FIX
+      gl={{
+        outputColorSpace: SRGBColorSpace,
+        antialias: true,
+        powerPreference: "high-performance",  // ✅ GPU optimization
+        failIfMajorPerformanceCaveat: false,  // ✅ Don't fail on low-end GPUs
+      }}
+      onCreated={({ gl }) => {
+        // ✅ Handle WebGL context loss
+        gl.domElement.addEventListener('webglcontextlost', (e) => {
+          e.preventDefault();
+          console.warn('WebGL context lost. Attempting to restore...');
+        });
+
+        gl.domElement.addEventListener('webglcontextrestored', () => {
+          console.log('WebGL context restored');
+          // Force re-render
+          setSceneReady(false);
+          setTimeout(() => setSceneReady(true), 100);
+        });
+      }}
     >
       <TutorialZoomTracker />
 
@@ -136,11 +172,10 @@ const UniverseScene = observer(({ onSceneSelect }) => {
         <>
           <RisingStarGrid onSelect={(id, pos) => zoomIntoSystem(id, pos)} />
 
-        
           {userStore.authorized &&
-            lightwebCoinStore.filteredDrops.map(drop => (
+            lightwebCoinStore.filteredDrops.map((drop) => (
               <LightverseCoin key={drop.id} drop={drop} />
-          ))}
+            ))}
 
           {userStore.authorized && <CoinPickupOrchestrator />}
         </>

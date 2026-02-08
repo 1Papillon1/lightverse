@@ -17,6 +17,7 @@ import Settings from "@/pages/Settings";
 import AchievementsOverlay from "@/components/user/AchievementsOverlay";
 import AdminPanel from "@/components/admin/AdminPanel";
 
+
 const MainLayout = observer(({ children }) => {
   const rootStore = useRootStore();
   const {
