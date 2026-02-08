@@ -1,6 +1,6 @@
 // Login.jsx
 import { useForm } from "@inertiajs/react";
-import { Inertia } from "@inertiajs/inertia";
+import { router } from "@inertiajs/react";
 
 const Login = () => {
  const { data, setData, post, processing, errors } = useForm({
@@ -17,10 +17,10 @@ const Login = () => {
   const openSignup = (e) => {
     e.preventDefault();
     // keep SPA behavior and preserve state
-    Inertia.visit("/register", {
-      preserveState: true,
-      preserveScroll: true,
-    });
+    router.visit("/register", {
+  preserveState: true,
+  preserveScroll: true,
+});
   };
 
   return (

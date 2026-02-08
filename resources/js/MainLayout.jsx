@@ -35,16 +35,14 @@ const MainLayout = observer(({ children }) => {
   /* ----------------------------------
      🔑 INERTIA → MOBX AUTH SYNC
   ---------------------------------- */
-useEffect(() => {
-  const inertiaUser = props?.auth?.user;
-console.log(universeStore.zoomLevel);
+const inertiaUser = props?.auth?.user;
 
-  if (inertiaUser && !userStore.authorized) {
+useEffect(() => {
+  if (!inertiaUser) return;
+  if (!userStore.authorized) {
     userStore.onLoginSuccess(inertiaUser);
   }
-
- 
-}, [props?.auth?.user]);
+}, [inertiaUser]);
 
 
 
@@ -136,8 +134,8 @@ console.log(universeStore.zoomLevel);
             )}
 
           {userStore.activeOverlay === "admin" && <AdminPanel />}
-          {userStore.activeOverlay === "login" && <Login />}
-          {userStore.activeOverlay === "signup" && <Signup />}
+          {/* {userStore.activeOverlay === "login" && <Login />}
+          {userStore.activeOverlay === "signup" && <Signup />} */}
           {userStore.activeOverlay === "settings" && <Settings />}
           {userStore.activeOverlay === "achievements" && <AchievementsOverlay />}
         </div>

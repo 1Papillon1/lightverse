@@ -19,4 +19,7 @@ export default defineConfig({
             '@': resolve(__dirname, 'resources/js'),
         },
     },
+    build: {
+        reportCompressedSize: false, // Isključi prikaz kompresovanih veličina
+    },
 });

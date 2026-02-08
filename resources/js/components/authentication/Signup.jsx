@@ -1,6 +1,6 @@
 // Signup.jsx
 import { useForm } from "@inertiajs/react";
-import { Inertia } from "@inertiajs/inertia";
+import { router } from "@inertiajs/react";
 import PasswordRules from "@/utils/PasswordRules";
 import { useState, useMemo } from "react";
 
@@ -42,7 +42,7 @@ const { data, setData, post, processing, errors } = useForm({
 
   const openLogin = (e) => {
     e.preventDefault();
-    Inertia.visit("/login", {
+    router.visit("/login", {
       preserveState: true,
       preserveScroll: true,
     });
