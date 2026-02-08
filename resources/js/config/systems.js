@@ -22,6 +22,7 @@ export const systems = {
   identity: [
     { id: "achievements", name: "Achievements", route: "/identity/achievements" },
     { id: "build", name: "Build", route: "/identity/build" },
+    //{ id: "growth", name: "Growth", route: "/identity/growth" },
   ],
   ai: [
     { id: "assistant", name: "Assistant", route: "/ai/assistant" },

@@ -1,0 +1,355 @@
+{
+  "type": "concept-map",
+  "title": "Lightverse Evolution Map",
+  "description": "A non-procedural conceptual map representing domains of growth. Nodes can be explored and completed independently.",
+  "phases": [
+    {
+      "id": "genesis",
+      "label": "Genesis",
+      "concept": "System DNA & foundational ideas",
+      "nodes": [
+        {
+          "id": "vision_architecture",
+          "label": "Vision & Architecture",
+          "tooltip": "Why Lightverse exists",
+          "description": [
+            { "text": "Platform vision and metaphors", "completed": false },
+            { "text": "Long-term structural model", "completed": false },
+            { "text": "Technology stack and data models", "completed": false },
+            { "text": "Visual language and UI philosophy", "completed": false }
+          ],
+          "achievements": ["define_vision", "architecture_planner"]
+        },
+        {
+          "id": "core_identity",
+          "label": "Core Identity",
+          "tooltip": "Who the user is",
+          "description": [
+            { "text": "Username-based accounts", "completed": false },
+            { "text": "Authentication and sessions", "completed": false },
+            { "text": "Profile groundwork", "completed": false },
+            { "text": "Persistent user state", "completed": false }
+          ],
+          "achievements": ["first_identity", "persistent_self"]
+        },
+        {
+          "id": "first_economy",
+          "label": "First Economy Layer",
+          "tooltip": "Why actions matter",
+          "description": [
+            { "text": "Internal currency logic", "completed": false },
+            { "text": "Achievement framework", "completed": false },
+            { "text": "Event logging and analytics", "completed": false }
+          ],
+          "achievements": ["economy_seed", "achievement_unlocked"]
+        }
+      ]
+    },
+    {
+      "id": "foundation",
+      "label": "Foundation & Stability",
+      "concept": "Reliability & trust",
+      "nodes": [
+        {
+          "id": "platform_hardening",
+          "label": "Platform Hardening",
+          "tooltip": "System reliability",
+          "description": [
+            { "text": "Security improvements", "completed": false },
+            { "text": "Performance and stability work", "completed": false },
+            { "text": "Error handling and monitoring", "completed": false }
+          ],
+          "achievements": ["stable_system"]
+        },
+        {
+          "id": "user_progression",
+          "label": "User Progression",
+          "tooltip": "Visible growth",
+          "description": [
+            { "text": "Achievements and milestones", "completed": false },
+            { "text": "Profile stats and progression", "completed": false },
+            { "text": "Meaningful rewards", "completed": false }
+          ],
+          "achievements": ["progression_started"]
+        },
+        {
+          "id": "admin_governance",
+          "label": "Admin & Governance",
+          "tooltip": "System stewardship",
+          "description": [
+            { "text": "Admin dashboards", "completed": false },
+            { "text": "Moderation tools", "completed": false },
+            { "text": "Economy and achievement management", "completed": false }
+          ],
+          "achievements": ["admin_tools_online"]
+        },
+        {
+          "id": "ux_polish",
+          "label": "UX Polish",
+          "tooltip": "Experience quality",
+          "description": [
+            { "text": "Navigation clarity", "completed": false },
+            { "text": "Responsive behavior", "completed": false },
+            { "text": "Accessibility and onboarding", "completed": false }
+          ],
+          "achievements": ["smooth_experience"]
+        }
+      ]
+    },
+    {
+      "id": "spatial",
+      "label": "Spatial Transition",
+      "concept": "From flat UI to space",
+      "nodes": [
+        {
+          "id": "3d_foundations",
+          "label": "3D Foundations",
+          "tooltip": "3D groundwork",
+          "description": [
+            { "text": "WebGL and Three.js environments", "completed": false },
+            { "text": "Scene loading and optimization", "completed": false },
+            { "text": "Camera and movement systems", "completed": false }
+          ],
+          "achievements": ["enter_3d"]
+        },
+        {
+          "id": "spatial_navigation",
+          "label": "Spatial Navigation",
+          "tooltip": "Where am I?",
+          "description": [
+            { "text": "Star and node metaphor", "completed": false },
+            { "text": "Interactive transitions", "completed": false },
+            { "text": "Orientation feedback", "completed": false }
+          ],
+          "achievements": ["space_navigator"]
+        },
+        {
+          "id": "avatar_presence",
+          "label": "Avatar Presence",
+          "tooltip": "Being present",
+          "description": [
+            { "text": "Basic avatars or proxies", "completed": false },
+            { "text": "Position and orientation tracking", "completed": false },
+            { "text": "Identity representation in 3D", "completed": false }
+          ],
+          "achievements": ["first_avatar"]
+        },
+        {
+          "id": "spatial_ui",
+          "label": "Spatial UI",
+          "tooltip": "UI in space",
+          "description": [
+            { "text": "In-world panels", "completed": false },
+            { "text": "Contextual overlays", "completed": false },
+            { "text": "Hybrid 2D and 3D interface", "completed": false }
+          ],
+          "achievements": ["spatial_interface"]
+        }
+      ]
+    },
+    {
+      "id": "intelligence",
+      "label": "Intelligent Systems",
+      "concept": "Adaptive behavior",
+      "nodes": [
+        {
+          "id": "ai_assistance",
+          "label": "AI Assistance",
+          "tooltip": "Guided experience",
+          "description": [
+            { "text": "Contextual help", "completed": false },
+            { "text": "Guided navigation", "completed": false },
+            { "text": "Smart suggestions", "completed": false }
+          ],
+          "achievements": ["ai_guide"]
+        },
+        {
+          "id": "adaptive_content",
+          "label": "Adaptive Content",
+          "tooltip": "Personalization",
+          "description": [
+            { "text": "Personalized experiences", "completed": false },
+            { "text": "Dynamic achievements", "completed": false },
+            { "text": "Behavior-based progression", "completed": false }
+          ],
+          "achievements": ["adaptive_path"]
+        },
+        {
+          "id": "procedural_systems",
+          "label": "Procedural Systems",
+          "tooltip": "Dynamic worlds",
+          "description": [
+            { "text": "Generated missions", "completed": false },
+            { "text": "Dynamic environments", "completed": false },
+            { "text": "Scalable content logic", "completed": false }
+          ],
+          "achievements": ["procedural_mind"]
+        },
+        {
+          "id": "learning_platform",
+          "label": "Learning Platform",
+          "tooltip": "System evolution",
+          "description": [
+            { "text": "System learns from behavior", "completed": false },
+            { "text": "Self-optimization", "completed": false },
+            { "text": "Feedback-driven evolution", "completed": false }
+          ],
+          "achievements": ["learning_system"]
+        }
+      ]
+    },
+    {
+      "id": "identity_ownership",
+      "label": "Identity & Ownership",
+      "concept": "Personal meaning",
+      "nodes": [
+        {
+          "id": "deep_avatars",
+          "label": "Deep Avatars",
+          "tooltip": "Expression",
+          "description": [
+            { "text": "Visual customization", "completed": false },
+            { "text": "Persistent appearance", "completed": false },
+            { "text": "Identity expression", "completed": false }
+          ],
+          "achievements": ["true_form"]
+        },
+        {
+          "id": "reputation",
+          "label": "Reputation Systems",
+          "tooltip": "Trust layers",
+          "description": [
+            { "text": "Trust metrics", "completed": false },
+            { "text": "Long-term progression paths", "completed": false },
+            { "text": "Social credibility", "completed": false }
+          ],
+          "achievements": ["trusted_entity"]
+        },
+        {
+          "id": "personal_spaces",
+          "label": "Personal Spaces",
+          "tooltip": "Ownership",
+          "description": [
+            { "text": "User-owned areas", "completed": false },
+            { "text": "Custom layouts", "completed": false },
+            { "text": "Limited creation tools", "completed": false }
+          ],
+          "achievements": ["space_owner"]
+        },
+        {
+          "id": "economy_expansion",
+          "label": "Economy Expansion",
+          "tooltip": "Value loops",
+          "description": [
+            { "text": "Balanced reward systems", "completed": false },
+            { "text": "Economic sinks", "completed": false },
+            { "text": "Anti-inflation controls", "completed": false }
+          ],
+          "achievements": ["economic_architect"]
+        }
+      ]
+    },
+    {
+      "id": "social_worlds",
+      "label": "Social & Shared Worlds",
+      "concept": "Collective presence",
+      "nodes": [
+        {
+          "id": "multi_user",
+          "label": "Multi-User Presence",
+          "tooltip": "Shared space",
+          "description": [
+            { "text": "Shared environments", "completed": false },
+            { "text": "Presence indicators", "completed": false },
+            { "text": "Visibility of other users", "completed": false }
+          ],
+          "achievements": ["shared_world"]
+        },
+        {
+          "id": "social_interaction",
+          "label": "Social Interaction",
+          "tooltip": "Connection",
+          "description": [
+            { "text": "Communication systems", "completed": false },
+            { "text": "Collaboration tools", "completed": false },
+            { "text": "Shared activities", "completed": false }
+          ],
+          "achievements": ["connected"]
+        },
+        {
+          "id": "live_events",
+          "label": "Live Events",
+          "tooltip": "Moments",
+          "description": [
+            { "text": "Scheduled events", "completed": false },
+            { "text": "Temporary world states", "completed": false },
+            { "text": "Community-driven experiences", "completed": false }
+          ],
+          "achievements": ["event_participant"]
+        },
+        {
+          "id": "community_tools",
+          "label": "Community Tools",
+          "tooltip": "Governance",
+          "description": [
+            { "text": "Moderation layers", "completed": false },
+            { "text": "Roles and permissions", "completed": false },
+            { "text": "Creator governance", "completed": false }
+          ],
+          "achievements": ["community_builder"]
+        }
+      ]
+    },
+    {
+      "id": "maturity",
+      "label": "Metaverse Maturity",
+      "concept": "Self-sustaining universe",
+      "nodes": [
+        {
+          "id": "persistent_universe",
+          "label": "Persistent Universe",
+          "tooltip": "Always on",
+          "description": [
+            { "text": "Always-on world state", "completed": false },
+            { "text": "Historical continuity", "completed": false },
+            { "text": "Evolving universe data", "completed": false }
+          ],
+          "achievements": ["eternal_world"]
+        },
+        {
+          "id": "advanced_ai",
+          "label": "Advanced AI Systems",
+          "tooltip": "Emergence",
+          "description": [
+            { "text": "Emergent behaviors", "completed": false },
+            { "text": "Autonomous processes", "completed": false },
+            { "text": "Narrative intelligence", "completed": false }
+          ],
+          "achievements": ["emergent_mind"]
+        },
+        {
+          "id": "creator_ecosystem",
+          "label": "Creator Ecosystem",
+          "tooltip": "Creation",
+          "description": [
+            { "text": "User-generated content tools", "completed": false },
+            { "text": "Safe extensibility", "completed": false },
+            { "text": "Sandboxed creativity", "completed": false }
+          ],
+          "achievements": ["world_creator"]
+        },
+        {
+          "id": "self_sustaining",
+          "label": "Self-Sustaining Platform",
+          "tooltip": "Independence",
+          "description": [
+            { "text": "Community-driven growth", "completed": false },
+            { "text": "Data-informed evolution", "completed": false },
+            { "text": "Platform independence", "completed": false }
+          ],
+          "achievements": ["autonomous_universe"]
+        }
+      ]
+    }
+  ]
+}
