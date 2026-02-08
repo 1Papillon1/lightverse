@@ -29,11 +29,18 @@ export default defineConfig({
   // Prevent ox from being prebundled
   optimizeDeps: {
     exclude: ['ox'],
+    
+    include: ["eventemitter3"],
+  
   },
 
   build: {
     sourcemap: false,
     reportCompressedSize: false,
+    commonjsOptions: {
+      //      include: [/eventemitter3/, /node_modules/],
+       include: [/eventemitter3/, /node_modules/],
+    },
 
     rollupOptions: {
       // ONLY externalize ox

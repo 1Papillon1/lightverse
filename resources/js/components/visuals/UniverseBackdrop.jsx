@@ -12,25 +12,15 @@ import { useRootStore } from "@/stores/RootStore";
 import { SRGBColorSpace } from "three";
 import { RootStoreContext } from "@/stores/RootStore";
 import AmbientShip from "@/components/visuals/AmbientShip";
+import { usePage } from "@inertiajs/react";
 
-// Safe usePage import
-let inertiaUsePage;
-try {
-  inertiaUsePage = require("@inertiajs/react").usePage;
-} catch {
-  try {
-    inertiaUsePage = require("@inertiajs/inertia-react").usePage;
-  } catch {
-    inertiaUsePage = null;
-  }
-}
 
 const UniverseBackdrop = observer(({ mode, children }) => {
   const orbitRef = useRef();
   const { universeStore, lightwebCoinStore, userStore } =
   useContext(RootStoreContext);
 
-  const inertiaPage = inertiaUsePage ? inertiaUsePage() : null;
+const inertiaPage = usePage();
 
   // Which terrain to render
   const currentUrl =
