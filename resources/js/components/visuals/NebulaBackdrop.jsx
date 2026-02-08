@@ -24,14 +24,14 @@ export default function NebulaBackdrop({ rotate = false }) {
       size / 2.2, size / 2.2, size / 2.2
     );
 
-    gradient.addColorStop(0.0,  "#0a001a");  
-    gradient.addColorStop(0.15, "#0d0022");  
-    gradient.addColorStop(0.3,  "#11092d");   
-    gradient.addColorStop(0.42, "#160a35");  
-    gradient.addColorStop(0.55, "#1a0948");     
-    gradient.addColorStop(0.68, "#1f0a4f");     
-    gradient.addColorStop(0.82, "#140732");    
-    gradient.addColorStop(1.0,  "#000010");     
+    gradient.addColorStop(0.0,  "#0a001a");
+    gradient.addColorStop(0.15, "#0d0022");
+    gradient.addColorStop(0.3,  "#11092d");
+    gradient.addColorStop(0.42, "#160a35");
+    gradient.addColorStop(0.55, "#1a0948");
+    gradient.addColorStop(0.68, "#1f0a4f");
+    gradient.addColorStop(0.82, "#140732");
+    gradient.addColorStop(1.0,  "#000010");
 
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, size, size);
@@ -39,7 +39,7 @@ export default function NebulaBackdrop({ rotate = false }) {
     const imageData = ctx.getImageData(0, 0, size, size);
     for (let i = 0; i < imageData.data.length; i += 4) {
       const noise = Math.random() * 0.5 - 2;
-      imageData.data[i] += noise;
+      imageData.data[i]     += noise;
       imageData.data[i + 1] += noise;
       imageData.data[i + 2] += noise;
     }
@@ -49,14 +49,17 @@ export default function NebulaBackdrop({ rotate = false }) {
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
-    texture.encoding = THREE.sRGBEncoding;
+
+    // ✅ MODERN THREE.JS COLOR SPACE
+    texture.colorSpace = THREE.SRGBColorSpace;
+
     texture.needsUpdate = true;
 
     return new THREE.MeshBasicMaterial({
       map: texture,
       side: THREE.BackSide,
       transparent: false,
-      depthWrite: false
+      depthWrite: false,
     });
   }, []);
 
