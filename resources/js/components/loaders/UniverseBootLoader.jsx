@@ -8,7 +8,7 @@ const UniverseBootLoader = observer(() => {
 
    if (visualLoadStore.universeReady) return null; 
 
-   const tips = [
+/*    const tips = [
     "Tip: The Lightverse is a vast, interconnected web of knowledge and experience. Take your time to explore and discover its wonders.",
     "Tip: The Lightverse is not just a place to learn, but a place to connect. Engage with others and share your insights to enrich the collective understanding.",
     "Tip: The Lightverse is ever-evolving. New content and experiences are added regularly, so check back often to see what's new.",
@@ -17,13 +17,13 @@ const UniverseBootLoader = observer(() => {
   ];
 
   useEffect(() => {
-    // Simulate loading time for the universe boot process
+
     const timer = setTimeout(() => {
       visualLoadStore.setUniverseReady(true);
-    }, 3000); // 3 seconds
+    }, 3000); 
 
     return () => clearTimeout(timer);
-  }, [visualLoadStore]);
+  }, [visualLoadStore]); */
 
   return (
     <div className="universe-boot">
@@ -32,9 +32,9 @@ const UniverseBootLoader = observer(() => {
         <div className="universe-boot__text">
           Initializing Lightverse…
         </div>
-        <div className="universe-boot__tip">
+        {/* <div className="universe-boot__tip">
           {tips[Math.floor(Math.random() * tips.length)]}
-        </div>
+        </div> */}
       </div>
     </div>
   );

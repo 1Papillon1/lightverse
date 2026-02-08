@@ -4,22 +4,44 @@ import react from '@vitejs/plugin-react';
 import { resolve } from 'node:path';
 
 export default defineConfig({
-    plugins: [
-        laravel({
-            input: [
-                'resources/js/app.jsx',        // Glavni Inertia bootstrapping file (sa React)
-                'resources/js/styles/app.scss'   // Tvoj SCSS fajl, ako se nalazi ovdje
-            ],
-            refresh: true,
-        }),
-        react(),
-    ],
-    resolve: {
-        alias: {
-            '@': resolve(__dirname, 'resources/js'),
-        },
+  plugins: [
+    laravel({
+      input: [
+        'resources/js/app.jsx',
+        'resources/js/styles/app.scss',
+      ],
+      refresh: true,
+    }),
+    react(),
+  ],
+
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'resources/js'),
     },
-    build: {
-        reportCompressedSize: false, // Isključi prikaz kompresovanih veličina
+  },
+
+  // Silence broken PURE annotations (ox)
+  esbuild: {
+    legalComments: 'none',
+  },
+
+  // Prevent ox from being prebundled
+  optimizeDeps: {
+    exclude: ['ox'],
+  },
+
+  build: {
+    sourcemap: false,
+    reportCompressedSize: false,
+
+    rollupOptions: {
+      // ONLY externalize ox
+      external: ['ox'],
+
+      treeshake: {
+        annotations: false,
+      },
     },
+  },
 });
