@@ -42,12 +42,12 @@ const UniverseScene = observer(({ onSceneSelect }) => {
      ✅ PRELOAD ALL SYSTEM TEXTURES (R3F-NATIVE)
   -------------------------------------------------- */
   const textures = useLoader(TextureLoader, [
-    "/textures/wallet_node_2k.jpg",      // ✅ Reduced from 4k to 2k
-    "/textures/market_node_2k.jpg",
-    "/textures/contract_node_2k.jpg",
-    "/textures/roadmap_node_2k.jpg",
-    "/textures/identity_node_2k.jpg",
-    "/textures/ai_node_2k.jpg",
+    "/textures/wallet_node_4k.jpg",      // ✅ Reduced from 4k to 2k
+    "/textures/market_node_4k.jpg",
+    "/textures/contract_node_4k.jpg",
+    "/textures/roadmap_node_4k.jpg",
+    "/textures/identity_node_4k.jpg",
+    "/textures/ai_node_4k.jpg",
   ]);
 
   /* --------------------------------------------------

@@ -7,9 +7,9 @@ import { Head, usePage } from "@inertiajs/react";
 import UniverseScene from "@/components/visuals/UniverseScene";
 import BlockDetails from "../components/market/BlockDetails";
 
-
 const Dashboard = observer(() => {
   const [activeScene, setActiveScene] = useState("market");
+  const [mounted, setMounted] = useState(false); // ✅ Client-only rendering
   const { symbol } = usePage().props;
   const rootStore = useContext(RootStoreContext);
   const store = useContext(RootStoreContext).marketStore;
@@ -23,8 +23,10 @@ const Dashboard = observer(() => {
   // Check for verification success
   const [showVerifiedMessage, setShowVerifiedMessage] = useState(false);
 
-
-  
+  // ✅ CRITICAL: Ensure component is mounted (client-side only)
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -67,7 +69,7 @@ const Dashboard = observer(() => {
       </Head>
 
       {/* Email Verified Success Message */}
-     {showVerifiedMessage && (
+      {showVerifiedMessage && (
         <div className="message message--success">
           <svg className="message__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -86,14 +88,30 @@ const Dashboard = observer(() => {
         </div>
       )}
 
-
-      {/* {!store.sceneReady && <LoadingScreen />}  */}
-
       <div className="hero__container">
-        {!symbol && (
-          <>
-            <UniverseScene onSceneSelect={(sceneId) => setActiveScene(sceneId)} />
-          </>
+        {/* ✅ ONLY RENDER THREE.JS AFTER CLIENT-SIDE MOUNT */}
+        {!symbol && mounted && (
+          <UniverseScene onSceneSelect={(sceneId) => setActiveScene(sceneId)} />
+        )}
+
+        {/* ✅ FALLBACK LOADING STATE FOR SSR */}
+        {!symbol && !mounted && (
+          <div style={{
+            width: '100%',
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 100%)',
+            color: '#fff',
+            fontSize: '18px',
+            fontFamily: 'Orbitron, monospace'
+          }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ marginBottom: '20px', fontSize: '24px' }}>🌌</div>
+              <div>Initializing Universe...</div>
+            </div>
+          </div>
         )}
 
         {symbol && (
