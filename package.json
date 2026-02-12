@@ -2,8 +2,8 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "NODE_OPTIONS=--max-old-space-size=6144 vite build",
-        "build:ssr": "NODE_OPTIONS=--max-old-space-size=6144 vite build && NODE_OPTIONS=--max-old-space-size=6144 vite build --ssr",
+        "build": "vite build",
+        "build:ssr": "vite build && vite build --ssr",
         "dev": "vite",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
@@ -48,7 +48,7 @@
         "@tanstack/react-query": "^5.83.0",
         "@types/react": "^19.0.3",
         "@types/react-dom": "^19.0.2",
-        "@vitejs/plugin-react": "4.3.1",
+        "@vitejs/plugin-react": "^4.3.4",
         "@web3icons/react": "^4.0.8",
         "axios": "^1.7.9",
         "class-variance-authority": "^0.7.1",
@@ -81,10 +81,11 @@
         "three-mesh-bvh": "^0.8.0",
         "typescript": "^5.7.2",
         "viem": "^2.31.7",
-        "vite": "5.4.8",
+        "vite": "^6.0",
         "wagmi": "^2.15.6"
     },
     "optionalDependencies": {
+        "@rollup/rollup-linux-x64-gnu": "4.9.5",
         "@tailwindcss/oxide-linux-x64-gnu": "^4.0.1",
         "lightningcss-linux-x64-gnu": "^1.29.1"
     }

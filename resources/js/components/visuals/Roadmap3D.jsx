@@ -11,21 +11,30 @@ const Roadmap3D = () => {
   const [selectedPhase, setSelectedPhase] = useState(null);
   const [selectedNode, setSelectedNode] = useState(null);
   const [hovered, setHovered] = useState(null);
-
-  const textureUrl = "/textures/circle_texture.jpg";
-  const texture = useLoader(THREE.TextureLoader, textureUrl);
-
-  useEffect(() => {
-    if (texture) {
-      texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-      texture.colorSpace = THREE.SRGBColorSpace;
-      texture.needsUpdate = true;
-    }
-  }, [texture]);
+  const [textureLoaded, setTextureLoaded] = useState(false); // ✅ Track texture state
 
   const phases = useMemo(() => conceptMapData.phases, []);
 
-  // ✅ FIXED: Perfect circular orbit on XZ plane (Y=0)
+  // ✅ Load texture in background (non-blocking)
+  const textureUrl = "/textures/circle_texture.jpg";
+  let texture = null;
+  
+  try {
+    texture = useLoader(THREE.TextureLoader, textureUrl);
+    
+    useEffect(() => {
+      if (texture) {
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.needsUpdate = true;
+        setTextureLoaded(true);
+      }
+    }, [texture]);
+  } catch (error) {
+    console.log("Texture loading in background...");
+  }
+
+  // ✅ Perfect circular orbit on XZ plane (Y=0)
   const phasePositions = useMemo(() => {
     return phases.map((phase, i) => {
       const angle = (i / phases.length) * Math.PI * 2;
@@ -34,7 +43,7 @@ const Roadmap3D = () => {
         ...phase,
         position: [
           Math.cos(angle) * radius,
-          0, // ✅ All phases at Y=0 for perfect horizontal orbit
+          0,
           Math.sin(angle) * radius
         ],
         angle,
@@ -43,7 +52,6 @@ const Roadmap3D = () => {
     });
   }, [phases]);
 
-  // 🎯 Zoom into selected phase
   const handlePhaseClick = (phase, position) => {
     if (selectedPhase?.id === phase.id) {
       setSelectedPhase(null);
@@ -62,28 +70,27 @@ const Roadmap3D = () => {
 
   return (
     <>
-      {/* ✅ FIXED: Pan only (up/down/left/right), NO rotation */}
       <OrbitControls
         ref={controlsRef}
-        enableRotate={false}  // ✅ Completely disable rotation
-        enablePan={true}       // ✅ Allow panning (arrow keys / drag)
+        enableRotate={false}
+        enablePan={true}
         enableZoom={true}
         minDistance={15}
         maxDistance={50}
-        minPolarAngle={Math.PI / 2}  // ✅ Lock vertical angle
-        maxPolarAngle={Math.PI / 2}  // ✅ Lock vertical angle
-        minAzimuthAngle={0}           // ✅ Lock horizontal rotation
-        maxAzimuthAngle={0}           // ✅ Lock horizontal rotation
+        minPolarAngle={Math.PI / 2}
+        maxPolarAngle={Math.PI / 2}
+        minAzimuthAngle={0}
+        maxAzimuthAngle={0}
         enableDamping
         dampingFactor={0.05}
-        screenSpacePanning={true}     // ✅ Better panning behavior
+        screenSpacePanning={true}
       />
 
       <ambientLight intensity={0.5} />
       <pointLight position={[0, 0, 20]} intensity={2} color="#00ffff" />
       <directionalLight position={[10, 10, 15]} intensity={0.8} />
 
-      {/* Title - stays at top */}
+      {/* Title */}
       <Html position={[0, 8, 0]} center style={{ pointerEvents: 'none' }}>
         <div style={{
           color: "#00ffff",
@@ -116,24 +123,36 @@ const Roadmap3D = () => {
             position={phase.position}
             scale={scale}
           >
-            {/* Phase Sphere */}
+            {/* ✅ Phase Sphere - renders immediately with basic material */}
             <mesh
               onClick={() => handlePhaseClick(phase, phase.position)}
               onPointerOver={() => setHovered(phase.id)}
               onPointerOut={() => setHovered(null)}
             >
               <sphereGeometry args={[1.2, 32, 32]} />
-              <meshStandardMaterial
-                map={texture}
-                color={isSelected ? "#66ffff" : "#1a4d5c"}
-                emissive={isSelected ? "#00ffff" : "#003344"}
-                emissiveIntensity={isSelected ? 2.5 : 1.2}
-                metalness={0.7}
-                roughness={0.2}
-              />
+              {/* ✅ Use basic material first, swap to textured when loaded */}
+              {textureLoaded && texture ? (
+                <meshStandardMaterial
+                  map={texture}
+                  color={isSelected ? "#66ffff" : "#1a4d5c"}
+                  emissive={isSelected ? "#00ffff" : "#003344"}
+                  emissiveIntensity={isSelected ? 2.5 : 1.2}
+                  metalness={0.7}
+                  roughness={0.2}
+                />
+              ) : (
+                // ✅ Fallback: Simple colored material (loads instantly)
+                <meshStandardMaterial
+                  color={isSelected ? "#66ffff" : "#1a4d5c"}
+                  emissive={isSelected ? "#00ffff" : "#003344"}
+                  emissiveIntensity={isSelected ? 2.5 : 1.2}
+                  metalness={0.7}
+                  roughness={0.2}
+                />
+              )}
             </mesh>
 
-            {/* Phase Label - always visible above */}
+            {/* Phase Label */}
             <Html distanceFactor={15} position={[0, 2, 0]} center style={{ pointerEvents: 'none' }}>
               <div style={{
                 color: isSelected ? "#00ffff" : "#66b3cc",
@@ -149,7 +168,7 @@ const Roadmap3D = () => {
               </div>
             </Html>
 
-            {/* Concept subtitle - always visible below */}
+            {/* Concept subtitle */}
             <Html distanceFactor={15} position={[0, -1.8, 0]} center style={{ pointerEvents: 'none' }}>
               <div style={{
                 color: "#88ccdd",
@@ -165,7 +184,7 @@ const Roadmap3D = () => {
               </div>
             </Html>
 
-            {/* Expanded Nodes (circular orbit around parent) */}
+            {/* Expanded Nodes */}
             {isSelected && phase.nodes && (
               <group>
                 {phase.nodes.map((node, nodeIndex) => {
@@ -174,7 +193,7 @@ const Roadmap3D = () => {
                   
                   const nodePos = [
                     Math.cos(nodeAngle) * nodeRadius,
-                    0, // ✅ Keep nodes on same Y=0 plane
+                    0,
                     Math.sin(nodeAngle) * nodeRadius
                   ];
 
@@ -186,7 +205,7 @@ const Roadmap3D = () => {
 
                   return (
                     <group key={node.id} position={nodePos}>
-                      {/* Node Sphere */}
+                      {/* Node Sphere - no texture needed */}
                       <mesh
                         onClick={(e) => {
                           e.stopPropagation();
@@ -218,18 +237,18 @@ const Roadmap3D = () => {
                         </div>
                       </Html>
 
-                      {/* ✅ 2X LARGER Node Details Panel */}
+                      {/* Node Details Panel */}
                       {isNodeSelected && (
                         <Html distanceFactor={4} position={[0, -2, 0]}>
                           <div style={{
                             background: "rgba(0, 0, 0, 0.95)",
-                            padding: "28px 32px",        // ✅ 2x padding
-                            borderRadius: "16px",        // ✅ Larger radius
-                            width: "520px",              // ✅ 2x width (was 380px)
+                            padding: "28px 32px",
+                            borderRadius: "16px",
+                            width: "520px",
                             color: "#ccfaff",
                             fontFamily: "Rajdhani, sans-serif",
-                            fontSize: "1.1rem",          // ✅ 2x font size
-                            border: "3px solid #00ffff", // ✅ Thicker border
+                            fontSize: "1.1rem",
+                            border: "3px solid #00ffff",
                             boxShadow: "0 0 32px #00ffff88",
                             maxHeight: "600px",
                             overflowY: "auto"
@@ -238,13 +257,13 @@ const Roadmap3D = () => {
                               color: "#00ffff", 
                               fontWeight: "bold", 
                               marginBottom: "16px",
-                              fontSize: "1.6rem"         // ✅ 2x title
+                              fontSize: "1.6rem"
                             }}>
                               {node.label}
                             </div>
                             {node.tooltip && (
                               <div style={{ 
-                                fontSize: "1.05rem",      // ✅ 2x tooltip
+                                fontSize: "1.05rem",
                                 opacity: 0.9, 
                                 marginBottom: "18px",
                                 fontStyle: "italic",
@@ -265,7 +284,7 @@ const Roadmap3D = () => {
                                   <span style={{
                                     marginRight: "16px",
                                     color: item.completed ? "#00ff88" : "#ff9900",
-                                    fontSize: "1.4rem",  // ✅ 2x checkmark
+                                    fontSize: "1.4rem",
                                     flexShrink: 0,
                                     marginTop: "2px"
                                   }}>
@@ -273,7 +292,7 @@ const Roadmap3D = () => {
                                   </span>
                                   <span style={{
                                     textDecoration: item.completed ? "line-through" : "none",
-                                    fontSize: "1.05rem"  // ✅ 2x description text
+                                    fontSize: "1.05rem"
                                   }}>
                                     {item.text}
                                   </span>
@@ -285,7 +304,7 @@ const Roadmap3D = () => {
                                 marginTop: "20px",
                                 paddingTop: "16px",
                                 borderTop: "2px solid #00ffff44",
-                                fontSize: "0.95rem"      // ✅ 2x achievements
+                                fontSize: "0.95rem"
                               }}>
                                 <strong style={{ color: "#00ffff" }}>Achievements:</strong>
                                 <div style={{ marginTop: "8px", opacity: 0.8 }}>
