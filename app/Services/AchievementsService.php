@@ -5,9 +5,25 @@ namespace App\Services;
 use App\Models\Achievement;
 use App\Models\User;
 use App\Services\LightwebCoinService;
+use App\Services\LightService;
 
 class AchievementsService
 {
+
+    //! Inject LightService for potential reward logic
+
+    protected LightService $light;
+
+    public function __construct(LightService $light)
+    {
+        $this->light = $light;
+    }
+
+
+
+
+    //! Check if user has achievement
+
     public function has(User $user, string $code): bool
     {
         return $user->achievements()->where('code', $code)->exists();
