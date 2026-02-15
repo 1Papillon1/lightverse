@@ -1,39 +1,24 @@
+// resources/js/components/visuals/RisingStar.jsx
 import React, { useRef, useState, useEffect } from "react";
 import { MeshWobbleMaterial, Sparkles, Html } from "@react-three/drei";
 import { observer } from "mobx-react-lite";
 import { Inertia } from "@inertiajs/inertia";
-import { systems } from "@/config/systems";
 
-const starConfigs = systems.galaxy.map((node, index) => {
-  const positions = [
-    [-40, 2, 105],
-    [59, 15, 85],
-    [85, -35, -17],
-    [-65, -15, 8],
-    [25, 15, -60],
-  ];
-  const themes = ["black", "orange", "gray", "darkbrown", "lightbrown"];
-
-  return {
-    id: node.id,
-    label: node.name,
-    theme: themes[index % themes.length],
-    position: positions[index % positions.length],
-  };
-});
-
-const RisingStar = observer(({ position, theme = "default", label = "🚧 Work in Progress", interactive = true }) => {
+const RisingStar = observer(({ 
+  position, 
+  theme = "default", 
+  label = "Star", 
+  interactive = true,
+  onClick,
+  nodes = [], // ✅ Pass nodes from config
+  isActive = false
+}) => {
   const mesh = useRef();
   const containerRef = useRef();
   const [hovered, setHovered] = useState(false);
   const [glitchActive, setGlitchActive] = useState(false);
   const glitchTimer = useRef(null);
   const shellCount = 24;
-
-  // 🧠 Automatically resolve node routes
-  const lowerLabel = label.toLowerCase().replace(/\s+/g, "");
-  const nodeSet = systems[lowerLabel] || [];
-  const routeList = nodeSet.length ? nodeSet : [{ id: lowerLabel, name: label, route: `/${lowerLabel}` }];
 
   // 🎨 Theme palette
   const themes = {
@@ -43,15 +28,9 @@ const RisingStar = observer(({ position, theme = "default", label = "🚧 Work i
     gray: { core: "#888888", emissive: "#00e0ff" },
     darkbrown: { core: "#3b2a1f", emissive: "#ff8800" },
     lightbrown: { core: "#a07955", emissive: "#ffcc00" },
+    purple: { core: "#9933ff", emissive: "#ff00ff" },
   };
   const { core, emissive } = themes[theme] || themes.default;
-
-  const showPanel = true;
-
-  // 🌫️ Fade in/out transition
-  useEffect(() => {
-    setHovered(false);
-  }, []);
 
   // ⚡ Glitch timer
   useEffect(() => {
@@ -67,12 +46,12 @@ const RisingStar = observer(({ position, theme = "default", label = "🚧 Work i
     return () => clearTimeout(glitchTimer.current);
   }, []);
 
-  // 🪐 Render
   return (
     <group position={position}>
       {/* 🌟 Star core */}
       <mesh
         ref={mesh}
+        onClick={onClick}
         onPointerOver={() => setHovered(true)}
         onPointerOut={() => setHovered(false)}
       >
@@ -80,7 +59,7 @@ const RisingStar = observer(({ position, theme = "default", label = "🚧 Work i
         <meshStandardMaterial
           color={core}
           emissive={emissive}
-          emissiveIntensity={hovered ? 1.2 : 0.8}
+          emissiveIntensity={hovered || isActive ? 1.5 : 0.8}
           metalness={0.3}
           roughness={0.5}
         />
@@ -104,8 +83,8 @@ const RisingStar = observer(({ position, theme = "default", label = "🚧 Work i
 
       <Sparkles count={120} scale={30} size={5} speed={0.5} opacity={0.8} color={core} />
 
-      {/* 📍 Info Panel */}
-      {interactive && showPanel && (
+      {/* 📍 Info Panel (only if interactive) */}
+      {interactive && (
         <>
           {/* Line */}
           <mesh position={[0, 15, 0]}>
@@ -157,41 +136,44 @@ const RisingStar = observer(({ position, theme = "default", label = "🚧 Work i
                 {label}
               </div>
 
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "4px",
-                  alignItems: "center",
-                }}
-              >
-                {routeList.map((node) => (
-                  <div
-                    key={node.id}
-                    onClick={() =>
-                      Inertia.visit(node.route, {
-                        preserveState: true,
-                        preserveScroll: true,
-                      })
-                    }
-                    style={{
-                      padding: "3px 8px",
-                      minWidth: "100px",
-                      color: "#00ffcc",
-                      fontSize: hovered ? "14px" : "11px",
-                      fontFamily: "Orbitron, monospace",
-                      textAlign: "center",
-                      textShadow: "0 0 8px #00ffff, 0 0 16px #ff00ff",
-                      borderRadius: "6px",
-                      background: hovered ? "rgba(0,255,255,0.05)" : "rgba(0,0,0,0.2)",
-                      cursor: "pointer",
-                      transition: "all 0.25s ease",
-                    }}
-                  >
-                    {node.name}
-                  </div>
-                ))}
-              </div>
+              {/* Show nodes if provided */}
+              {nodes.length > 0 && (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "4px",
+                    alignItems: "center",
+                  }}
+                >
+                  {nodes.map((node) => (
+                    <div
+                      key={node.id}
+                      onClick={() => {
+                        Inertia.visit(node.route, {
+                          preserveState: true,
+                          preserveScroll: true,
+                        });
+                      }}
+                      style={{
+                        padding: "3px 8px",
+                        minWidth: "100px",
+                        color: "#00ffcc",
+                        fontSize: hovered ? "14px" : "11px",
+                        fontFamily: "Orbitron, monospace",
+                        textAlign: "center",
+                        textShadow: "0 0 8px #00ffff, 0 0 16px #ff00ff",
+                        borderRadius: "6px",
+                        background: hovered ? "rgba(0,255,255,0.05)" : "rgba(0,0,0,0.2)",
+                        cursor: "pointer",
+                        transition: "all 0.25s ease",
+                      }}
+                    >
+                      {node.label}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </Html>
         </>

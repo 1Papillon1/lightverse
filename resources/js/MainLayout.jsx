@@ -71,14 +71,7 @@ const MainLayout = observer(({ children }) => {
     }
   }, [isAuth, userStore.authorized, visualLoadStore]);
 
-  /* ----------------------------------
-     🎙 Narrator
-  ---------------------------------- */
-  useEffect(() => {
-    if (props?.flash?.welcome_narrator) {
-      narratorStore.playWelcome();
-    }
-  }, [props?.flash?.welcome_narrator, narratorStore]);
+
 
   /* ----------------------------------
      🔒 UI LOCK
@@ -104,7 +97,6 @@ const MainLayout = observer(({ children }) => {
         <div className="App">
           {!isAuth && (
             <>
-              <NarratorPulse />
               <AuriaHologram />
               <Navigation horizontal />
             </>

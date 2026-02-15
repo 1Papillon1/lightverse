@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
+use App\Services\LightService;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -62,6 +63,18 @@ class HandleInertiaRequests extends Middleware
                     'is_admin' => Auth::user()->isAdmin(),
                 ] : null,
             ],
+
+             // ✅ LIGHT AS SEPARATE PHYSICS LAYER
+            'light' => function () use ($request) {
+                if (!$request->user()) return null;
+
+                $service = app(LightService::class);
+
+                return [
+                    'user' => $service->calculateUser($request->user()),
+                    'system' => $service->calculateSystem(),
+                ];
+            },
 
             // Ziggy routes + trenutna adresa
             'ziggy' => fn (): array => [

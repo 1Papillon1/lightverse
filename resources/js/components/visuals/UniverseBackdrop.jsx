@@ -3,15 +3,11 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import Terrain from "@/components/visuals/Terrain";
 import RotatingStars from "@/components/visuals/RotatingStars";
-import NebulaBackdrop from "./NebulaBackdrop";
+import NebulaBackdrop from "@/components/visuals/core/NebulaBackdrop";
 import { observer } from "mobx-react-lite";
 import { resolveTerrainType } from "@/utils/terrainResolver";
-import LightverseCoin from "@/components/visuals/LightverseCoin";
-import CoinPickupOrchestrator from "@/components/visuals/CoinPickupOrchestrator";
-import { useRootStore } from "@/stores/RootStore";
 import { SRGBColorSpace } from "three";
 import { RootStoreContext } from "@/stores/RootStore";
-import AmbientShip from "@/components/visuals/AmbientShip";
 import { usePage } from "@inertiajs/react";
 
 
@@ -96,19 +92,7 @@ const inertiaPage = usePage();
           type={resolvedType}
         />
 
-        {userStore.authorized &&
-        lightwebCoinStore.filteredDrops
-          .filter(drop =>
-            !(
-              lightwebCoinStore.activePickup === drop.id &&
-              lightwebCoinStore.pickupPhase === "flying"
-            )
-          )
-          .map(drop => (
-            <LightverseCoin key={drop.id} drop={drop} />
-          ))}
-         {!userStore.authorized && <AmbientShip />}
-        {userStore.authorized && <CoinPickupOrchestrator />}
+        
         {children}
       </Suspense>
 

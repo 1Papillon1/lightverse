@@ -37,23 +37,7 @@ const Navigation = observer(({ horizontal = false }) => {
     <nav className="navigation navigation--horizontal">
       <ul className="navigation__list navigation__list--horizontal">
 
-        {/* ---------------- LEFT SIDE ---------------- */}
-        {!isAdmin && (
-          <>
-            <li className="navigation__balance">
-              <span className="navigation__link navigation__balance__content">
-                <span className="navigation__balance__icon">💠</span>
-                <span className="navigation__balance__value">
-                  {coinStore.balance}
-                </span>
-              </span>
-            </li>
-
-            <li className="navigation__wallet">
-              <WalletConnectButton />
-            </li>
-          </>
-        )}
+      
 
         {isAdmin && (
           <li className="navigation__admin-button">

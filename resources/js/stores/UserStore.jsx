@@ -24,8 +24,6 @@ class UserStore {
     this.authorized = true;
     this.user = user;
     this.closeOverlay();
-
-    this.rootStore.lightwebCoinStore.initializeForUser();
   }
 
   logout() {
@@ -35,8 +33,6 @@ class UserStore {
         this.authorized = false;
         this.user = null;
         this.closeOverlay();
-
-        this.rootStore.lightwebCoinStore.reset();
       },
     });
   }

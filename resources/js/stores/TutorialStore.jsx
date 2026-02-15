@@ -15,32 +15,54 @@ class TutorialStore {
     this.detectDeviceType();
 
     this.steps = {
-      dashboard: [
+      universe: [
         {
           id: 1,
-          textDesktop: "Click and drag to rotate the universe.",
-          instruction: "(Hold left mouse button and move)",
-          textMobile: "Swipe with one finger to rotate the universe.",
+          textDesktop: "Welcome to the Lightverse! You're viewing the Universe.",
+          instruction: "Two galaxies await exploration",
+          textMobile: "Welcome to the Lightverse! Two galaxies await.",
         },
         {
           id: 2,
-          textDesktop: "Scroll to zoom in.",
-          instruction: "(Mouse scroll up)",
-          textMobile: "Pinch inward to zoom in.",
+          textDesktop: "Click and drag to rotate your view.",
+          instruction: "(Hold left mouse button and move)",
+          textMobile: "Swipe with one finger to rotate.",
         },
         {
           id: 3,
-          textDesktop: "Scroll to zoom out.",
-          instruction: "(Mouse scroll down)",
-          textMobile: "Pinch outward to zoom out.",
+          textDesktop: "Scroll to zoom in and out.",
+          instruction: "(Mouse scroll)",
+          textMobile: "Pinch to zoom in and out.",
         },
         {
           id: 4,
-          textDesktop: "Click on a node to finish the tutorial.",
-          instruction: "(Left-click on a planet node)",
-          textMobile: "Tap a node to finish the tutorial.",
+          textDesktop: "Click on a galaxy to enter it.",
+          instruction: "(Left-click on a glowing galaxy)",
+          textMobile: "Tap a galaxy to enter it.",
         },
-      ]
+      ],
+      galaxy: [
+        {
+          id: 1,
+          textDesktop: "You're now inside a galaxy! Each star is a system.",
+          instruction: "Click a star to zoom in",
+          textMobile: "You're inside a galaxy! Tap a star to zoom in.",
+        },
+        {
+          id: 2,
+          textDesktop: "Click on a star to see its orbiting nodes.",
+          instruction: "(Left-click on a star)",
+          textMobile: "Tap a star to see its nodes.",
+        },
+      ],
+      system: [
+        {
+          id: 1,
+          textDesktop: "These are nodes orbiting the star. Click one to explore.",
+          instruction: "(Left-click on a node)",
+          textMobile: "These are nodes. Tap one to explore.",
+        },
+      ],
     };
   }
 
@@ -67,7 +89,7 @@ class TutorialStore {
   }
 
   markStepComplete() {
-    const step = this.steps[this.activeScene][this.activeStep];
+    const step = this.steps[this.activeScene]?.[this.activeStep];
     if (step?.id) {
       this.completedSteps.add(step.id);
     }

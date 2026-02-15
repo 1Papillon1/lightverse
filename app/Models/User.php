@@ -6,44 +6,34 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\LightTransactions;
+use App\Models\LightTransaction;
+use App\Services\LightService;
 
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+        use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'username',
         'email',
         'password',
-        'initial_coins_spawned',   // ✅ first-login reward lock
+        'core_light',
+        'stable_light',
+        'active_light',
+        'total_light',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Attribute casting.
-     */
     protected function casts(): array
     {
         return [
-            'email_verified_at'      => 'datetime',
-            'password'              => 'hashed',
-            'initial_coins_spawned' => 'boolean',
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
         ];
     }
 
@@ -52,7 +42,7 @@ class User extends Authenticatable
      | -----------------------------------------------------------------
      */
 
-     public function roles()
+    public function roles()
     {
         return $this->belongsToMany(Role::class, 'role_user');
     }
@@ -62,29 +52,6 @@ class User extends Authenticatable
         return $this->roles()->where('name', 'admin')->exists();
     }
 
-    // ✅ Wallet
-    public function balance()
-    {
-        return $this->hasOne(UserBalance::class);
-    }
-
-    // ✅ All coin drops ever
-    public function coinDrops()
-    {
-        return $this->hasMany(LightwebCoinDrop::class);
-    }
-
-    // ✅ Only available coins
-    public function activeCoinDrops()
-    {
-        return $this->hasMany(LightwebCoinDrop::class)
-            ->where('claimed', false)
-            ->where(function ($q) {
-                $q->whereNull('expires_at')
-                  ->orWhere('expires_at', '>', now());
-            });
-    }
-
     public function achievements()
     {
         return $this->belongsToMany(Achievement::class, 'user_achievements')
@@ -92,8 +59,32 @@ class User extends Authenticatable
             ->withPivot('unlocked_at');
     }
 
-    public function lightTransactions()
+      protected static function booted()
     {
-        return $this->hasMany(LightTransactions::class);
+        // ✅ GENESIS SPARK: Award 1 Core Light on registration
+        static::created(function (User $user) {
+            app(LightService::class)->award(
+                user: $user,
+                type: 'core',
+                amount: 1,
+                source: 'genesis',
+                expiresAt: null
+            );
+        });
+    }
+
+    public function lightTransaction()
+    {
+        return $this->hasMany(LightTransaction::class);
+    }
+
+    public function recalculateLight()
+    {
+        $this->total_light =
+            $this->core_light +
+            $this->stable_light +
+            $this->active_light;
+
+        $this->save();
     }
 }

@@ -1,60 +1,49 @@
 import { makeAutoObservable } from "mobx";
 
 class UIStore {
-    activeNode = "wallet";
-    animated = true;
-    triggerExplosion = false;
+  activeNode = "wallet";
+  animated = true;
+  triggerExplosion = false;
 
+  navigationLeft = true;
+  navigationState = "main";
 
-    navigationLeft = true;
-    navigationState = "main";
+  // UI loading
+  universeReady = false;
 
+  constructor() {
+    makeAutoObservable(this);
+  }
 
-    // ui loading
-    universeReady = false;
+  toggleAnimated() {
+    this.animated = !this.animated;
+  }
 
- 
+  toggleNavigationLeft() {
+    this.navigationLeft = !this.navigationLeft;
+  }
 
-    constructor() {
-        makeAutoObservable(this);
+  setNavigationState(state) {
+    this.navigationState = state;
+  }
 
-    }
+  // Explosions
+  requestExplosion() {
+    this.triggerExplosion = true;
+  }
 
+  resetExplosion() {
+    this.triggerExplosion = false;
+  }
 
+  // Setters
+  setUniverseReady(val) {
+    this.universeReady = val;
+  }
 
-    toggleAnimated() {
-        this.animated = !this.animated;
-    }
-
-   
-
-    toggleNavigationLeft() {
-        this.navigationLeft = !this.navigationLeft;
-    }
-
-    setNavigationState(state) {
-        this.navigationState = state;
-    }
-
-
-    // explosions
-    requestExplosion() {
-        this.triggerExplosion = true;
-    }
-
-    resetExplosion() {
-        this.triggerExplosion = false;
-    }
-
-    // setters
-    setUniverseReady(val) {
-        this.universeReady = val;
-    }
-
-    setActiveNode(node) {
-        this.activeNode = node;
-    }
-
+  setActiveNode(node) {
+    this.activeNode = node;
+  }
 }
 
 export default UIStore;

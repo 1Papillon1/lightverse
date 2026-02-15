@@ -4,26 +4,25 @@ import { observer } from "mobx-react-lite";
 import { RootStoreContext } from "@/stores/RootStore";
 import MainLayout from "@/MainLayout";
 import { Head, usePage } from "@inertiajs/react";
-import UniverseScene from "@/components/visuals/UniverseScene";
+import UniverseScene from "@/components/visuals/core/UniverseScene";
 import BlockDetails from "../components/market/BlockDetails";
 
 const Dashboard = observer(() => {
   const [activeScene, setActiveScene] = useState("market");
-  const [mounted, setMounted] = useState(false); // ✅ Client-only rendering
-  const { symbol } = usePage().props;
+  const [mounted, setMounted] = useState(false);
+  
+  // ✅ Get props from Inertia (passed by DashboardController)
+  const props = usePage().props;
+  const { symbol, galaxy, system, node } = props;
+  
   const rootStore = useContext(RootStoreContext);
   const store = useContext(RootStoreContext).marketStore;
-
-  const { navigationState } = rootStore.uiStore;
 
   const periods = ["24h", "7d", "30d"];
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef();
-
-  // Check for verification success
   const [showVerifiedMessage, setShowVerifiedMessage] = useState(false);
 
-  // ✅ CRITICAL: Ensure component is mounted (client-side only)
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -32,9 +31,7 @@ const Dashboard = observer(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('verified') === '1') {
       setShowVerifiedMessage(true);
-      // Remove the verified parameter from URL
       window.history.replaceState({}, '', window.location.pathname);
-      // Auto-hide after 5 seconds
       setTimeout(() => setShowVerifiedMessage(false), 5000);
     }
   }, []);
@@ -60,6 +57,9 @@ const Dashboard = observer(() => {
     }
   }, [symbol, store]);
 
+  // ✅ Show 3D universe when NOT on a node page
+  const showUniverse = !symbol && !node;
+
   return (
     <section className="hero">
       <Head title="Dashboard">
@@ -68,7 +68,6 @@ const Dashboard = observer(() => {
         <meta property="og:title" content="Dashboard - Blockchain Asset Manager" />
       </Head>
 
-      {/* Email Verified Success Message */}
       {showVerifiedMessage && (
         <div className="message message--success">
           <svg className="message__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,13 +88,13 @@ const Dashboard = observer(() => {
       )}
 
       <div className="hero__container">
-        {/* ✅ ONLY RENDER THREE.JS AFTER CLIENT-SIDE MOUNT */}
-        {!symbol && mounted && (
+        {/* ✅ SHOW 3D UNIVERSE (universe/galaxy/system views) */}
+        {showUniverse && mounted && (
           <UniverseScene onSceneSelect={(sceneId) => setActiveScene(sceneId)} />
         )}
 
-        {/* ✅ FALLBACK LOADING STATE FOR SSR */}
-        {!symbol && !mounted && (
+        {/* ✅ LOADING STATE */}
+        {showUniverse && !mounted && (
           <div style={{
             width: '100%',
             height: '100vh',
@@ -114,6 +113,38 @@ const Dashboard = observer(() => {
           </div>
         )}
 
+        {/* ✅ NODE CONTENT (when navigated to specific node) */}
+        {node && (
+          <div style={{ 
+            padding: '2rem', 
+            color: '#fff',
+            minHeight: '100vh',
+            background: 'linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 100%)'
+          }}>
+            <h1 style={{ 
+              fontFamily: 'Orbitron, monospace',
+              fontSize: '2rem',
+              marginBottom: '1rem',
+              color: '#00ffff',
+              textShadow: '0 0 10px #00ffff'
+            }}>
+              {node.toUpperCase()}
+            </h1>
+            <p style={{ opacity: 0.7, marginBottom: '0.5rem' }}>
+              Galaxy: <span style={{ color: '#ff9900' }}>{galaxy}</span>
+            </p>
+            <p style={{ opacity: 0.7 }}>
+              System: <span style={{ color: '#00ffff' }}>{system}</span>
+            </p>
+            
+            {/* ✅ Your node-specific content goes here */}
+            <div style={{ marginTop: '2rem' }}>
+              <p style={{ opacity: 0.5 }}>Node content placeholder...</p>
+            </div>
+          </div>
+        )}
+
+        {/* ✅ LEGACY SYMBOL VIEW (if needed) */}
         {symbol && (
           <>
             <div className="subheader">

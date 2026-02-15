@@ -8,25 +8,111 @@ use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
+    /**
+     * Universe view (shows both galaxies)
+     */
     public function index(Request $request)
     {
-        $this->logVisit($request, ['route' => 'dashboard.index']);
+        $this->logVisit($request, ['route' => 'dashboard.index', 'view' => 'universe']);
 
         return Inertia::render('Dashboard');
     }
 
-    public function system(Request $request, string $system)
+    /**
+     * Galaxy view (shows star systems within a galaxy)
+     * Route: /galaxy/{galaxyId}
+     */
+    public function galaxy(Request $request, string $galaxyId)
     {
-        $this->logVisit($request, ['route' => 'dashboard.system', 'system' => $system]);
+        $this->logVisit($request, [
+            'route' => 'dashboard.galaxy',
+            'galaxy' => $galaxyId,
+            'view' => 'galaxy'
+        ]);
 
-        return Inertia::render('Dashboard', ['system' => $system]);
+        return Inertia::render('Dashboard', [
+            'galaxy' => $galaxyId
+        ]);
     }
 
-    public function node(Request $request, string $system, string $node)
+    /**
+     * System view (shows nodes orbiting a star)
+     * Route: /galaxy/{galaxyId}/{systemId}
+     */
+    public function system(Request $request, string $galaxyId, string $systemId)
     {
-        $this->logVisit($request, ['route' => 'dashboard.node', 'system' => $system, 'node' => $node]);
+        $this->logVisit($request, [
+            'route' => 'dashboard.system',
+            'galaxy' => $galaxyId,
+            'system' => $systemId,
+            'view' => 'system'
+        ]);
 
-        return Inertia::render('Dashboard', ['system' => $system, 'node' => $node]);
+        return Inertia::render('Dashboard', [
+            'galaxy' => $galaxyId,
+            'system' => $systemId
+        ]);
+    }
+
+    /**
+     * Node view (specific feature page)
+     * Route: /galaxy/{galaxyId}/{systemId}/{nodeId}
+     */
+    public function node(Request $request, string $galaxyId, string $systemId, string $nodeId)
+    {
+        $this->logVisit($request, [
+            'route' => 'dashboard.node',
+            'galaxy' => $galaxyId,
+            'system' => $systemId,
+            'node' => $nodeId,
+            'view' => 'node'
+        ]);
+
+        // ✅ AWARD EXPLORATION ACHIEVEMENTS
+        $this->awardExplorationAchievement($request->user(), $nodeId);
+
+        return Inertia::render('Dashboard', [
+            'galaxy' => $galaxyId,
+            'system' => $systemId,
+            'node' => $nodeId
+        ]);
+    }
+
+    /**
+     * Award exploration achievements based on node visited
+     */
+    private function awardExplorationAchievement($user, string $nodeId): void
+    {
+        if (!$user) return;
+
+        $achievements = app(\App\Services\AchievementsService::class);
+
+        // Map node IDs to achievement codes
+        $achievementMap = [
+            'view' => 'visit_profile',
+            'roadmap' => 'visit_roadmap',
+            'list' => 'visit_achievements',
+            // Add more mappings as needed
+        ];
+
+        $achievementCode = $achievementMap[$nodeId] ?? null;
+
+        if ($achievementCode && !$achievements->has($user, $achievementCode)) {
+            try {
+                $achievements->unlock($user, $achievementCode);
+                Log::info('EXPLORATION ACHIEVEMENT UNLOCKED', [
+                    'user_id' => $user->id,
+                    'achievement' => $achievementCode,
+                    'node' => $nodeId
+                ]);
+            } catch (\Throwable $e) {
+                Log::error('FAILED TO UNLOCK EXPLORATION ACHIEVEMENT', [
+                    'user_id' => $user->id,
+                    'achievement' => $achievementCode,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
     }
 
     private function logVisit(Request $request, array $context = []): void
@@ -41,11 +127,9 @@ class DashboardController extends Controller
             'user' => [
                 'id' => $user->id,
                 'username' => $user->username,
-                'email' => $user->email,
             ],
             'url' => $request->fullUrl(),
             'ip' => $request->ip(),
-            'user_agent' => $request->userAgent(),
         ], $context));
     }
 }

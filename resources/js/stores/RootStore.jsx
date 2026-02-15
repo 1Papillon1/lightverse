@@ -8,7 +8,6 @@ import AdminStore from "./AdminStore";
 import UniverseStore from "./UniverseStore";
 import NarratorStore from "./NarratorStore";
 import VisualLoadStore from "./VisualLoadStore";
-import LightwebCoinStore from "./LightwebCoinStore";
 import AchievementsStore from "./AchievementsStore";
 import { makeAutoObservable } from "mobx";
 
@@ -22,7 +21,6 @@ class RootStore {
     narratorStore;
     universeStore;
     visualLoadStore;
-    lightwebCoinStore;
     achievementsStore;
 
     constructor() {
@@ -34,7 +32,6 @@ class RootStore {
         this.universeStore = new UniverseStore(this);
         this.narratorStore = new NarratorStore(this);
         this.visualLoadStore = new VisualLoadStore(this);
-        this.lightwebCoinStore = new LightwebCoinStore(this);
         this.achievementsStore = new AchievementsStore(this);
 
         makeAutoObservable(this);
