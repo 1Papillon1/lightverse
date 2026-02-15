@@ -104,17 +104,8 @@ export default defineConfig({
     },
 
     // ✅ REDUCE MEMORY USAGE DURING BUILD
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,      // Remove console.logs
-        drop_debugger: true,     // Remove debugger statements
-        pure_funcs: ['console.log'], // Remove specific functions
-      },
-      mangle: {
-        safari10: true,
-      },
-    },
+    minify: false, // Disable minification for faster builds
+    
   },
 
   // ✅ SERVER CONFIG (for npm run dev)
