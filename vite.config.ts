@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 import { resolve } from 'node:path';
 
 export default defineConfig({
-  
+
   plugins: [
     laravel({
       input: [
@@ -22,9 +22,10 @@ export default defineConfig({
     },
   },
 
-  // Silence broken PURE annotations (ox)
+  // Silence broken PURE annotations (ox / reown)
   esbuild: {
     legalComments: 'none',
+    drop: ['console', 'debugger'],
   },
 
   // Prevent ox from being prebundled
@@ -42,12 +43,16 @@ export default defineConfig({
   build: {
     sourcemap: false,
     reportCompressedSize: false,
-    
-    // ✅ INCREASE CHUNK SIZE WARNING LIMIT
-    chunkSizeWarningLimit: 2000,
-    
+    minify: false,
+
+    // Suppress chunk size warnings — not splitting manually
+    chunkSizeWarningLimit: 10000,
+
     commonjsOptions: {
-      include: [/eventemitter3/, /node_modules/],
+      // Ensures CJS packages (including React) share one module registry
+      include: [/node_modules/],
+      // This is the key fix: treat React as a singleton in CJS interop
+      requireReturnsDefault: 'auto',
     },
 
     rollupOptions: {
@@ -57,58 +62,16 @@ export default defineConfig({
         annotations: false,
       },
 
-      // ✅ CRITICAL: SPLIT INTO SMALLER CHUNKS
       output: {
-        manualChunks(id) {
-          // Three.js and related (HUGE libraries)
-          if (id.includes('three') || 
-              id.includes('@react-three') || 
-              id.includes('drei')) {
-            return 'three-vendor';
-          }
-
-          // React core
-          if (id.includes('react') || 
-              id.includes('react-dom') || 
-              id.includes('scheduler')) {
-            return 'react-vendor';
-          }
-
-          // MobX
-          if (id.includes('mobx')) {
-            return 'mobx-vendor';
-          }
-
-          // Inertia
-          if (id.includes('@inertiajs') || 
-              id.includes('inertia')) {
-            return 'inertia-vendor';
-          }
-
-          // GSAP animations
-          if (id.includes('gsap')) {
-            return 'gsap-vendor';
-          }
-
-          // All other node_modules → vendor chunk
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
-        },
-
-        // ✅ Better chunk file naming
+        // ✅ NO manualChunks — Vite handles React singleton automatically
+        // Adding manualChunks breaks CJS interop load order for React
         chunkFileNames: 'js/[name]-[hash].js',
         entryFileNames: 'js/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
       },
     },
-
-    // ✅ REDUCE MEMORY USAGE DURING BUILD
-    minify: false, // Disable minification for faster builds
-    
   },
 
-  // ✅ SERVER CONFIG (for npm run dev)
   server: {
     hmr: {
       host: 'localhost',
