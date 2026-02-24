@@ -73,7 +73,7 @@ class User extends Authenticatable
         });
     }
 
-    public function lightTransaction()
+    public function lightTransactions()
     {
         return $this->hasMany(LightTransaction::class);
     }

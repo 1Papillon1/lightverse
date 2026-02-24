@@ -2,7 +2,8 @@
 import { useEffect, useRef, useState, useContext, Suspense } from "react";
 import { observer } from "mobx-react-lite";
 import { Canvas } from "@react-three/fiber";
-import { Stars, OrbitControls, Html } from "@react-three/drei";
+import { Stars, OrbitControls } from "@react-three/drei";
+import { usePage } from "@inertiajs/react";
 import gsap from "gsap";
 import { RootStoreContext } from "@/stores/RootStore";
 import { universeConfig } from "@/config/universe";
@@ -15,13 +16,18 @@ import AsteroidField from "@/components/visuals/effects/AsteroidField";
 import TutorialZoomTracker from "@/components/trackers/TutorialZoomTracker";
 import RisingStarGrid from "@/components/layout/RisingStarGrid";
 import FloatingNodeGrid from "@/components/visuals/nodes/FloatingNodeGrid";
+import SpiralGalaxy from "@/components/visuals/galaxies/SpiralGalaxy";
+import LightCore from "@/components/visuals/core/LightCore";
 
 const UniverseScene = observer(({ onSceneSelect }) => {
   const orbitRef = useRef();
-  const targetRef = useRef([0, 0, 0]);
   
   const { universeStore, marketStore, visualLoadStore } = useContext(RootStoreContext);
   const [sceneReady, setSceneReady] = useState(false);
+
+  // ✅ Get system Light from Inertia props
+  const { light } = usePage().props;
+  const systemLight = light?.system?.total || 0;
 
   useEffect(() => {
     marketStore.setSceneReady(true);
@@ -35,11 +41,43 @@ const UniverseScene = observer(({ onSceneSelect }) => {
   }, [sceneReady]);
 
   /* --------------------------------------------------
-     🌌 ZOOM INTO GALAXY
+     🏠 RETURN TO UNIVERSE CENTER
   -------------------------------------------------- */
-  const zoomIntoGalaxy = (galaxyId, position) => {
+  const returnToUniverseCenter = () => {
     const camera = orbitRef.current?.object;
-    if (!camera) return;
+    const controls = orbitRef.current;
+    if (!camera || !controls) return;
+
+    universeStore.setZoomLevel("universe");
+    universeStore.setActiveGalaxy(null);
+
+    // Animate camera back to initial position
+    gsap.to(camera.position, {
+      x: 0,
+      y: 150,
+      z: 500,
+      duration: 1.2,
+      ease: "power2.inOut",
+    });
+
+    // Animate OrbitControls target back to center
+    gsap.to(controls.target, {
+      x: 0,
+      y: 0,
+      z: 0,
+      duration: 1.2,
+      ease: "power2.inOut",
+      onUpdate: () => controls.update(),
+    });
+  };
+
+  /* --------------------------------------------------
+     🌌 ZOOM INTO GALAXY (SMOOTH RE-CENTER)
+  -------------------------------------------------- */
+  const zoomIntoGalaxy = (galaxyId, position, skipRoute = false) => {
+    const camera = orbitRef.current?.object;
+    const controls = orbitRef.current;
+    if (!camera || !controls) return;
 
     const galaxy = universeConfig.galaxies.find(g => g.id === galaxyId);
     if (!galaxy) return;
@@ -47,27 +85,59 @@ const UniverseScene = observer(({ onSceneSelect }) => {
     universeStore.setActiveGalaxy({ id: galaxyId, pos: position });
     universeStore.setZoomLevel("galaxy");
 
+    // ✅ Target position (where OrbitControls will orbit around)
+    const targetPosition = { x: position[0], y: 0, z: position[2] };
+    
+    // ✅ Camera offset from target (viewing angle)
+    const cameraOffset = { 
+      x: position[0], 
+      y: 60, 
+      z: position[2] + 200 
+    };
+
+    // Animate camera position
     gsap.to(camera.position, {
-      x: position[0],
-      y: 60,
-      z: position[2] + 200,
+      x: cameraOffset.x,
+      y: cameraOffset.y,
+      z: cameraOffset.z,
       duration: 1.5,
-      ease: "power2.out",
+      ease: "power2.inOut",
     });
 
-    gsap.to(targetRef.current, {
-      0: position[0],
-      1: 0,
-      2: position[2],
+    // ✅ Animate OrbitControls target (makes galaxy the new rotation center)
+    gsap.to(controls.target, {
+      x: targetPosition.x,
+      y: targetPosition.y,
+      z: targetPosition.z,
       duration: 1.5,
-      ease: "power2.out",
-      onUpdate: () => orbitRef.current?.target.set(...targetRef.current),
+      ease: "power2.inOut",
+      onUpdate: () => controls.update(),
       onComplete: () => {
-        Inertia.visit(galaxy.route, {
-          preserveState: true,
-          preserveScroll: true,
-        });
+        if (!skipRoute) {
+          Inertia.visit(galaxy.route, {
+            preserveState: true,
+            preserveScroll: true,
+          });
+        }
       },
+    });
+  };
+
+  /* --------------------------------------------------
+     🌌 DOUBLE-CLICK GALAXY (FAST ZOOM)
+  -------------------------------------------------- */
+  const fastZoomIntoGalaxy = (galaxyId, position) => {
+    const galaxy = universeConfig.galaxies.find(g => g.id === galaxyId);
+    if (!galaxy) return;
+
+    // Set state immediately
+    universeStore.setActiveGalaxy({ id: galaxyId, pos: position });
+    universeStore.setZoomLevel("galaxy");
+
+    // Navigate immediately (skip animation)
+    Inertia.visit(galaxy.route, {
+      preserveState: true,
+      preserveScroll: true,
     });
   };
 
@@ -76,7 +146,8 @@ const UniverseScene = observer(({ onSceneSelect }) => {
   -------------------------------------------------- */
   const zoomIntoSystem = (systemId, position) => {
     const camera = orbitRef.current?.object;
-    if (!camera) return;
+    const controls = orbitRef.current;
+    if (!camera || !controls) return;
 
     const galaxy = universeConfig.galaxies.find(g => 
       g.starSystems.some(s => s.id === systemId)
@@ -88,21 +159,35 @@ const UniverseScene = observer(({ onSceneSelect }) => {
     universeStore.setActiveSystem({ id: systemId, pos: position });
     universeStore.setZoomLevel("system");
 
-    gsap.to(camera.position, {
+    // Camera offset
+    const cameraOffset = {
       x: position[0] * 1.3,
       y: position[1] * 0.6,
       z: position[2] * 0.9,
+    };
+
+    // Target position
+    const targetPosition = {
+      x: position[0],
+      y: position[1],
+      z: position[2],
+    };
+
+    gsap.to(camera.position, {
+      x: cameraOffset.x,
+      y: cameraOffset.y,
+      z: cameraOffset.z,
       duration: 1.4,
       ease: "power2.out",
     });
 
-    gsap.to(targetRef.current, {
-      0: position[0],
-      1: position[1],
-      2: position[2],
+    gsap.to(controls.target, {
+      x: targetPosition.x,
+      y: targetPosition.y,
+      z: targetPosition.z,
       duration: 1.4,
       ease: "power2.out",
-      onUpdate: () => orbitRef.current?.target.set(...targetRef.current),
+      onUpdate: () => controls.update(),
       onComplete: () => {
         Inertia.visit(system.route, {
           preserveState: true,
@@ -112,6 +197,32 @@ const UniverseScene = observer(({ onSceneSelect }) => {
       },
     });
   };
+
+  /* --------------------------------------------------
+     ⌨️ KEYBOARD NAVIGATION
+  -------------------------------------------------- */
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      // ESC: Return to previous level
+      if (e.key === "Escape") {
+        if (universeStore.zoomLevel === "system") {
+          // Return to galaxy view
+          const galaxy = universeConfig.galaxies.find(g =>
+            g.starSystems.some(s => s.id === universeStore.activeSystem?.id)
+          );
+          if (galaxy && universeStore.activeGalaxy) {
+            zoomIntoGalaxy(galaxy.id, universeStore.activeGalaxy.pos, true);
+          }
+        } else if (universeStore.zoomLevel === "galaxy") {
+          // Return to universe view
+          returnToUniverseCenter();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [universeStore.zoomLevel, universeStore.activeGalaxy, universeStore.activeSystem]);
 
   return (
     <Canvas
@@ -137,87 +248,43 @@ const UniverseScene = observer(({ onSceneSelect }) => {
         ref={orbitRef}
         enablePan={false}
         enableZoom
-        minDistance={universeStore.zoomLevel === "system" ? 20 : 200}
-        maxDistance={universeStore.zoomLevel === "system" ? 50 : 600}
+        minDistance={universeStore.zoomLevel === "system" ? 20 : 150}
+        maxDistance={universeStore.zoomLevel === "system" ? 50 : 400}
       />
 
       {/* ============================================
-          🌌 UNIVERSE VIEW - Show both galaxies
+          🌌 UNIVERSE VIEW
           ============================================ */}
       {universeStore.zoomLevel === "universe" && (
         <Suspense fallback={null}>
-          {/* Central Universe Core */}
-          <mesh position={[0, 0, 0]}>
-            <sphereGeometry args={[5, 32, 32]} />
-            <meshStandardMaterial
-              color="#ffffff"
-              emissive="#00ffff"
-              emissiveIntensity={2}
-              transparent
-              opacity={0.3}
-            />
-          </mesh>
+          {/* ✅ EVOLVED LIGHT CORE */}
+          <LightCore systemLight={systemLight} />
 
-          <Html position={[0, 20, 0]} center>
-            <div style={{
-              color: "#ffffff",
-              fontFamily: "Orbitron, sans-serif",
-              fontSize: "2rem",
-              textShadow: "0 0 20px #00ffff",
-              textAlign: "center",
-              pointerEvents: "none",
-              fontWeight: "bold"
-            }}>
-              LIGHTVERSE
-            </div>
-          </Html>
-
-          {/* Render Galaxy Cores */}
+          {/* ✅ INTERACTIVE SPIRAL GALAXIES */}
           {universeConfig.galaxies.map((galaxy) => (
-            <group key={galaxy.id} position={galaxy.position}>
-              <mesh
-                onClick={() => zoomIntoGalaxy(galaxy.id, galaxy.position)}
-                onPointerOver={(e) => {
-                  document.body.style.cursor = "pointer";
-                  e.stopPropagation();
-                }}
-                onPointerOut={() => {
-                  document.body.style.cursor = "auto";
-                }}
-              >
-                <sphereGeometry args={[20, 32, 32]} />
-                <meshStandardMaterial
-                  color={galaxy.color}
-                  emissive={galaxy.color}
-                  emissiveIntensity={1.5}
-                  transparent
-                  opacity={0.7}
-                />
-              </mesh>
-
-              <Html position={[0, 30, 0]} center>
-                <div style={{
-                  color: galaxy.color,
-                  fontFamily: "Orbitron, sans-serif",
-                  fontSize: "1.5rem",
-                  textShadow: `0 0 16px ${galaxy.color}`,
-                  textAlign: "center",
-                  pointerEvents: "none",
-                  fontWeight: "bold"
-                }}>
-                  {galaxy.label}
-                  <div style={{ fontSize: "0.8rem", marginTop: "8px", opacity: 0.8 }}>
-                    {galaxy.description}
-                  </div>
-                </div>
-              </Html>
-            </group>
+            <SpiralGalaxy
+              key={galaxy.id}
+              position={galaxy.position}
+              color={galaxy.color}
+              label={galaxy.label}
+              description={galaxy.description}
+              size={20}
+              onClick={() => zoomIntoGalaxy(galaxy.id, galaxy.position)}
+              onDoubleClick={() => fastZoomIntoGalaxy(galaxy.id, galaxy.position)}
+              onPointerOver={(e) => {
+                document.body.style.cursor = "pointer";
+                e.stopPropagation();
+              }}
+              onPointerOut={() => {
+                document.body.style.cursor = "auto";
+              }}
+            />
           ))}
         </Suspense>
       )}
 
       {/* ============================================
-          ⭐ GALAXY VIEW - Show star systems
+          ⭐ GALAXY VIEW
           ============================================ */}
       {universeStore.zoomLevel === "galaxy" && universeStore.activeGalaxy && (
         <Suspense fallback={null}>
@@ -229,7 +296,7 @@ const UniverseScene = observer(({ onSceneSelect }) => {
       )}
 
       {/* ============================================
-          🪐 SYSTEM VIEW - Show orbiting nodes
+          🪐 SYSTEM VIEW
           ============================================ */}
       {universeStore.zoomLevel === "system" && universeStore.activeSystem && (
         <Suspense fallback={null}>

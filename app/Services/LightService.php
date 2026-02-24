@@ -15,15 +15,15 @@ class LightService
      */
     public function calculateUser(User $user): array
     {
-        $core = $user->lightTransaction()
+        $core = $user->lightTransactions()
             ->where('type', 'core')
             ->sum('amount');
 
-        $stable = $user->lightTransaction()
+        $stable = $user->lightTransactions()
             ->where('type', 'stable')
             ->sum('amount');
 
-        $active = $user->lightTransaction()
+        $active = $user->lightTransactions()
             ->where('type', 'active')
             ->where(function ($q) {
                 $q->whereNull('expires_at')

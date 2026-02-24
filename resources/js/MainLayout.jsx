@@ -5,6 +5,7 @@ import { usePage } from "@inertiajs/react";
 import { useRootStore } from "@/stores/RootStore";
 
 import Navigation from "@/components/layout/Navigation";
+import BreadcrumbTrail from "@/components/ui/BreadcrumbTrail";
 import ReturnToOrbitButton from "@/components/transitions/ReturnToOrbitButton";
 import WalletProvider from "@/components/wallet/WalletProvider";
 
@@ -16,6 +17,7 @@ import AuriaHologram from "@/components/visuals/AuriaHologram";
 import Settings from "@/pages/Settings";
 import AchievementsOverlay from "@/components/user/AchievementsOverlay";
 import AdminPanel from "@/components/admin/AdminPanel";
+
 
 
 const MainLayout = observer(({ children }) => {
@@ -99,6 +101,9 @@ const MainLayout = observer(({ children }) => {
             <>
               <AuriaHologram />
               <Navigation horizontal />
+              <BreadcrumbTrail onNavigate={(level) => {
+
+              }}/>
             </>
           )}
 
