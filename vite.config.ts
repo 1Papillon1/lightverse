@@ -59,17 +59,8 @@ export default defineConfig({
         entryFileNames: 'js/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
         
-        // ✅ CRITICAL: Manual chunking to prevent huge bundles
-        manualChunks(id) {
-          // Only split the absolute heaviest packages
-          if (id.includes('three') || id.includes('@react-three')) {
-            return 'three';
-          }
-          
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
-        },
+        // ✅ NO manual chunks - let Vite auto-handle everything
+        // Manual chunking was breaking Three.js circular dependencies
       },
     },
     

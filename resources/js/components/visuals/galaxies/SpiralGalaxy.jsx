@@ -1,7 +1,7 @@
 // resources/js/components/visuals/galaxies/SpiralGalaxy.jsx
 import { useRef, useMemo, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Html, Sparkles } from '@react-three/drei';
+import { Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
 
 const SpiralGalaxy = ({ 
@@ -10,7 +10,7 @@ const SpiralGalaxy = ({
   label = "Galaxy",
   description = "",
   size = 20,
-  isCentered = false, // ✅ NEW: Shows if this galaxy is currently centered
+  isCentered = false,
   onClick,
   onDoubleClick,
   onPointerOver,
@@ -62,24 +62,20 @@ const SpiralGalaxy = ({
     return { positions, colors, sizes };
   }, [color, size]);
   
-  // ✅ Animation loop - rotation + hover effects
+  // Animation loop
   useFrame((state) => {
     if (galaxyGroupRef.current) {
-      // Rotate galaxy
       galaxyGroupRef.current.rotation.y = state.clock.elapsedTime * 0.02;
       
-      // Smooth hover state transition
       const targetProgress = isHovered ? 1 : 0;
       setHoverProgress(prev => THREE.MathUtils.lerp(prev, targetProgress, 0.1));
       
-      // Scale effect on hover
       const targetScale = 1 + hoverProgress * 0.15;
       galaxyGroupRef.current.scale.setScalar(
         THREE.MathUtils.lerp(galaxyGroupRef.current.scale.x, targetScale, 0.1)
       );
     }
     
-    // Pulse effect on hover
     if (coreRef.current && isHovered) {
       const pulse = 1 + Math.sin(state.clock.elapsedTime * 3) * 0.3;
       setPulseIntensity(pulse);
@@ -88,7 +84,6 @@ const SpiralGalaxy = ({
     }
   });
   
-  // ✅ Enhanced pointer handlers
   const handlePointerOver = (e) => {
     e.stopPropagation();
     setIsHovered(true);
@@ -113,9 +108,9 @@ const SpiralGalaxy = ({
   };
   
   return (
-    <group position={position} rotation={[Math.PI / 2, 0, 0]}>
-      {/* ✅ ROTATING GROUP (galaxy visuals only) */}
-      <group ref={galaxyGroupRef}>
+    <group position={position}>
+      {/* ROTATING GROUP (galaxy visuals) */}
+      <group rotation={[Math.PI / 2, 0, 0]} ref={galaxyGroupRef}>
         {/* Spiral particle system */}
         <points ref={particlesRef}>
           <bufferGeometry>
@@ -149,7 +144,7 @@ const SpiralGalaxy = ({
           />
         </points>
         
-        {/* Sparkles with hover boost */}
+        {/* Sparkles */}
         <Sparkles
           count={300}
           scale={size * 1.5}
@@ -159,7 +154,7 @@ const SpiralGalaxy = ({
           color={color}
         />
         
-        {/* ✅ INTERACTIVE CORE with hover glow */}
+        {/* INTERACTIVE CORE */}
         <mesh
           ref={coreRef}
           onClick={handleClick}
@@ -177,7 +172,7 @@ const SpiralGalaxy = ({
           />
         </mesh>
         
-        {/* ✅ HOVER GLOW RING */}
+        {/* HOVER GLOW RING */}
         {isHovered && (
           <mesh rotation={[0, 0, 0]}>
             <ringGeometry args={[size * 0.12, size * 0.18, 64]} />
@@ -191,7 +186,7 @@ const SpiralGalaxy = ({
           </mesh>
         )}
         
-        {/* ✅ CENTERED STATE RING (persistent) */}
+        {/* CENTERED STATE RING */}
         {isCentered && (
           <mesh rotation={[0, 0, 0]}>
             <ringGeometry args={[size * 0.15, size * 0.22, 64]} />
@@ -205,61 +200,6 @@ const SpiralGalaxy = ({
           </mesh>
         )}
       </group>
-      
-      {/* ✅ LABEL - Fades in on hover, bright when centered */}
-      <Html 
-        position={[0, (size * 1.5) / 12, -30]}
-        center
-        distanceFactor={(10 * 4) * 4}
-        sprite
-        style={{
-          transition: 'opacity 0.3s ease, transform 0.3s ease',
-          opacity: isCentered ? 1 : (isHovered ? 1 : 0.3),
-          transform: (isHovered || isCentered) ? 'translateY(-5px)' : 'translateY(0)',
-          userSelect: 'none',
-          pointerEvents: 'none',
-        }}
-      >
-        <div style={{
-          color: color,
-          fontFamily: "Orbitron, sans-serif",
-          fontSize: "2.5rem",
-          textShadow: (isHovered || isCentered)
-            ? `0 0 24px ${color}, 0 0 12px ${color}` 
-            : `0 0 16px ${color}`,
-          textAlign: "center",
-          fontWeight: "bold",
-          whiteSpace: "nowrap",
-          filter: (isHovered || isCentered) ? 'brightness(1.2)' : 'brightness(1)',
-          transition: 'all 0.3s ease',
-        }}>
-          {label}
-          {description && (
-            <div style={{ 
-              fontSize: "0.8rem", 
-              marginTop: "8px", 
-              opacity: (isHovered || isCentered) ? 1 : 0.6,
-              fontWeight: "normal",
-              transition: 'opacity 0.3s ease',
-            }}>
-              {description}
-            </div>
-          )}
-          {/* ✅ CENTERED HINT */}
-          {isCentered && !isHovered && (
-            <div style={{
-              fontSize: "0.7rem",
-              marginTop: "12px",
-              opacity: 0.9,
-              fontWeight: "normal",
-              color: "#ffffff",
-              animation: "pulse 2s infinite",
-            }}>
-              Click again to enter →
-            </div>
-          )}
-        </div>
-      </Html>
     </group>
   );
 };

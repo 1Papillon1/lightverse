@@ -18,6 +18,7 @@ import RisingStarGrid from "@/components/layout/RisingStarGrid";
 import FloatingNodeGrid from "@/components/visuals/nodes/FloatingNodeGrid";
 import SpiralGalaxy from "@/components/visuals/galaxies/SpiralGalaxy";
 import LightCore from "@/components/visuals/core/LightCore";
+import GalaxyLabelsOverlay from '@/components/ui/GalaxyLabelsOverlay';
 
 const UniverseScene = observer(({ onSceneSelect }) => {
   const orbitRef = useRef();
@@ -25,8 +26,11 @@ const UniverseScene = observer(({ onSceneSelect }) => {
   const { universeStore, marketStore, visualLoadStore } = useContext(RootStoreContext);
   const [sceneReady, setSceneReady] = useState(false);
   
-  // ✅ NEW: Track which galaxy is centered (not yet entered)
+  // ✅ Track which galaxy is centered (not yet entered)
   const [centeredGalaxyId, setCenteredGalaxyId] = useState(null);
+  
+  // ✅ NEW: Track hovered galaxy for 2D tooltip
+  const [hoveredGalaxy, setHoveredGalaxy] = useState(null);
 
   // ✅ Get system Light from Inertia props
   const { light } = usePage().props;
@@ -305,6 +309,7 @@ const UniverseScene = observer(({ onSceneSelect }) => {
   }, [universeStore.zoomLevel, universeStore.activeGalaxy, universeStore.activeSystem, centeredGalaxyId]);
 
   return (
+    <>
     <Canvas
       camera={{ position: [0, 150, 500], fov: 80 }}
       gl={{
@@ -353,11 +358,13 @@ const UniverseScene = observer(({ onSceneSelect }) => {
               onClick={() => handleGalaxyClick(galaxy.id, galaxy.position)}
               onDoubleClick={() => fastZoomIntoGalaxy(galaxy.id, galaxy.position)}
               onPointerOver={(e) => {
-                document.body.style.cursor = "pointer";
+                 document.body.style.cursor = "pointer";
+                setHoveredGalaxy(galaxy); // ✅ This is used by GalaxyLabelsOverlay
                 e.stopPropagation();
               }}
               onPointerOut={() => {
-                document.body.style.cursor = "auto";
+                 document.body.style.cursor = "auto";
+                setHoveredGalaxy(null); // ✅ Clear hover state
               }}
             />
           ))}
@@ -409,6 +416,16 @@ const UniverseScene = observer(({ onSceneSelect }) => {
         </Suspense>
       )}
     </Canvas>
+
+    {universeStore.zoomLevel === "universe" && sceneReady && (
+      <GalaxyLabelsOverlay
+        galaxies={universeConfig.galaxies}
+        camera={orbitRef.current?.object}
+        centeredGalaxyId={centeredGalaxyId}
+        hoveredGalaxyId={hoveredGalaxy?.id}
+      />
+    )}
+    </>
   );
 });
 
