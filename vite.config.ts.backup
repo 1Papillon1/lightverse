@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 import { resolve } from 'node:path';
 
 export default defineConfig({
+
   plugins: [
     laravel({
       input: [
@@ -21,11 +22,13 @@ export default defineConfig({
     },
   },
 
+  // Silence broken PURE annotations (ox / reown)
   esbuild: {
     legalComments: 'none',
     drop: ['console', 'debugger'],
   },
 
+  // Prevent ox from being prebundled
   optimizeDeps: {
     exclude: ['ox'],
     include: [
@@ -40,41 +43,32 @@ export default defineConfig({
   build: {
     sourcemap: false,
     reportCompressedSize: false,
-    
-    // ✅ CRITICAL: Disable minification entirely (way less memory)
     minify: false,
-    
-    // ✅ CRITICAL: Reduce chunk size to prevent memory spikes
+
+    // Suppress chunk size warnings — not splitting manually
     chunkSizeWarningLimit: 10000,
-    
-    // ✅ CRITICAL: Limit concurrent transformations
+
+    commonjsOptions: {
+      // Ensures CJS packages (including React) share one module registry
+      include: [/node_modules/],
+      // This is the key fix: treat React as a singleton in CJS interop
+      requireReturnsDefault: 'auto',
+    },
+
     rollupOptions: {
       external: ['ox'],
-      
-      // ✅ Reduce parallel processing
-      maxParallelFileOps: 1,
-      
+
+      treeshake: {
+        annotations: false,
+      },
+
       output: {
+        // ✅ NO manualChunks — Vite handles React singleton automatically
+        // Adding manualChunks breaks CJS interop load order for React
         chunkFileNames: 'js/[name]-[hash].js',
         entryFileNames: 'js/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-        
-        // ✅ CRITICAL: Manual chunking to prevent huge bundles
-        manualChunks(id) {
-          // Only split the absolute heaviest packages
-          if (id.includes('three') || id.includes('@react-three')) {
-            return 'three';
-          }
-          
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
-        },
       },
-    },
-    
-    commonjsOptions: {
-      include: [/node_modules/],
     },
   },
 

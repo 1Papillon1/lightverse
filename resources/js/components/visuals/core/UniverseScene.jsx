@@ -24,6 +24,9 @@ const UniverseScene = observer(({ onSceneSelect }) => {
   
   const { universeStore, marketStore, visualLoadStore } = useContext(RootStoreContext);
   const [sceneReady, setSceneReady] = useState(false);
+  
+  // ✅ NEW: Track which galaxy is centered (not yet entered)
+  const [centeredGalaxyId, setCenteredGalaxyId] = useState(null);
 
   // ✅ Get system Light from Inertia props
   const { light } = usePage().props;
@@ -48,6 +51,8 @@ const UniverseScene = observer(({ onSceneSelect }) => {
     const controls = orbitRef.current;
     if (!camera || !controls) return;
 
+    // ✅ Clear centered galaxy state
+    setCenteredGalaxyId(null);
     universeStore.setZoomLevel("universe");
     universeStore.setActiveGalaxy(null);
 
@@ -69,12 +74,20 @@ const UniverseScene = observer(({ onSceneSelect }) => {
       ease: "power2.inOut",
       onUpdate: () => controls.update(),
     });
+
+    // Navigate to dashboard if not already there
+    if (window.location.pathname !== "/dashboard") {
+      Inertia.visit("/dashboard", {
+        preserveState: true,
+        preserveScroll: true,
+      });
+    }
   };
 
   /* --------------------------------------------------
-     🌌 ZOOM INTO GALAXY (SMOOTH RE-CENTER)
+     🌌 CENTER GALAXY (FIRST CLICK)
   -------------------------------------------------- */
-  const zoomIntoGalaxy = (galaxyId, position, skipRoute = false) => {
+  const centerGalaxy = (galaxyId, position) => {
     const camera = orbitRef.current?.object;
     const controls = orbitRef.current;
     if (!camera || !controls) return;
@@ -82,13 +95,15 @@ const UniverseScene = observer(({ onSceneSelect }) => {
     const galaxy = universeConfig.galaxies.find(g => g.id === galaxyId);
     if (!galaxy) return;
 
-    universeStore.setActiveGalaxy({ id: galaxyId, pos: position });
-    universeStore.setZoomLevel("galaxy");
+    console.log("🎯 Centering galaxy:", galaxyId);
 
-    // ✅ Target position (where OrbitControls will orbit around)
+    // ✅ Mark this galaxy as centered (but not entered)
+    setCenteredGalaxyId(galaxyId);
+
+    // Target position (where OrbitControls will orbit around)
     const targetPosition = { x: position[0], y: 0, z: position[2] };
     
-    // ✅ Camera offset from target (viewing angle)
+    // Camera offset from target (viewing angle)
     const cameraOffset = { 
       x: position[0], 
       y: 60, 
@@ -104,7 +119,7 @@ const UniverseScene = observer(({ onSceneSelect }) => {
       ease: "power2.inOut",
     });
 
-    // ✅ Animate OrbitControls target (makes galaxy the new rotation center)
+    // Animate OrbitControls target
     gsap.to(controls.target, {
       x: targetPosition.x,
       y: targetPosition.y,
@@ -112,29 +127,55 @@ const UniverseScene = observer(({ onSceneSelect }) => {
       duration: 1.5,
       ease: "power2.inOut",
       onUpdate: () => controls.update(),
-      onComplete: () => {
-        if (!skipRoute) {
-          Inertia.visit(galaxy.route, {
-            preserveState: true,
-            preserveScroll: true,
-          });
-        }
-      },
     });
   };
 
   /* --------------------------------------------------
-     🌌 DOUBLE-CLICK GALAXY (FAST ZOOM)
+     🚪 ENTER GALAXY (SECOND CLICK)
+  -------------------------------------------------- */
+  const enterGalaxy = (galaxyId, position) => {
+    const galaxy = universeConfig.galaxies.find(g => g.id === galaxyId);
+    if (!galaxy) return;
+
+    console.log("🚪 Entering galaxy:", galaxyId);
+
+    // Set state and navigate
+    universeStore.setActiveGalaxy({ id: galaxyId, pos: position });
+    universeStore.setZoomLevel("galaxy");
+
+    Inertia.visit(galaxy.route, {
+      preserveState: true,
+      preserveScroll: true,
+    });
+  };
+
+  /* --------------------------------------------------
+     🎯 HANDLE GALAXY CLICK (TWO-STAGE)
+  -------------------------------------------------- */
+  const handleGalaxyClick = (galaxyId, position) => {
+    if (centeredGalaxyId === galaxyId) {
+      // ✅ Second click on same galaxy → ENTER
+      enterGalaxy(galaxyId, position);
+    } else {
+      // ✅ First click or different galaxy → CENTER
+      centerGalaxy(galaxyId, position);
+    }
+  };
+
+  /* --------------------------------------------------
+     🌌 DOUBLE-CLICK GALAXY (SKIP TO ENTER)
   -------------------------------------------------- */
   const fastZoomIntoGalaxy = (galaxyId, position) => {
     const galaxy = universeConfig.galaxies.find(g => g.id === galaxyId);
     if (!galaxy) return;
 
-    // Set state immediately
+    console.log("⚡ Fast entering galaxy:", galaxyId);
+
+    // Set state immediately and navigate
+    setCenteredGalaxyId(galaxyId);
     universeStore.setActiveGalaxy({ id: galaxyId, pos: position });
     universeStore.setZoomLevel("galaxy");
 
-    // Navigate immediately (skip animation)
     Inertia.visit(galaxy.route, {
       preserveState: true,
       preserveScroll: true,
@@ -189,10 +230,12 @@ const UniverseScene = observer(({ onSceneSelect }) => {
       ease: "power2.out",
       onUpdate: () => controls.update(),
       onComplete: () => {
-        Inertia.visit(system.route, {
-          preserveState: true,
-          preserveScroll: true,
-        });
+        if (window.location.pathname !== system.route) {
+          Inertia.visit(system.route, {
+            preserveState: true,
+            preserveScroll: true,
+          });
+        }
         onSceneSelect?.(systemId);
       },
     });
@@ -203,7 +246,6 @@ const UniverseScene = observer(({ onSceneSelect }) => {
   -------------------------------------------------- */
   useEffect(() => {
     const handleKeyPress = (e) => {
-      // ESC: Return to previous level
       if (e.key === "Escape") {
         if (universeStore.zoomLevel === "system") {
           // Return to galaxy view
@@ -211,10 +253,48 @@ const UniverseScene = observer(({ onSceneSelect }) => {
             g.starSystems.some(s => s.id === universeStore.activeSystem?.id)
           );
           if (galaxy && universeStore.activeGalaxy) {
-            zoomIntoGalaxy(galaxy.id, universeStore.activeGalaxy.pos, true);
+            const camera = orbitRef.current?.object;
+            const controls = orbitRef.current;
+            if (!camera || !controls) return;
+
+            const position = universeStore.activeGalaxy.pos;
+            const targetPosition = { x: position[0], y: 0, z: position[2] };
+            const cameraOffset = { x: position[0], y: 60, z: position[2] + 200 };
+
+            gsap.to(camera.position, {
+              x: cameraOffset.x,
+              y: cameraOffset.y,
+              z: cameraOffset.z,
+              duration: 1.2,
+              ease: "power2.inOut",
+            });
+
+            gsap.to(controls.target, {
+              x: targetPosition.x,
+              y: targetPosition.y,
+              z: targetPosition.z,
+              duration: 1.2,
+              ease: "power2.inOut",
+              onUpdate: () => controls.update(),
+              onComplete: () => {
+                universeStore.setZoomLevel("galaxy");
+                universeStore.setActiveSystem(null);
+                
+                const targetRoute = `/galaxy/${galaxy.id}`;
+                if (window.location.pathname !== targetRoute) {
+                  Inertia.visit(targetRoute, {
+                    preserveState: true,
+                    preserveScroll: true,
+                  });
+                }
+              },
+            });
           }
         } else if (universeStore.zoomLevel === "galaxy") {
           // Return to universe view
+          returnToUniverseCenter();
+        } else if (centeredGalaxyId !== null) {
+          // ✅ NEW: If galaxy is centered but not entered, ESC returns to universe
           returnToUniverseCenter();
         }
       }
@@ -222,7 +302,7 @@ const UniverseScene = observer(({ onSceneSelect }) => {
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [universeStore.zoomLevel, universeStore.activeGalaxy, universeStore.activeSystem]);
+  }, [universeStore.zoomLevel, universeStore.activeGalaxy, universeStore.activeSystem, centeredGalaxyId]);
 
   return (
     <Canvas
@@ -260,7 +340,7 @@ const UniverseScene = observer(({ onSceneSelect }) => {
           {/* ✅ EVOLVED LIGHT CORE */}
           <LightCore systemLight={systemLight} />
 
-          {/* ✅ INTERACTIVE SPIRAL GALAXIES */}
+          {/* ✅ INTERACTIVE SPIRAL GALAXIES - TWO-STAGE CLICK */}
           {universeConfig.galaxies.map((galaxy) => (
             <SpiralGalaxy
               key={galaxy.id}
@@ -269,7 +349,8 @@ const UniverseScene = observer(({ onSceneSelect }) => {
               label={galaxy.label}
               description={galaxy.description}
               size={20}
-              onClick={() => zoomIntoGalaxy(galaxy.id, galaxy.position)}
+              isCentered={centeredGalaxyId === galaxy.id}
+              onClick={() => handleGalaxyClick(galaxy.id, galaxy.position)}
               onDoubleClick={() => fastZoomIntoGalaxy(galaxy.id, galaxy.position)}
               onPointerOver={(e) => {
                 document.body.style.cursor = "pointer";

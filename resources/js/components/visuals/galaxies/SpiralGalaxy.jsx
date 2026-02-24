@@ -9,7 +9,8 @@ const SpiralGalaxy = ({
   color = "#00ffff", 
   label = "Galaxy",
   description = "",
-  size = 20, 
+  size = 20,
+  isCentered = false, // ✅ NEW: Shows if this galaxy is currently centered
   onClick,
   onDoubleClick,
   onPointerOver,
@@ -189,9 +190,23 @@ const SpiralGalaxy = ({
             />
           </mesh>
         )}
+        
+        {/* ✅ CENTERED STATE RING (persistent) */}
+        {isCentered && (
+          <mesh rotation={[0, 0, 0]}>
+            <ringGeometry args={[size * 0.15, size * 0.22, 64]} />
+            <meshBasicMaterial
+              color={color}
+              transparent
+              opacity={0.8}
+              blending={THREE.AdditiveBlending}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+        )}
       </group>
       
-      {/* ✅ LABEL - Fades in on hover */}
+      {/* ✅ LABEL - Fades in on hover, bright when centered */}
       <Html 
         position={[0, (size * 1.5) / 12, -30]}
         center
@@ -199,8 +214,8 @@ const SpiralGalaxy = ({
         sprite
         style={{
           transition: 'opacity 0.3s ease, transform 0.3s ease',
-          opacity: isHovered ? 1 : 0.3,
-          transform: isHovered ? 'translateY(-5px)' : 'translateY(0)',
+          opacity: isCentered ? 1 : (isHovered ? 1 : 0.3),
+          transform: (isHovered || isCentered) ? 'translateY(-5px)' : 'translateY(0)',
           userSelect: 'none',
           pointerEvents: 'none',
         }}
@@ -209,13 +224,13 @@ const SpiralGalaxy = ({
           color: color,
           fontFamily: "Orbitron, sans-serif",
           fontSize: "2.5rem",
-          textShadow: isHovered 
+          textShadow: (isHovered || isCentered)
             ? `0 0 24px ${color}, 0 0 12px ${color}` 
             : `0 0 16px ${color}`,
           textAlign: "center",
           fontWeight: "bold",
           whiteSpace: "nowrap",
-          filter: isHovered ? 'brightness(1.2)' : 'brightness(1)',
+          filter: (isHovered || isCentered) ? 'brightness(1.2)' : 'brightness(1)',
           transition: 'all 0.3s ease',
         }}>
           {label}
@@ -223,11 +238,24 @@ const SpiralGalaxy = ({
             <div style={{ 
               fontSize: "0.8rem", 
               marginTop: "8px", 
-              opacity: isHovered ? 1 : 0.6,
+              opacity: (isHovered || isCentered) ? 1 : 0.6,
               fontWeight: "normal",
               transition: 'opacity 0.3s ease',
             }}>
               {description}
+            </div>
+          )}
+          {/* ✅ CENTERED HINT */}
+          {isCentered && !isHovered && (
+            <div style={{
+              fontSize: "0.7rem",
+              marginTop: "12px",
+              opacity: 0.9,
+              fontWeight: "normal",
+              color: "#ffffff",
+              animation: "pulse 2s infinite",
+            }}>
+              Click again to enter →
             </div>
           )}
         </div>
