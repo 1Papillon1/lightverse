@@ -43,9 +43,31 @@ const UniverseScene = observer(({ onSceneSelect }) => {
   }, []);
 
   useEffect(() => {
-    if (!sceneReady) return;
-    universeStore.detectFromUrl();
-  }, [sceneReady]);
+  if (!sceneReady) return;
+  
+  universeStore.detectFromUrl();
+  
+  // Position camera after detecting zoom level
+  setTimeout(() => {
+    if (!orbitRef.current) return;
+    
+    const camera = orbitRef.current.object;
+    const controls = orbitRef.current;
+    
+    // ✅ ADD THIS:
+    if (universeStore.zoomLevel === "universe") {
+      camera.position.set(0, 150, 500);
+      controls.target.set(0, 0, 0);
+      controls.update();
+    }
+    else if (universeStore.zoomLevel === "system" && universeStore.activeSystem) {
+      // ... existing system camera positioning
+    }
+    else if (universeStore.zoomLevel === "galaxy" && universeStore.activeGalaxy) {
+      // ... existing galaxy camera positioning
+    }
+  }, 0);
+}, [sceneReady]);
 
   /* --------------------------------------------------
      🏠 RETURN TO UNIVERSE CENTER
@@ -186,64 +208,65 @@ const UniverseScene = observer(({ onSceneSelect }) => {
     });
   };
 
-  /* --------------------------------------------------
-     ⭐ ZOOM INTO STAR SYSTEM
-  -------------------------------------------------- */
-  const zoomIntoSystem = (systemId, position) => {
-    const camera = orbitRef.current?.object;
-    const controls = orbitRef.current;
-    if (!camera || !controls) return;
+ /* --------------------------------------------------
+   ⭐ ZOOM INTO STAR SYSTEM (FIXED v2)
+-------------------------------------------------- */
+const zoomIntoSystem = (systemId, position) => {
+  const camera = orbitRef.current?.object;
+  const controls = orbitRef.current;
+  if (!camera || !controls) return;
 
-    const galaxy = universeConfig.galaxies.find(g => 
-      g.starSystems.some(s => s.id === systemId)
-    );
-    
-    const system = galaxy?.starSystems.find(s => s.id === systemId);
-    if (!system) return;
+  const galaxy = universeConfig.galaxies.find(g => 
+    g.starSystems.some(s => s.id === systemId)
+  );
+  
+  const system = galaxy?.starSystems.find(s => s.id === systemId);
+  if (!system) return;
 
-    universeStore.setActiveSystem({ id: systemId, pos: position });
-    universeStore.setZoomLevel("system");
+  universeStore.setActiveSystem({ id: systemId, pos: position });
+  universeStore.setZoomLevel("system");
 
-    // Camera offset
-    const cameraOffset = {
-      x: position[0] * 1.3,
-      y: position[1] * 0.6,
-      z: position[2] * 0.9,
-    };
-
-    // Target position
-    const targetPosition = {
-      x: position[0],
-      y: position[1],
-      z: position[2],
-    };
-
-    gsap.to(camera.position, {
-      x: cameraOffset.x,
-      y: cameraOffset.y,
-      z: cameraOffset.z,
-      duration: 1.4,
-      ease: "power2.out",
-    });
-
-    gsap.to(controls.target, {
-      x: targetPosition.x,
-      y: targetPosition.y,
-      z: targetPosition.z,
-      duration: 1.4,
-      ease: "power2.out",
-      onUpdate: () => controls.update(),
-      onComplete: () => {
-        if (window.location.pathname !== system.route) {
-          Inertia.visit(system.route, {
-            preserveState: true,
-            preserveScroll: true,
-          });
-        }
-        onSceneSelect?.(systemId);
-      },
-    });
+  const cameraOffset = {
+    x: position[0],
+    y: position[1] + 12,
+    z: position[2] + 18,
   };
+
+  const targetPosition = {
+    x: position[0],
+    y: position[1],
+    z: position[2],
+  };
+
+  gsap.to(camera.position, {
+    x: cameraOffset.x,
+    y: cameraOffset.y,
+    z: cameraOffset.z,
+    duration: 1.4,
+    ease: "power2.out",
+  });
+
+  gsap.to(controls.target, {
+    x: targetPosition.x,
+    y: targetPosition.y,
+    z: targetPosition.z,
+    duration: 1.4,
+    ease: "power2.out",
+    onUpdate: () => controls.update(),
+    onComplete: () => {
+      // ✅ CHANGED: Only navigate if not already there
+      const currentPath = window.location.pathname;
+      if (currentPath !== system.route) {
+        Inertia.visit(system.route, {
+          preserveState: true,    // ✅ Keep React state
+          preserveScroll: true,   // ✅ Keep scroll position
+          only: ['activeSystem'], // ✅ Only update this prop
+        });
+      }
+      onSceneSelect?.(systemId);
+    },
+  });
+};
 
   /* --------------------------------------------------
      ⌨️ KEYBOARD NAVIGATION
@@ -308,6 +331,66 @@ const UniverseScene = observer(({ onSceneSelect }) => {
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [universeStore.zoomLevel, universeStore.activeGalaxy, universeStore.activeSystem, centeredGalaxyId]);
 
+/* --------------------------------------------------
+   🎯 HANDLE DIRECT NAVIGATION TO SYSTEM VIEW
+-------------------------------------------------- */
+useEffect(() => {
+  console.log("🔍 Direct nav check:", {
+    sceneReady,
+    zoomLevel: universeStore.zoomLevel,
+    activeSystem: universeStore.activeSystem,
+    hasOrbitRef: !!orbitRef.current
+  });
+  
+  if (!sceneReady || !orbitRef.current) {
+    console.log("⏸️ Skipping: not ready");
+    return;
+  }
+  
+  // Check if we're directly loading a system view
+  if (universeStore.zoomLevel === "system" && universeStore.activeSystem) {
+    const camera = orbitRef.current.object;
+    const controls = orbitRef.current;
+    
+    console.log("🔎 Looking for system:", universeStore.activeSystem.id);
+    
+    const galaxy = universeConfig.galaxies.find(g =>
+      g.starSystems.some(s => s.id === universeStore.activeSystem.id)
+    );
+    
+    console.log("🌌 Found galaxy:", galaxy?.id);
+    
+    const system = galaxy?.starSystems.find(s => s.id === universeStore.activeSystem.id);
+    
+    console.log("⭐ Found system:", system);
+    
+    if (system) {
+      console.log("📍 Setting camera for system:", system.id, "at position:", system.position);
+      
+      // ✅ Use EXACT same offsets as zoomIntoSystem animation
+      const position = system.position;
+      
+      camera.position.set(
+        position[0],
+        position[1] + 12,
+        position[2] + 18
+      );
+      
+      controls.target.set(
+        position[0],
+        position[1],
+        position[2]
+      );
+      
+      controls.update();
+      
+      console.log("✅ Camera positioned at:", camera.position.toArray(), "targeting:", controls.target.toArray());
+    } else {
+      console.error("❌ System not found in config!");
+    }
+  }
+}, [sceneReady, universeStore.zoomLevel, universeStore.activeSystem]);
+
   return (
     <>
     <Canvas
@@ -333,8 +416,8 @@ const UniverseScene = observer(({ onSceneSelect }) => {
         ref={orbitRef}
         enablePan={false}
         enableZoom
-        minDistance={universeStore.zoomLevel === "system" ? 20 : 150}
-        maxDistance={universeStore.zoomLevel === "system" ? 50 : 400}
+        minDistance={universeStore.zoomLevel === "system" ? 3 : 150}  // ✅ Was 8, now 3
+        maxDistance={universeStore.zoomLevel === "system" ? 35 : 400} // ✅ Was 40, now 35
       />
 
       {/* ============================================

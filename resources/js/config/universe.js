@@ -24,7 +24,7 @@ export const universeConfig = {
           id: "wallet",
           label: "Wallet",
           position: [-40, 2, 105],
-          orbitRadius: 3.5,
+          orbitRadius: 8,
           route: "/galaxy/core-systems/wallet",
           nodes: [
             { id: "portfolio", label: "Portfolio", route: "/galaxy/core-systems/wallet/portfolio" },
@@ -36,7 +36,7 @@ export const universeConfig = {
           id: "markets",
           label: "Markets",
           position: [59, 15, 85],
-          orbitRadius: 4,
+          orbitRadius: 9,
           route: "/galaxy/core-systems/markets",
           nodes: [
             { id: "trading", label: "Trading", route: "/galaxy/core-systems/markets/trading" },
@@ -48,7 +48,7 @@ export const universeConfig = {
           id: "contracts",
           label: "Contracts",
           position: [85, -35, -17],
-          orbitRadius: 3,
+          orbitRadius: 7,
           route: "/galaxy/core-systems/contracts",
           nodes: [
             { id: "deploy", label: "Deploy", route: "/galaxy/core-systems/contracts/deploy" },
@@ -59,7 +59,7 @@ export const universeConfig = {
           id: "ai",
           label: "Wzkr AI",
           position: [25, 15, -60],
-          orbitRadius: 4.5,
+          orbitRadius: 10,
           route: "/galaxy/core-systems/ai",
           nodes: [
             { id: "chat", label: "AI Chat", route: "/galaxy/core-systems/ai/chat" },
