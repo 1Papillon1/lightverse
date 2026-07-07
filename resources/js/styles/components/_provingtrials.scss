@@ -1,0 +1,333 @@
+/* ============================================================
+   PROVING GROUNDS — CSS additions
+   Add to your main stylesheet alongside existing lumina-codex styles
+   ============================================================ */
+
+/* ─── Teal theme modifier for lumina-codex shell ─────────────────────────── */
+
+.lumina-codex--teal .lumina-codex__projector--teal {
+  background: radial-gradient(ellipse at center, rgba(0, 204, 170, 0.18) 0%, transparent 70%);
+}
+
+.lumina-codex__card--teal {
+  border-color: rgba(0, 204, 170, 0.35);
+  box-shadow:
+    0 0 0 1px rgba(0, 204, 170, 0.15),
+    0 0 40px rgba(0, 204, 170, 0.08),
+    inset 0 1px 0 rgba(0, 204, 170, 0.1);
+}
+
+.lumina-codex__card--teal h3 {
+  color: #00ddbb;
+}
+
+.lumina-codex__card--teal .lumina-codex__icon {
+  filter: drop-shadow(0 0 8px rgba(0, 204, 170, 0.5));
+}
+
+/* Selector card needs more height for the trial list */
+.lumina-codex__card--selector {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+/* ─── Trial selector list ─────────────────────────────────────────────────── */
+
+.proving-trials__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.proving-trials__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 204, 170, 0.06);
+  border: 1px solid rgba(0, 204, 170, 0.2);
+  border-radius: 8px;
+  color: #e0e0ff;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  text-align: left;
+}
+
+.proving-trials__item:hover:not(:disabled) {
+  background: rgba(0, 204, 170, 0.12);
+  border-color: rgba(0, 204, 170, 0.45);
+}
+
+.proving-trials__item--done {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.proving-trials__item--done .proving-trials__item-icon {
+  color: #00ddbb;
+}
+
+.proving-trials__item-icon {
+  font-size: 1rem;
+  color: rgba(0, 204, 170, 0.6);
+  flex-shrink: 0;
+}
+
+.proving-trials__item-label {
+  flex: 1;
+}
+
+.proving-trials__item-reward {
+  font-size: 0.75rem;
+  color: #00ccaa;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.proving-trials__item--done .proving-trials__item-reward {
+  color: rgba(0, 204, 170, 0.5);
+}
+
+/* ─── Progress bar ────────────────────────────────────────────────────────── */
+
+.proving-trials__progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.proving-trials__topic {
+  font-size: 0.75rem;
+  color: #00ccaa;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.proving-trials__counter {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.proving-trials__bar {
+  width: 100%;
+  height: 2px;
+  background: rgba(0, 204, 170, 0.15);
+  border-radius: 2px;
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+}
+
+.proving-trials__bar-fill {
+  height: 100%;
+  background: #00ccaa;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* ─── Question text ───────────────────────────────────────────────────────── */
+
+.proving-trials__question {
+  font-size: 1rem;
+  color: #e0e0ff;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+/* ─── Answer options ──────────────────────────────────────────────────────── */
+
+.proving-trials__options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.proving-trials__option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.proving-trials__option:hover:not(:disabled) {
+  background: rgba(0, 204, 170, 0.08);
+  border-color: rgba(0, 204, 170, 0.3);
+}
+
+.proving-trials__option--correct {
+  background: rgba(0, 204, 100, 0.12) !important;
+  border-color: rgba(0, 204, 100, 0.5) !important;
+  color: #88ffcc !important;
+}
+
+.proving-trials__option--wrong {
+  background: rgba(255, 80, 80, 0.1) !important;
+  border-color: rgba(255, 80, 80, 0.4) !important;
+  color: rgba(255, 150, 150, 0.8) !important;
+}
+
+.proving-trials__option--dimmed {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.proving-trials__opt-marker {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: rgba(0, 204, 170, 0.1);
+  border: 1px solid rgba(0, 204, 170, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #00ccaa;
+  margin-top: 1px;
+}
+
+/* ─── Next / Submit button ────────────────────────────────────────────────── */
+
+.proving-trials__next {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1.1rem;
+  background: rgba(0, 204, 170, 0.15);
+  border: 1px solid rgba(0, 204, 170, 0.4);
+  border-radius: 8px;
+  color: #00ddbb;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.proving-trials__next:hover:not(:disabled) {
+  background: rgba(0, 204, 170, 0.25);
+  border-color: rgba(0, 204, 170, 0.7);
+}
+
+.proving-trials__next:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.proving-trials__next--ghost {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.proving-trials__next--ghost:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* ─── Score display ───────────────────────────────────────────────────────── */
+
+.proving-trials__score {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.25rem;
+  margin: 0.75rem 0 1rem;
+}
+
+.proving-trials__score-num {
+  font-size: 2.5rem;
+  font-weight: 300;
+  color: #00ddbb;
+  line-height: 1;
+}
+
+.proving-trials__score-sep {
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.proving-trials__score-total {
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ─── Light reward badge ──────────────────────────────────────────────────── */
+
+.proving-trials__reward-badge {
+  display: inline-block;
+  padding: 0.35rem 0.9rem;
+  background: rgba(0, 204, 170, 0.12);
+  border: 1px solid rgba(0, 204, 170, 0.35);
+  border-radius: 20px;
+  color: #00ddbb;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+
+/* ─── Signal Scan countdown ───────────────────────────────────────────────── */
+
+.signal-scan__countdown {
+  font-size: 2rem;
+  font-weight: 300;
+  color: #00ddbb;
+  letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums;
+  margin: 0.25rem 0 0.5rem;
+}
+
+/* ─── Light Toast ─────────────────────────────────────────────────────────── */
+
+.light-toast {
+  position: fixed;
+  top: 4.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.1rem;
+  background: rgba(10, 12, 30, 0.92);
+  border: 1px solid rgba(0, 204, 170, 0.45);
+  border-radius: 24px;
+  color: #00ddbb;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  pointer-events: none;
+  z-index: 9999;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  backdrop-filter: blur(8px);
+  white-space: nowrap;
+}
+
+.light-toast--visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.light-toast__icon {
+  color: #00ffcc;
+  font-size: 0.9rem;
+}

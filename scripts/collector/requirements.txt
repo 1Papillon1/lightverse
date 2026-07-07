@@ -1,0 +1,8 @@
+# Lightverse Collector — Python dependencies
+# All free. No paid APIs.
+ 
+requests>=2.31.0
+feedparser>=6.0.10
+praw>=7.7.1
+youtube-transcript-api>=0.6.2
+ 

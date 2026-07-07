@@ -1,0 +1,24 @@
+/*
+    variables.scss
+*/
+
+$color-primary: #2c2a4a;    // Tamno ljubičasta
+$color-secondary: #7a6ff0;  // Svijetlo ljubičasta
+$color-accent: #00d1b2;     // Zelenkasta plava
+$color-background: #07070a; // Tamna pozadina
+$color-text: #e0e0e0;       // Neutralni tekst
+$color-muted: #a3a3a3;      // Mutirani (sekundarni) tekst
+$color-purple-start: #7a6ff0; // Početna boja gradijenta
+$color-purple-end: #2c2a4a;   // Završna boja gradijenta
+
+// status
+$color-error: #ff3860;        // Bright red for errors
+$color-success: #00d1b2;      // Accent green-blue for success
+$color-info: #7a6ff0;         // Primary purple for info messages
+$color-warning: #ffcc00;      // Yellow for warnings
+$color-tip: #4fd1ff;          // Cyan/light blue for tips
+
+
+
+$block-width: 60vw;
+$block-height: 60vw;

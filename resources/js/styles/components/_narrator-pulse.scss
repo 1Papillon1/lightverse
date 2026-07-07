@@ -1,0 +1,200 @@
+/* ================================
+   NARRATOR (CONTAINER)
+================================ */
+.narrator {
+  position: fixed;
+  bottom: 25px;
+  left: 25px;
+  width: 80px;
+  height: 80px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  z-index: 1500;
+}
+
+.narrator--open {
+  transform: scale(1.1);
+}
+
+
+
+// narrator inner is like background (invisible not clickable area)
+ .narrator__inner {
+  width: 10%;
+  height: 10%;
+  padding-top: 100px;
+  padding-right: 50px;
+  bottom: 10px;
+  left: 20px;
+  background: transparent;
+  z-index: 1500;
+  user-select: none;
+  pointer-events: auto; 
+  position: absolute;
+} 
+
+
+/* ================================
+   CORE (GLOWING PROJECTOR ORB)
+================================ */
+.narrator__core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 28px;
+  height: 28px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(90, 0, 255, 1) 0%,
+    rgba(40, 0, 120, 1) 40%,
+    rgba(10, 0, 40, 1) 100%
+  );
+  box-shadow: 
+    0 0 25px rgba(140, 0, 255, 0.8),
+    0 0 60px rgba(80, 20, 255, 0.5);
+  transition: filter 0.3s ease, transform 0.25s ease;
+}
+
+.narrator__core--active {
+  filter: drop-shadow(0 0 10px rgba(170, 0, 255, 1));
+  animation: narratorCorePulse 1.3s infinite ease-in-out;
+}
+
+@keyframes narratorCorePulse {
+  0%   { transform: translate(-50%, -50%) scale(1); }
+  50%  { transform: translate(-50%, -50%) scale(1.12); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+/* ================================
+   RINGS (HOLOGRAM ROTATING RINGS)
+================================ */
+.narrator__ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80px;
+  height: 32px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid rgba(150, 0, 255, 0.3);
+  animation: narratorRingSpin 14s linear infinite;
+  filter: blur(1px);
+  pointer-events: none;
+}
+
+.narrator__ring--2 {
+  width: 60px;
+  height: 24px;
+  animation-duration: 12s;
+  animation-direction: reverse;
+}
+
+@keyframes narratorRingSpin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ================================
+   BEAM (VERTICAL HOLOGRAM LIGHT)
+================================ */
+.narrator__beam {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  width: 160px;
+  height: 180px;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    ellipse at bottom,
+    rgba(100, 0, 255, 0.45),
+    rgba(130, 0, 255, 0.15),
+    transparent 85%
+  );
+  filter: blur(25px);
+  opacity: 0.62;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ================================
+   MENU (RADIAL OPTIONS)
+================================ */
+.narrator__menu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 180px;
+  height: 180px;
+  
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* === MENU ITEMS === */
+.narrator__menu-item {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+ 
+}
+
+.narrator__menu-item button {
+  background: rgba(40, 0, 80, 0.8);
+  border: 1px solid rgba(140, 0, 255, 0.55);
+
+  color: white;
+  font-size: 16px;
+  
+  padding: 8px 12px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s;
+}
+
+.narrator__menu-item button:hover {
+  transform: scale(1.15);
+  background: rgba(90, 0, 255, 0.8);
+}
+
+/* --- label under button --- */
+.narrator__label {
+  margin-top: 4px;
+  font-size: 12px;
+  color: rgba(220, 200, 255, 0.9);
+  text-shadow: 0 0 4px rgba(110, 0, 255, 0.4);
+  font-weight: bold;
+  // nice contrast background effect for better visibility
+  background: rgba(0, 0, 0, 0.4);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* ================================
+   MENU ITEM POSITIONS
+================================ */
+
+/* Top */
+.narrator__menu-item--top {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Top-right */
+.narrator__menu-item--top-right {
+  top: 25px;
+  right: 25px;
+}
+
+/* Right */
+.narrator__menu-item--right {
+  top: 50%;
+  right: -10px;
+  transform: translateY(-50%);
+}
+

@@ -1,0 +1,39 @@
+/*
+    base.scss
+*/
+
+@use 'variables';
+
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: variables.$color-background;
+   
+}
+
+body::before {
+     content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 55;
+    background-size: cover;
+  mix-blend-mode: overlay;
+}
+
+.App {
+  /*   background-image: url("@/assets/void-empty.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;  */
+    height: 100vh; 
+    width: 100vw; 
+} 
+
+body.ui-locked .r3f-html {
+  pointer-events: none !important;
+  // smaller visibility 
+  opacity: 0.2 !important;
+}

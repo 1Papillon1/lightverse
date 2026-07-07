@@ -1,0 +1,427 @@
+// identity.scss
+
+// ── Page wrapper ───────────────────────────────────────────────────────────────
+.identity-page {
+  position: fixed;
+  inset: 0;
+  z-index: 14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  overflow-y: auto;
+  pointer-events: auto;
+}
+
+// ── Card ───────────────────────────────────────────────────────────────────────
+.identity-card {
+  width: 100%;
+  max-width: 560px;
+  background: rgba(8, 4, 20, 0.88);
+  border: 1px solid rgba(var(--cosmic-rgb, 255, 153, 0), 0.25);
+  border-radius: 16px;
+  padding: 2rem;
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 0 40px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  font-family: 'Rajdhani', sans-serif;
+
+  &__header {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+  }
+
+  &__title-group {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__username {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--cosmic, #ff9900);
+    margin: 0 0 0.25rem;
+    text-shadow: 0 0 20px rgba(255, 153, 0, 0.3);
+    letter-spacing: 0.02em;
+  }
+
+  &__bio {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0 0 0.4rem;
+    line-height: 1.5;
+
+    &--empty { opacity: 0.3; font-style: italic; }
+  }
+
+  &__since {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.25);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    flex-shrink: 0;
+  }
+
+  &__divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.06);
+    margin: 1.25rem 0;
+  }
+
+  &__section {
+    margin-bottom: 1.5rem;
+  }
+
+  &__section-title {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.3);
+    margin: 0 0 1rem;
+    font-weight: 600;
+  }
+
+  &__colors {
+    margin-top: 1rem;
+  }
+
+  &__colors-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.3);
+    display: block;
+    margin-bottom: 0.6rem;
+  }
+
+  &__errors {
+    margin: 0.75rem 0;
+  }
+
+  &__flash {
+    margin: 0.75rem 0;
+    font-size: 0.85rem;
+    color: #00ffcc;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    background: rgba(0, 255, 204, 0.08);
+    border: 1px solid rgba(0, 255, 204, 0.2);
+  }
+
+  &__footer {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+// ── Avatar ─────────────────────────────────────────────────────────────────────
+.identity-avatar {
+  position: relative;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &__ring {
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 2px solid var(--avatar-color, #ff9900);
+    opacity: 0.6;
+    box-shadow: 0 0 12px var(--avatar-color, #ff9900);
+  }
+
+  &__inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--avatar-color, #ff9900);
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 0.02em;
+  }
+}
+
+// ── Color swatch grid ──────────────────────────────────────────────────────────
+.identity-color-grid {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.identity-color-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+
+  &:hover { transform: scale(1.15); }
+
+  &--active {
+    border-color: #fff;
+    transform: scale(1.15);
+    box-shadow: 0 0 8px currentColor;
+  }
+}
+
+// ── Light total ────────────────────────────────────────────────────────────────
+.identity-light-total {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+
+  &__icon {
+    font-size: 1rem;
+    color: var(--cosmic, #ff9900);
+  }
+
+  &__value {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+    font-family: 'Rajdhani', sans-serif;
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+}
+
+// ── Light bars ─────────────────────────────────────────────────────────────────
+.identity-light-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.identity-light-bar {
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.3rem;
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  &__value {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 600;
+  }
+
+  &__track {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  &__fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s ease;
+    min-width: 2px;
+  }
+}
+
+// ── Inputs ─────────────────────────────────────────────────────────────────────
+.identity-input {
+  width: 90%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+  outline: none;
+  transition: border-color 0.2s;
+  resize: none;
+
+  &:focus {
+    border-color: var(--cosmic, #ff9900);
+  }
+
+  &::placeholder { color: rgba(255, 255, 255, 0.2); }
+
+  &--username {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--cosmic, #ff9900);
+    padding: 0.4rem 0.6rem;
+    margin-bottom: 0.4rem;
+  }
+
+  &--bio {
+    font-size: 0.88rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 0.4rem;
+  }
+
+  &--social {
+    margin-top: 0.3rem;
+  }
+}
+
+// ── Buttons ────────────────────────────────────────────────────────────────────
+.identity-btn {
+  padding: 0.45rem 1rem;
+  border-radius: 8px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+
+  &--edit {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.5);
+
+    &:hover {
+      border-color: var(--cosmic, #ff9900);
+      color: var(--cosmic, #ff9900);
+    }
+  }
+
+  &--save {
+    background: var(--cosmic, #ff9900);
+    color: #000;
+    font-weight: 700;
+
+    &:hover { opacity: 0.85; }
+    &:disabled { opacity: 0.4; cursor: not-allowed; }
+  }
+
+  &--cancel {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.3);
+
+    &:hover { color: rgba(255, 255, 255, 0.6); }
+  }
+}
+
+// ── Errors ─────────────────────────────────────────────────────────────────────
+.identity-error {
+  font-size: 0.78rem;
+  color: #ff4444;
+  margin: 0.25rem 0 0;
+}
+
+// ── Social rows ────────────────────────────────────────────────────────────────
+.identity-social-row {
+  display: flex;
+  gap: 1rem;
+  vertical-align: center;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+  &:last-child { border-bottom: none; }
+
+  &__icon {
+    font-size: 1.2rem;
+    font-weight: 700;
+    width: 28px;
+    text-align: center;
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+  }
+
+  &__content { flex: 1; min-width: 0; }
+
+  &__label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.4);
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+
+  &__link {
+    font-size: 0.75rem;
+    text-decoration: none;
+    margin-top: 0.3rem;
+    display: inline-block;
+    opacity: 0.7;
+
+    &:hover { opacity: 1; }
+  }
+
+  &__status {
+    flex-shrink: 0;
+    padding-top: 0.2rem;
+  }
+}
+
+// ── Badges ─────────────────────────────────────────────────────────────────────
+.identity-badge {
+  font-size: 0.68rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 1px solid transparent;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+
+  &--connected {
+    background: rgba(0, 255, 204, 0.06);
+  }
+
+  &--empty {
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.2);
+  }
+
+
+}
+
+.identity-social-row__icon {
+  margin-top: 4%;
+}
+
+// ── Responsive ─────────────────────────────────────────────────────────────────
+@media (max-width: 600px) {
+  .identity-card {
+    padding: 1.4rem;
+    border-radius: 12px;
+
+    &__header { flex-wrap: wrap; }
+    &__actions { flex-direction: row; }
+  }
+
+  .identity-light-total__value { font-size: 1.8rem; }
+}

@@ -1,0 +1,18 @@
+User-agent: *
+Disallow: /vendor/
+Disallow: /storage/
+Disallow: /bootstrap/
+Disallow: /node_modules/
+Disallow: /app/
+Disallow: /config/
+Disallow: /database/
+Disallow: /resources/
+Disallow: /routes/
+Disallow: /tests/
+
+Allow: /public/
+
+Sitemap:https://lightverse.cloud/sitemap.xml
+
+# LLMs Context File
+# See: https://lightverse.cloud/llms.txt

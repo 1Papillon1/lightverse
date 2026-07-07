@@ -1,0 +1,57 @@
+# Lightverse - Web3 Reputation Platform
+
+> Where Light Becomes Reality
+
+## About
+
+Lightverse is a 3D cosmic universe platform where users earn Light—a reputation currency—through genuine contribution. Light cannot be bought, only earned, creating a meritocratic Web3 identity system.
+
+## Key Concepts
+
+### Light
+- Reputation currency that can't be purchased
+- Earned through contribution, knowledge sharing, and building
+- Follows users across all communities in the verse
+- Unlocks new galaxies and opportunities
+
+### Galaxies
+- **Lumina Archives**: Cosmic library where learning earns Light
+- **Identity Nebula**: User reputation and Light Signature
+- More galaxies emerge as the universe grows
+
+### Features
+- 3D navigable universe
+- Portable Web3 reputation
+- Achievement system with permanent badges
+- Decentralized identity (wallet-based)
+- Gas-free Light earning
+
+## Use Cases
+
+- Building portable Web3 reputation
+- Earning recognition for community contributions
+- Learning Web3 concepts while earning Light
+- Exploring gamified educational content
+- Establishing verifiable digital identity
+
+## Technology
+
+- React + Three.js (3D universe)
+- Laravel backend
+- Blockchain integration (Web3)
+- Inertia.js (SPA architecture)
+
+## Links
+
+- Website: https://lightverse.cloud
+- Twitter: @lightverseweb
+- Documentation: https://lightverse.cloud/galaxy/lumina-archives
+- Blog: https://medium.com/@nit.osk123
+
+## Creator
+
+Built by solo developer passionate about solving Web3's reputation problem.
+
+---
+
+Last updated: 2026-03-20

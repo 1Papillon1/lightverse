@@ -1,0 +1,24 @@
+/*
+    mixins.scss
+*/
+
+@use 'variables';
+
+@mixin dark-mode {
+    background-color: variables.$color-background;
+    color: variables.$color-text;
+  }
+  
+  @mixin button-primary {
+    background-color: variables.$color-primary;
+    color: variables.$color-text;
+    border: none;
+    border-radius: 4px;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  
+    &:hover {
+      background-color: darken(variables.$color-primary, 10%);
+    }
+  }

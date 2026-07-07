@@ -1,0 +1,190 @@
+// resources/css/components/projector.scss
+// ─────────────────────────────────────────────────────────────────────────────
+// Reusable projector system for planet node pages.
+// Projector sits at the bottom (on the terrain), beam shoots upward,
+// content floats above the beam.
+//
+// USAGE:
+//   <div className="projector-page projector-page--identity">
+//     <div className="projector-page__content">
+//       ...your content
+//     </div>
+//     <div className="projector-page__projector">
+//       <div className="projector-page__beam" />
+//     </div>
+//   </div>
+//
+// NOTE: content comes FIRST in the DOM, projector SECOND.
+// flex-direction: column puts content above, projector below.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ─── CSS custom properties ────────────────────────────────────────────────────
+
+.projector-page {
+  --projector-border:    rgba(120, 70, 255, 0.18);
+  --projector-shadow:    rgba(160, 90, 255, 0.3);
+  --projector-beam-from: rgba(140, 90, 255, 0.22);
+  --projector-beam-mid:  rgba(140, 90, 255, 0.07);
+  --beam-width:          320px;
+  --beam-height:         600px;
+}
+
+// ─── Galaxy theme modifiers ───────────────────────────────────────────────────
+
+.projector-page--identity {
+  --projector-border:    rgba(255, 150, 0, 0.22);
+  --projector-shadow:    rgba(255, 130, 0, 0.32);
+  --projector-beam-from: rgba(255, 150, 0, 0.2);
+  --projector-beam-mid:  rgba(255, 120, 0, 0.06);
+}
+
+.projector-page--lumina {
+  --projector-border:    rgba(140, 80, 255, 0.22);
+  --projector-shadow:    rgba(150, 80, 255, 0.32);
+  --projector-beam-from: rgba(140, 90, 255, 0.24);
+  --projector-beam-mid:  rgba(130, 80, 255, 0.07);
+}
+
+.projector-page--forge {
+  --projector-border:    rgba(255, 100, 0, 0.22);
+  --projector-shadow:    rgba(255, 90, 0, 0.32);
+  --projector-beam-from: rgba(255, 110, 0, 0.22);
+  --projector-beam-mid:  rgba(255, 90, 0, 0.06);
+}
+
+.projector-page--teal {
+  --projector-border:    rgba(0, 200, 160, 0.22);
+  --projector-shadow:    rgba(0, 190, 150, 0.32);
+  --projector-beam-from: rgba(0, 200, 160, 0.2);
+  --projector-beam-mid:  rgba(0, 180, 140, 0.06);
+}
+
+// ─── Page wrapper ─────────────────────────────────────────────────────────────
+
+.projector-page {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;       // content on top, projector on bottom
+  align-items: center;
+  justify-content: flex-end;    // both anchored to bottom
+  padding-bottom: 5vh;
+  z-index: 10;
+  pointer-events: none;
+  gap: 0;
+}
+
+// ─── Rising content — sits ABOVE the beam ─────────────────────────────────────
+
+.projector-page__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: auto;
+  text-align: center;
+  padding: 0 1rem;
+  user-select: none;
+  // Content needs to sit above the beam visually — add bottom margin
+  // equal to roughly the projector height so it clears the device
+  margin-bottom: 20vh;
+  animation: projector-content-rise 0.7s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  transform-origin: bottom center;
+}
+
+// ─── Projector base — sits at the BOTTOM ──────────────────────────────────────
+
+.projector-page__projector {
+  position: relative;
+  width: 200px;
+  height: 30px;
+  background: rgba(10, 4, 30, 0.5);
+  border: 1px solid var(--projector-border);
+  box-shadow: 0 0 8px var(--projector-shadow);
+  border-radius: 18px;
+  backdrop-filter: blur(2px);
+  flex-shrink: 0;
+  animation: projector-enter 0.6s ease forwards;
+  z-index: 2;
+}
+
+// ─── Beam — shoots UPWARD from the projector ──────────────────────────────────
+
+.projector-page__beam {
+  position: absolute;
+  // Beam starts at top of projector and goes up
+  bottom: 100%;
+  left: 50%;
+  width: var(--beam-width);
+  height: var(--beam-height);
+  transform: translateX(-50%);
+  // Gradient goes from bright at bottom (projector) to transparent at top
+  background: linear-gradient(
+    to top,
+    var(--projector-beam-from) 0%,
+    var(--projector-beam-mid)  45%,
+    rgba(0, 0, 0, 0)           100%
+  );
+  filter: blur(20px);
+  pointer-events: none;
+  animation: projector-beam-loop 3s infinite ease-in-out;
+}
+
+// ─── Closing state ────────────────────────────────────────────────────────────
+
+.projector-page--closing {
+  .projector-page__content {
+    animation: projector-content-fall 0.6s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  }
+
+  .projector-page__projector {
+    animation: projector-exit 0.6s ease forwards;
+  }
+}
+
+// ─── Animations ───────────────────────────────────────────────────────────────
+
+@keyframes projector-enter {
+  from { opacity: 0; transform: scaleX(0.5); }
+  to   { opacity: 1; transform: scaleX(1); }
+}
+
+@keyframes projector-exit {
+  from { opacity: 1; transform: scaleX(1); }
+  to   { opacity: 0; transform: scaleX(0.5); }
+}
+
+@keyframes projector-beam-loop {
+  0%, 100% { opacity: 0.65; }
+  50%       { opacity: 1; }
+}
+
+@keyframes projector-content-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes projector-content-fall {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+}
+
+// ─── Mobile ───────────────────────────────────────────────────────────────────
+
+@media (max-width: 600px) {
+  .projector-page {
+    padding-bottom: 3vh;
+  }
+}

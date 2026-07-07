@@ -1,0 +1,184 @@
+/*
+    market.scss
+*/
+
+@use '../base/variables';
+
+.market {
+    &--container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+        z-index: 18;
+    }
+
+    &-title {
+        position: absolute;
+        bottom: 1rem;
+        left: 1rem;
+        font-size: 24px;
+        color: variables.$color-muted;
+        z-index: 10;
+    }
+
+    &-single {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        width: 40vw;
+        padding: 2rem;
+        overflow: hidden;
+        z-index: 5;
+    }
+}
+
+.market-grid {
+    width: variables.$block-width;
+    height: variables.$block-height;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+
+    .market-block {
+        transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out;
+        opacity: 1;
+    }
+
+    &.scrolling-up .market-block {
+        transform: translateY(-100px);
+        opacity: 0;
+    }
+
+    &.scrolling-down .market-block {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+
+    .market-block.new {
+        animation: slide-in 0.6s ease-in-out forwards;
+    }
+
+    .market-block.old {
+        animation: slide-out 0.6s ease-in-out forwards;
+    }
+}
+
+.market--container.with-compare {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    flex-direction: column; /* stack vertically */
+  }
+}
+
+.comparison__container {
+  flex: 0 0 30%; /* fixed ~30% width */
+  max-width: 30vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1rem;
+
+  .comparison__title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #fff;
+    text-shadow: 0 0 12px #8f00ff, 0 0 18px #00ffff;
+    letter-spacing: 2px;
+  }
+
+  .canvas--compare {
+    width: 100%;
+    height: calc(100% - 2rem);
+  }
+
+  @media (max-width: 768px) {
+    flex: 0 0 auto;
+    max-width: 100%;
+    width: 100%;
+    height: 40vh; /* take top part of screen */
+  }
+}
+
+.market__main {
+  flex: 0 0 70%; /* fixed ~70% width */
+  max-width: 70vw;
+  height: 100vh;
+  padding: 0 1rem;
+  display: flex;
+  justify-content: center; /* center grid inside */
+  align-items: center;
+
+  .canvas--market {
+    width: 100%;
+    height: 100%;
+  }
+
+  @media (max-width: 768px) {
+    flex: 1;
+    max-width: 100%;
+    width: 100%;
+    height: 60vh; /* take rest of screen */
+  }
+}
+
+/* Animacija ulaska novih marketa */
+@keyframes slide-in {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Animacija izlaska starih marketa */
+@keyframes slide-out {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-100px);
+        opacity: 0;
+    }
+}
+
+.loading-spinner {
+    color: #fff;
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 18px;
+    animation: pulse 1s infinite;
+}
+  
+@keyframes pulse {
+    0% { opacity: 0.4; }
+    50% { opacity: 1; }
+    100% { opacity: 0.4; }
+}
+  
+.no-results {
+    color: #ccc;
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 16px;
+}

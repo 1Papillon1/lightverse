@@ -1,0 +1,31 @@
+/*
+    subheaders.scss
+*/
+@use '../base/variables';
+
+.subheader {
+      position: absolute;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 5rem;
+        z-index: 10;
+    &__wrapper {
+        position: relative;
+        width: 100%;
+        max-width: 420px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        background-color: rgba(0, 0, 0, 0.158);
+        padding: 5px 1rem 5px 2.5rem;
+        display: flex; 
+        align-items: center;
+        justify-content: flex-end;
+        
+    }
+    &__icon {
+        filter: invert(40%) sepia(10%) saturate(0%) hue-rotate(287deg) brightness(70%) contrast(70%) drop-shadow(0 0 2px #ffffff5e);
+       
+    }
+}

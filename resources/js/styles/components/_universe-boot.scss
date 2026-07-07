@@ -1,0 +1,61 @@
+/*
+    universe-boot.scss
+*/
+
+.universe-boot {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  user-select: none;
+  background: radial-gradient(
+    circle at center,
+    #3b1b6a 0%,
+    #120021 70%,
+    #05000c 100%
+  );
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.universe-boot__core {
+  text-align: center;
+  color: #e9dcff;
+}
+
+.universe-boot__sigil {
+  font-size: 72px;
+  animation: pulse 2.4s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(180, 120, 255, 0.7));
+  
+}
+
+.universe-boot__text {
+  margin-top: 1rem;
+  font-size: 24px;
+  letter-spacing: 2px;
+  font-weight: 500;
+  animation: textPulse 2.4s ease-in-out infinite;
+
+
+}
+
+.universe-boot__tip {
+  margin-top: 1.5rem;
+  font-size: 16px;
+  font-style: italic;
+  color: #c9a3ff;
+  animation: textPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.7 }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+
+@keyframes textPulse {
+  0%, 100% { opacity: 0.7 }
+  50% { opacity: 1; }
+
+}

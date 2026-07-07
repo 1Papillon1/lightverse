@@ -1,0 +1,36 @@
+/*
+    compare.scss
+*/
+
+.compare-actions {
+  display: flex;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  box-shadow: 0 0 10px #0ff;
+}
+
+.compare-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &.focus img {
+    filter: drop-shadow(0 0 6px #0ff);
+  }
+
+  &.remove img {
+    filter: drop-shadow(0 0 6px #f00);
+  }
+}

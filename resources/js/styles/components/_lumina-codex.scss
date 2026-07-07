@@ -1,0 +1,258 @@
+/* lumina-codex.scss */
+
+.lumina-codex {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 14;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ============================================
+   📺 HOLOGRAM CARD
+   ============================================ */
+.lumina-codex__card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transition: transform 0.45s ease, opacity 0.45s ease;
+}
+
+.lumina-codex__core {
+  width: 320px;
+  padding: 1.5rem 1.8rem;
+  border-radius: 12px;
+
+  background: rgba(10, 5, 30, 0.85);
+  backdrop-filter: blur(10px);
+  color: #e0f7ff;
+
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.6;
+
+  border: 1px solid rgba(153, 102, 255, 0.6);
+  box-shadow: 
+    0 0 20px rgba(153, 102, 255, 0.4),
+    0 0 40px rgba(153, 102, 255, 0.2),
+    inset 0 0 30px rgba(153, 102, 255, 0.05);
+
+  text-align: left;
+}
+
+/* Icon */
+.lumina-codex__icon {
+  font-size: 3rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 0 10px rgba(153, 102, 255, 0.6));
+}
+
+/* Title */
+.lumina-codex__core h3 {
+  margin: 0 0 0.8rem 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-align: center;
+  color: #9966ff;
+  text-shadow: 0 0 15px rgba(153, 102, 255, 0.8);
+}
+
+/* Content */
+.lumina-codex__core p {
+  margin: 0.8rem 0;
+  line-height: 1.6;
+  color: #d0e7ff;
+}
+
+/* Light Value Badge */
+.lumina-codex__badge {
+  display: inline-block;
+  padding: 0.3rem 1rem;
+  margin: 0.5rem 0 1rem;
+  background: rgba(255, 204, 0, 0.15);
+  border: 1px solid rgba(255, 204, 0, 0.5);
+  border-radius: 20px;
+  color: #ffcc00;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
+}
+
+/* Note (subtle italic line below main content) */
+.lumina-codex__note {
+  margin: 0.8rem 0 0;
+  font-size: 0.78rem;
+  font-style: italic;
+  color: rgba(153, 102, 255, 0.6);
+  border-left: 2px solid rgba(153, 102, 255, 0.3);
+  padding-left: 0.6rem;
+}
+
+/* Badge variant — planned/coming soon (muted) */
+.lumina-codex__badge--soon {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.35);
+  box-shadow: none;
+}
+
+/* Badge variant — active (existing badge style, just explicit) */
+.lumina-codex__badge--active {
+  background: rgba(100, 220, 150, 0.1);
+  border-color: rgba(100, 220, 150, 0.4);
+  color: #80ffaa;
+  box-shadow: 0 0 10px rgba(100, 220, 150, 0.2);
+}
+
+/* Tier Range */
+.lumina-codex__tier-range {
+  display: inline-block;
+  padding: 0.3rem 1rem;
+  margin: 0.5rem 0 1rem;
+  background: rgba(153, 102, 255, 0.15);
+  border: 1px solid rgba(153, 102, 255, 0.5);
+  border-radius: 20px;
+  color: #bb88ff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(153, 102, 255, 0.3);
+}
+
+/* Examples List */
+.lumina-codex__examples {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+}
+
+.lumina-codex__examples li {
+  padding: 0.4rem 0;
+  padding-left: 1.2rem;
+  position: relative;
+  font-size: 0.85rem;
+  color: #b8d8ff;
+}
+
+.lumina-codex__examples li::before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: #9966ff;
+  font-weight: bold;
+}
+
+/* Footer */
+.lumina-codex__footer {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(153, 102, 255, 0.3);
+  text-align: center;
+}
+
+.slide-indicator {
+  font-size: 0.75rem;
+  color: rgba(153, 102, 255, 0.8);
+  font-weight: 500;
+}
+
+/* ============================================
+   💡 PROJECTOR (Bottom Light Source)
+   ============================================ */
+.lumina-codex__projector {
+  position: absolute;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 45px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #bb88ff, rgba(153, 102, 255, 0.2));
+  box-shadow: 
+    0 0 50px rgba(153, 102, 255, 0.8),
+    0 0 100px rgba(153, 102, 255, 0.4);
+  z-index: 2;
+}
+
+/* ============================================
+   🔦 LIGHT CONE (Hologram Beam Effect)
+   ============================================ */
+.lumina-codex::before {
+  content: "";
+  position: absolute;
+  bottom: 90px;
+  left: 50%;
+  width: 800px;
+  height: 800px;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    ellipse at bottom,
+    rgba(153, 102, 255, 0.15),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* ============================================
+   🎮 CONTROLS
+   ============================================ */
+.lumina-codex__controls {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 60px;
+  z-index: 20;
+}
+
+.lumina-codex__controls .section__button {
+  transform: scale(1.3);
+  margin: 0 10vw;
+  margin-bottom: 7vh;
+  pointer-events: auto;
+}
+
+.lumina-codex__controls .section__button:hover {
+  transform: scale(1.45);
+}
+
+.lumina-codex__controls .section__button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.lumina-codex__controls .section__button:disabled:hover {
+  transform: scale(1.3);
+}
+
+/* ============================================
+   🌟 RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  .lumina-codex__core {
+    width: 280px;
+    padding: 1.2rem 1.5rem;
+  }
+
+  .lumina-codex__core h3 {
+    font-size: 1.5rem;
+  }
+
+  .lumina-codex__icon {
+    font-size: 2.5rem;
+  }
+
+  .lumina-codex__controls {
+    gap: 40px;
+  }
+
+  .lumina-codex__controls .section__button {
+    margin: 0 5vw;
+  }
+}

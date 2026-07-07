@@ -1,0 +1,436 @@
+/* ============================================================
+   NOTIFICATION BELL — add to navigation.scss or main stylesheet
+   Matches the existing light-display and navigation aesthetic
+   ============================================================ */
+
+/* ─── Nav item wrapper ───────────────────────────────────────────────────── */
+
+.navigation__notifications {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-right: 1.25rem;
+}
+
+/* ─── Bell button ────────────────────────────────────────────────────────── */
+
+.notif-bell {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.notif-bell__btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: rgba(180, 140, 255, 0.06);
+  border: 1px solid rgba(180, 140, 255, 0.2);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  padding: 0;
+}
+
+.notif-bell__btn:hover,
+.notif-bell__btn--open {
+  border-color: rgba(180, 140, 255, 0.4);
+  background: rgba(180, 140, 255, 0.12);
+}
+
+.notif-bell__icon {
+  font-size: 14px;
+  line-height: 1;
+  filter: grayscale(0.3);
+  transition: filter 0.2s;
+}
+
+.notif-bell__btn:hover .notif-bell__icon,
+.notif-bell__btn--open .notif-bell__icon {
+  filter: grayscale(0);
+}
+
+/* ─── Unread badge ───────────────────────────────────────────────────────── */
+
+.notif-bell__badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: #7b4ee0;
+  border: 1.5px solid rgba(10, 6, 24, 0.9);
+  border-radius: 10px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+/* ─── Dropdown panel ─────────────────────────────────────────────────────── */
+
+.notif-bell__panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 320px;
+  background: rgba(10, 6, 24, 0.97);
+  border: 1px solid rgba(180, 140, 255, 0.18);
+  border-radius: 12px;
+  box-shadow:
+    0 4px 32px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(180, 140, 255, 0.06);
+  backdrop-filter: blur(16px);
+  z-index: 200;
+  overflow: hidden;
+}
+
+/* ─── Panel header ───────────────────────────────────────────────────────── */
+
+.notif-bell__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.notif-bell__header-title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(200, 180, 255, 0.55);
+}
+
+.notif-bell__mark-all {
+  font-size: 11px;
+  color: rgba(180, 140, 255, 0.55);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.notif-bell__mark-all:hover {
+  color: rgba(180, 140, 255, 0.9);
+}
+
+/* ─── Notification list ──────────────────────────────────────────────────── */
+
+.notif-bell__list {
+  max-height: 340px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(180, 140, 255, 0.15) transparent;
+}
+
+.notif-bell__list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.notif-bell__list::-webkit-scrollbar-thumb {
+  background: rgba(180, 140, 255, 0.15);
+  border-radius: 2px;
+}
+
+/* ─── Empty state ────────────────────────────────────────────────────────── */
+
+.notif-bell__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 2rem 1rem;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.notif-bell__empty-icon {
+  font-size: 1.4rem;
+  color: rgba(180, 140, 255, 0.2);
+}
+
+.notif-bell__empty p {
+  font-size: 12px;
+  margin: 0;
+}
+
+/* ─── Notification row ───────────────────────────────────────────────────── */
+
+.notif-bell__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background 0.15s;
+  position: relative;
+}
+
+.notif-bell__row:last-child {
+  border-bottom: none;
+}
+
+.notif-bell__row--unread {
+  background: rgba(180, 140, 255, 0.04);
+}
+
+.notif-bell__row--clickable {
+  cursor: pointer;
+}
+
+.notif-bell__row--clickable:hover {
+  background: rgba(180, 140, 255, 0.08);
+}
+
+.notif-bell__row-icon {
+  font-size: 14px;
+  line-height: 1;
+  margin-top: 2px;
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+}
+
+.notif-bell__row-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-bell__row-title {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: rgba(230, 215, 255, 0.85);
+  line-height: 1.4;
+  margin-bottom: 2px;
+}
+
+.notif-bell__row--unread .notif-bell__row-title {
+  color: #e8d5ff;
+}
+
+.notif-bell__row-msg {
+  font-size: 11.5px;
+  color: rgba(200, 185, 240, 0.45);
+  line-height: 1.45;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notif-bell__row-time {
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.02em;
+}
+
+/* ─── Row action buttons (dot + delete) ──────────────────────────────────── */
+
+.notif-bell__row-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.notif-bell__row:hover .notif-bell__row-actions {
+  opacity: 1;
+}
+
+/* Unread dot button */
+.notif-bell__row-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #7b4ee0;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.notif-bell__row-dot:hover {
+  background: #9b6ef0;
+}
+
+/* Delete button */
+.notif-bell__row-delete {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.notif-bell__row-delete:hover {
+  color: rgba(255, 100, 100, 0.8);
+  background: rgba(255, 60, 60, 0.08);
+}
+
+/* ─── Panel footer ───────────────────────────────────────────────────────── */
+
+.notif-bell__footer {
+  padding: 8px 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: center;
+}
+
+.notif-bell__view-all {
+  font-size: 11px;
+  color: rgba(180, 140, 255, 0.5);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  letter-spacing: 0.04em;
+  transition: color 0.15s;
+}
+
+.notif-bell__view-all:hover {
+  color: rgba(180, 140, 255, 0.9);
+}
+
+/* ─── Mobile adjustments ─────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .notif-bell__panel {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    border-radius: 16px 16px 0 0;
+    max-height: 70vh;
+  }
+
+  .notif-bell__list {
+    max-height: calc(70vh - 100px);
+  }
+}
+
+
+
+/*
+─── CSS additions for the full-page view ────────────────────────────────────────
+Add to notifications.css
+*/
+ 
+/*
+.notif-page__card {
+  width: min(560px, 92vw) !important;
+  max-height: 80vh;
+  overflow: hidden;
+}
+ 
+.notif-page__core {
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+ 
+.notif-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 0.25rem;
+  width: 100%;
+}
+ 
+.notif-page__header h3 { margin: 0; }
+ 
+.notif-page__mark-all {
+  font-size: 11px;
+  color: rgba(180, 140, 255, 0.55);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+.notif-page__mark-all:hover { color: rgba(180, 140, 255, 0.9); }
+ 
+.notif-page__list {
+  overflow-y: auto;
+  max-height: calc(80vh - 120px);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(180, 140, 255, 0.15) transparent;
+  width: 100%;
+}
+ 
+.notif-page__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2.5rem 0;
+}
+ 
+.notif-page__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  width: 100%;
+}
+.notif-page__row:last-child { border-bottom: none; }
+.notif-page__row--unread { background: rgba(180, 140, 255, 0.03); border-radius: 8px; padding: 12px 8px; }
+.notif-page__row--clickable { cursor: pointer; }
+.notif-page__row--clickable:hover { background: rgba(180, 140, 255, 0.07); border-radius: 8px; padding: 12px 8px; }
+ 
+.notif-page__row-icon { font-size: 16px; margin-top: 2px; flex-shrink: 0; width: 20px; text-align: center; }
+.notif-page__row-body { flex: 1; min-width: 0; }
+.notif-page__row-title { font-size: 13.5px; font-weight: 500; color: rgba(230, 215, 255, 0.8); margin-bottom: 3px; }
+.notif-page__row--unread .notif-page__row-title { color: #e8d5ff; }
+.notif-page__row-msg { font-size: 12px; color: rgba(200, 185, 240, 0.45); line-height: 1.45; margin-bottom: 4px; }
+.notif-page__row-meta { display: flex; gap: 0.6rem; align-items: center; }
+.notif-page__row-type { font-size: 10.5px; color: rgba(180, 140, 255, 0.35); text-transform: uppercase; letter-spacing: 0.06em; }
+.notif-page__row-time { font-size: 10.5px; color: rgba(255, 255, 255, 0.18); }
+ 
+.notif-page__row-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.notif-page__btn-read {
+  width: 24px; height: 24px; border-radius: 6px;
+  background: rgba(180, 140, 255, 0.08); border: 1px solid rgba(180, 140, 255, 0.2);
+  color: rgba(180, 140, 255, 0.6); font-size: 12px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.notif-page__btn-read:hover { background: rgba(180, 140, 255, 0.18); color: #c9a0ff; }
+ 
+.notif-page__btn-delete {
+  width: 24px; height: 24px; border-radius: 6px;
+  background: none; border: 1px solid rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.2); font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.notif-page__btn-delete:hover { background: rgba(255, 60, 60, 0.08); color: rgba(255, 100, 100, 0.8); border-color: rgba(255, 60, 60, 0.2); }
+*/

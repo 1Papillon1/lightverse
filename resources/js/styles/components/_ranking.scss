@@ -1,0 +1,446 @@
+/*
+    ranking.scss
+*/
+/* resources/scss/galaxy/identity/ranking.scss
+   Holographic leaderboard — matches lumina-codex visual language
+*/
+
+// ── Page shell ────────────────────────────────────────────────────
+.ranking-page {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 14;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+// ── Projector beam ─────────────────────────────────────────────────
+.ranking-page__projector {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 50px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    var(--pcolor, #ff9900),
+    color-mix(in srgb, var(--pcolor, #ff9900) 15%, transparent)
+  );
+  box-shadow:
+    0 0 60px color-mix(in srgb, var(--pcolor, #ff9900) 80%, transparent),
+    0 0 120px color-mix(in srgb, var(--pcolor, #ff9900) 40%, transparent),
+    0 0 200px color-mix(in srgb, var(--pcolor, #ff9900) 15%, transparent);
+  pointer-events: none;
+  z-index: 2;
+}
+
+// Light cone rising from projector up through the panel
+.ranking-page::before {
+  content: '';
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  width: 700px;
+  height: 700px;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    ellipse at bottom,
+    rgba(255, 153, 0, 0.08),
+    transparent 65%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+// ── Panel ──────────────────────────────────────────────────────────
+.ranking-page__panel {
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
+  width: 100%;
+  max-width: 480px;
+  max-height: 82vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 153, 0, 0.2) transparent;
+
+  background: rgba(8, 4, 20, 0.90);
+  border: 1px solid rgba(255, 153, 0, 0.18);
+  border-radius: 16px;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+
+  box-shadow:
+    0 0 40px rgba(255, 153, 0, 0.10),
+    0 0 80px rgba(255, 153, 0, 0.05),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+
+  // Scan-line texture overlay
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.012) 2px,
+      rgba(255, 255, 255, 0.012) 4px
+    );
+    border-radius: 16px;
+    pointer-events: none;
+  }
+}
+
+// ── Header ─────────────────────────────────────────────────────────
+.ranking-page__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ranking-page__header-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ranking-page__title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--cosmic, #ff9900);
+  margin: 0 0 0.1rem;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 20px color-mix(in srgb, var(--cosmic, #ff9900) 60%, transparent);
+}
+
+.ranking-page__subtitle {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.3);
+  margin: 0;
+  letter-spacing: 0.03em;
+}
+
+// ── My rank callout ────────────────────────────────────────────────
+.ranking-page__myrank {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: color-mix(in srgb, var(--cosmic, #ff9900) 08%, rgba(0,0,0,0.4));
+  border: 1px solid color-mix(in srgb, var(--cosmic, #ff9900) 25%, transparent);
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+
+  // Left accent bar
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--cosmic, #ff9900);
+    border-radius: 3px 0 0 3px;
+  }
+}
+
+.ranking-page__myrank-label {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  flex: 1;
+}
+
+.ranking-page__myrank-val {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+
+  span:first-child {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--cosmic, #ff9900);
+    letter-spacing: 0.04em;
+    text-shadow: 0 0 16px color-mix(in srgb, var(--cosmic, #ff9900) 70%, transparent);
+  }
+}
+
+.ranking-page__myrank-of {
+  font-size: 0.65rem !important;
+  color: rgba(255, 255, 255, 0.25) !important;
+  font-weight: 400 !important;
+}
+
+.ranking-page__myrank-light {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+  color: color-mix(in srgb, var(--cosmic, #ff9900) 80%, white);
+}
+
+// ── Table ──────────────────────────────────────────────────────────
+.ranking-page__table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+// Column headers
+.ranking-page__cols {
+  display: grid;
+  grid-template-columns: 56px 1fr 70px;
+  gap: 0.5rem;
+  padding: 0 0.5rem 0.3rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+
+  span {
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  span:last-child { text-align: right; }
+}
+
+// Empty / loading state
+.ranking-page__empty {
+  text-align: center;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.25);
+  padding: 2rem 1rem;
+}
+
+// Ellipsis between list and pinned user row
+.ranking-page__ellipsis {
+  text-align: center;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.15);
+  letter-spacing: 0.3em;
+  padding: 0.3rem 0;
+}
+
+// Lock hint at bottom
+.ranking-page__lock-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  font-size: 0.62rem;
+  color: rgba(255, 255, 255, 0.18);
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: 0.2rem;
+}
+
+// ── Rank row ───────────────────────────────────────────────────────
+.rank-row {
+  display: grid;
+  grid-template-columns: 56px 28px 1fr 70px;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.55rem 0.5rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.2s, border-color 0.2s;
+
+  // Entrance animation
+  animation: rowSlideIn 0.4s ease both;
+
+  &:hover:not(.is-locked) {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+
+  // Top 3 special treatment
+  &.is-top3 {
+    background: color-mix(in srgb, var(--rcolor) 05%, rgba(0,0,0,0.2));
+    border-color: color-mix(in srgb, var(--rcolor) 20%, transparent);
+
+    &:hover {
+      background: color-mix(in srgb, var(--rcolor) 08%, rgba(0,0,0,0.3));
+    }
+  }
+
+  // Current user
+  &.is-me {
+    background: color-mix(in srgb, var(--rcolor) 08%, rgba(0,0,0,0.3));
+    border-color: color-mix(in srgb, var(--rcolor) 30%, transparent);
+    box-shadow: inset 0 0 20px color-mix(in srgb, var(--rcolor) 05%, transparent);
+  }
+
+  // Locked rows
+  &.is-locked {
+    opacity: 0.6;
+    filter: blur(0.3px);
+  }
+}
+
+// Rank number + crown
+.rank-row__pos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.rank-row__crown {
+  color: var(--rcolor, #fff);
+  line-height: 1;
+  filter: drop-shadow(0 0 4px var(--rcolor, #fff));
+}
+
+.rank-row__num {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--rcolor, rgba(255,255,255,0.5));
+  letter-spacing: 0.02em;
+}
+
+// Avatar dot
+.rank-row__avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #000;
+  flex-shrink: 0;
+}
+
+.is-locked .rank-row__avatar {
+  background: rgba(255,255,255,0.1) !important;
+  box-shadow: none !important;
+  color: rgba(255,255,255,0.3);
+}
+
+// Username area
+.rank-row__name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  span:first-child {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.85);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.rank-row__you {
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--rcolor, #ff9900);
+  margin-left: 0.3rem;
+  vertical-align: middle;
+}
+
+.rank-row__label {
+  font-size: 0.58rem;
+  color: var(--rcolor, rgba(255,255,255,0.3));
+  letter-spacing: 0.06em;
+  opacity: 0.8;
+}
+
+.rank-row__hidden {
+  color: rgba(255,255,255,0.15);
+  letter-spacing: 0.05em;
+  filter: blur(3px);
+  user-select: none;
+}
+
+// Light score
+.rank-row__light {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--rcolor, rgba(255,255,255,0.6));
+  white-space: nowrap;
+}
+
+// Top 3 accent bar (left edge)
+.rank-row__bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 3px 0 0 3px;
+  opacity: 0.9;
+  box-shadow: 0 0 8px var(--rcolor, transparent);
+}
+
+// ── Keyframes ──────────────────────────────────────────────────────
+@keyframes rowSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ── Responsive ─────────────────────────────────────────────────────
+@media (max-width: 520px) {
+  .ranking-page__panel {
+    max-width: 95vw;
+    padding: 1rem;
+  }
+
+  .ranking-page__cols {
+    grid-template-columns: 48px 24px 1fr 60px;
+  }
+
+  .rank-row {
+    grid-template-columns: 48px 24px 1fr 60px;
+    padding: 0.45rem 0.4rem;
+  }
+
+  .rank-row__avatar {
+    width: 22px;
+    height: 22px;
+    font-size: 0.58rem;
+  }
+
+  .rank-row__name span:first-child { font-size: 0.75rem; }
+  .rank-row__light                  { font-size: 0.68rem; }
+  .ranking-page__title              { font-size: 1rem; }
+}

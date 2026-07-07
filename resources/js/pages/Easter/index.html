@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sretan Uskrs ♡</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow-x: hidden; }
+  body {
+    background: #0d0015;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  #scene {
+    width: 100%;
+    flex: 1;
+    min-height: 60vh;
+    background: linear-gradient(180deg, #0d0015 0%, #1a0030 45%, #2d0050 75%, #1a0a2e 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  canvas#hearts {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .message {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 3rem 2rem;
+    animation: fadeIn 3s ease forwards;
+    opacity: 0;
+  }
+  @keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  .greeting {
+    font-family: Georgia, serif;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    color: #e8a0c0;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    opacity: 0.65;
+  }
+  .lines { margin-bottom: 2.2rem; }
+  .line {
+    font-family: Georgia, serif;
+    font-size: clamp(16px, 3.2vw, 26px);
+    font-weight: 400;
+    color: #fff5f8;
+    line-height: 2;
+    text-shadow: 0 0 30px rgba(255, 100, 160, 0.35);
+    opacity: 0;
+    transform: translateY(10px);
+    animation: lineIn 0.9s ease forwards;
+  }
+  .line:nth-child(1) { animation-delay: 0.8s; }
+  .line:nth-child(2) { animation-delay: 1.4s; }
+  .line:nth-child(3) { animation-delay: 2.0s; }
+  .line:nth-child(4) { animation-delay: 2.6s; }
+  @keyframes lineIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .signature {
+    font-family: Georgia, serif;
+    font-size: 14px;
+    color: #e8a0c0;
+    font-style: italic;
+    opacity: 0;
+    animation: lineIn 1s ease forwards;
+    animation-delay: 3.4s;
+  }
+  #download-section {
+    background: linear-gradient(180deg, #1a0a2e 0%, #0d0015 100%);
+    text-align: center;
+    padding: 3rem 2rem 4rem;
+    font-family: Georgia, serif;
+  }
+
+  .download-btn {
+    padding: 40px 80px;
+    font-size: 32px;
+  }
+
+@media screen and (max-width: 1200px) {
+  .line { font-size: 32px; }
+  .signature { font-size: 16px; }
+  .download-btn { padding: 40px 70px; font-size: 28px; }
+
+}
+
+@media screen and (max-width: 1000px) {
+  .line { font-size: 28px; }
+  .signature { font-size: 16px; }
+    .download-btn { padding: 30px 60px; font-size: 24px; }
+}
+
+@media screen and (max-width: 600px) {
+  .line { font-size: 20px; }
+  .signature { font-size: 16px; }
+  .download-btn { padding: 20px 40px; font-size: 18px; }
+}
+
+
+
+</style>
+</head>
+<body>
+
+<div id="scene">
+  <canvas id="hearts"></canvas>
+  <div class="message">
+    <p class="greeting">Happy Easter ✦</p>
+    <div class="lines">
+      <p class="line">Dance like nobody's watching,</p>
+      <p class="line">Love like you've never been hurt,</p>
+      <p class="line">Sing like nobody's listening,</p>
+      <p class="line">Live like it's heaven on Earth.</p>
+    </div>
+    <p class="signature">— with all my light, for you</p>
+  </div>
+</div>
+
+<div id="download-section" style="background:linear-gradient(180deg,#1a0a2e 0%,#0d0015 100%);text-align:center;padding:5vh 2rem 6vh;font-family:Georgia,serif;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+  <p style="color:#e8a0c0;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;opacity:0.6;margin-bottom:1rem;">
+    Za uspomenu
+  </p>
+  <p style="color:#f0c8d8;font-size:clamp(16px,4vw,18px);line-height:1.9;max-width:400px;margin:0 auto 2.5rem;opacity:0.85;">
+  Pripremio sam ti i pisanu čestitku —<br>možeš je sačuvati zauvijek.
+</p>
+  
+   <a 
+    class="download-btn"
+   href="/storage/documents/fora_neka.docx"
+    download="Sretan_Uskrs_Ina.docx"
+   style="display:inline-block;border:1px solid rgba(212,83,126,0.4);border-radius:30px;color:#e8a0c0;font-family:Georgia,serif;text-decoration:none;letter-spacing:0.08em;background:rgba(212,83,126,0.06);"
+    onmouseover="this.style.background='rgba(212,83,126,0.15)';this.style.borderColor='rgba(212,83,126,0.7)'"
+    onmouseout="this.style.background='rgba(212,83,126,0.06)';this.style.borderColor='rgba(212,83,126,0.4)'"
+>
+    ♡ &nbsp; Preuzmi čestitku
+  </a>
+</div>
+
+<script>
+const canvas = document.getElementById('hearts');
+const ctx = canvas.getContext('2d');
+const scene = document.getElementById('scene');
+
+function resize() {
+  canvas.width = scene.offsetWidth;
+  canvas.height = scene.offsetHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+const colors = [
+  'rgba(255,100,150,','rgba(255,150,180,','rgba(220,80,130,',
+  'rgba(255,180,200,','rgba(200,60,120,','rgba(255,120,170,',
+];
+const hearts = [];
+
+function spawnHeart() {
+  hearts.push({
+    x: Math.random() * canvas.width,
+    y: canvas.height + 20,
+    size: 7 + Math.random() * 20,
+    speed: 0.5 + Math.random() * 1.2,
+    opacity: 0.18 + Math.random() * 0.65,
+    drift: (Math.random() - 0.5) * 0.5,
+    wobble: Math.random() * Math.PI * 2,
+    wobbleSpeed: 0.018 + Math.random() * 0.028,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    rotation: (Math.random() - 0.5) * 0.35,
+  });
+}
+
+function drawHeart(x, y, size, rotation, color, opacity) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rotation);
+  ctx.beginPath();
+  const s = size;
+  ctx.moveTo(0, s * 0.35);
+  ctx.bezierCurveTo(-s*1.1,-s*0.4,-s*1.1,-s*1.1,0,-s*0.5);
+  ctx.bezierCurveTo(s*1.1,-s*1.1,s*1.1,-s*0.4,0,s*0.35);
+  ctx.fillStyle = color + Math.max(0, opacity) + ')';
+  ctx.fill();
+  ctx.restore();
+}
+
+let frame = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  frame++;
+  if (frame % 16 === 0) spawnHeart();
+  for (let i = hearts.length - 1; i >= 0; i--) {
+    const h = hearts[i];
+    h.y -= h.speed;
+    h.wobble += h.wobbleSpeed;
+    h.x += Math.sin(h.wobble) * 0.5 + h.drift;
+    h.opacity -= 0.0010;
+    if (h.y < -30 || h.opacity <= 0) { hearts.splice(i, 1); continue; }
+    drawHeart(h.x, h.y, h.size, h.rotation, h.color, h.opacity);
+  }
+}
+
+for (let i = 0; i < 14; i++) {
+  spawnHeart();
+  hearts[i].y = Math.random() * canvas.height;
+}
+animate();
+</script>
+</body>
+</html>

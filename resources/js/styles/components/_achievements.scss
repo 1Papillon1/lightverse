@@ -1,0 +1,254 @@
+/* ── Page ──────────────────────────────────── */
+        .ach-page {
+          position: fixed;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          z-index: 14;
+          pointer-events: none;
+        }
+
+        /* ── Projector ─────────────────────────────── */
+        .ach-page__projector {
+          position: absolute;
+          bottom: 70px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 160px;
+          height: 40px;
+          border-radius: 50%;
+          background: radial-gradient(circle, var(--acolor), rgba(255,153,0,0.15));
+          box-shadow:
+            0 0 50px color-mix(in srgb, var(--acolor) 80%, transparent),
+            0 0 100px color-mix(in srgb, var(--acolor) 40%, transparent);
+          pointer-events: none;
+          z-index: 2;
+        }
+
+        /* ── Panel ─────────────────────────────────── */
+        .ach-page__panel {
+          width: 100%;
+          max-width: 520px;
+          max-height: 80vh;
+          overflow-y: auto;
+          overflow-x: hidden;
+          background: rgba(8, 4, 24, 0.88);
+          border: 1px solid rgba(153, 102, 255, 0.25);
+          border-radius: 16px;
+          backdrop-filter: blur(20px);
+          padding: 1.25rem;
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          pointer-events: auto;
+          position: relative;
+          z-index: 10;
+          box-shadow:
+            0 0 40px rgba(153, 102, 255, 0.15),
+            inset 0 0 0 1px rgba(255,255,255,0.04);
+          scrollbar-width: thin;
+          scrollbar-color: rgba(153,102,255,0.3) transparent;
+        }
+
+        /* ── Header ────────────────────────────────── */
+        .ach-page__header {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+        .ach-page__header-icon {
+          width: 40px; height: 40px;
+          border-radius: 10px;
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.08);
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+        }
+        .ach-page__title {
+          font-size: 1.15rem; font-weight: 700;
+          color: var(--cosmic, #ff9900);
+          margin: 0 0 0.1rem; letter-spacing: 0.05em;
+        }
+        .ach-page__subtitle {
+          font-size: 0.7rem; color: rgba(255,255,255,0.35);
+          margin: 0; letter-spacing: 0.03em;
+        }
+
+        /* ── Toggle ────────────────────────────────── */
+        .ach-page__toggle {
+          display: flex;
+          gap: 0.4rem;
+          background: rgba(255,255,255,0.04);
+          border-radius: 8px;
+          padding: 3px;
+        }
+        .ach-page__toggle-btn {
+          flex: 1; padding: 0.35rem 0.5rem;
+          border-radius: 6px; border: none;
+          font-size: 0.72rem; letter-spacing: 0.03em;
+          cursor: pointer; transition: all 0.2s;
+          font-family: inherit;
+          background: transparent;
+          color: rgba(255,255,255,0.35);
+        }
+        .ach-page__toggle-btn.is-active {
+          background: color-mix(in srgb, var(--cosmic, #ff9900) 15%, rgba(0,0,0,0.3));
+          color: var(--cosmic, #ff9900);
+          border: 1px solid color-mix(in srgb, var(--cosmic, #ff9900) 30%, transparent);
+        }
+
+        /* ── Category pills ────────────────────────── */
+        .ach-page__cats {
+          display: flex; flex-wrap: wrap; gap: 0.35rem;
+        }
+        .ach-page__cat {
+          padding: 0.25rem 0.65rem;
+          border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+          background: transparent;
+          color: rgba(255,255,255,0.4);
+          font-size: 0.68rem; letter-spacing: 0.04em;
+          cursor: pointer; transition: all 0.2s;
+          font-family: inherit;
+        }
+        .ach-page__cat.is-active {
+          border-color: var(--ccolor);
+          color: var(--ccolor);
+          background: color-mix(in srgb, var(--ccolor) 12%, transparent);
+          box-shadow: 0 0 8px color-mix(in srgb, var(--ccolor) 30%, transparent);
+        }
+
+        /* ── Grid ──────────────────────────────────── */
+        .ach-page__grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+          gap: 0.6rem;
+        }
+        .ach-page__empty {
+          grid-column: 1/-1;
+          text-align: center;
+          font-size: 0.78rem;
+          color: rgba(255,255,255,0.25);
+          padding: 2rem 1rem;
+          line-height: 1.6;
+        }
+
+        /* ── Achievement card ──────────────────────── */
+        .ach-card {
+          aspect-ratio: 1;
+          perspective: 600px;
+          cursor: default;
+        }
+        .ach-card.is-unlocked { cursor: pointer; }
+
+        .ach-card__inner {
+          width: 100%; height: 100%;
+          position: relative;
+          transform-style: preserve-3d;
+          transition: transform 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
+          border-radius: 12px;
+        }
+        .ach-card.is-flipped .ach-card__inner {
+          transform: rotateY(180deg);
+        }
+
+        /* Shared face styles */
+        .ach-card__front,
+        .ach-card__back {
+          position: absolute; inset: 0;
+          border-radius: 12px;
+          backface-visibility: hidden;
+          display: flex; flex-direction: column;
+          align-items: center; justify-content: center;
+          padding: 0.6rem;
+          gap: 0.3rem;
+          text-align: center;
+        }
+
+        /* FRONT */
+        .ach-card__front {
+          background: rgba(10, 5, 30, 0.9);
+          border: 1px solid rgba(255,255,255,0.08);
+          overflow: hidden;
+        }
+        .ach-card.is-unlocked .ach-card__front {
+          border-color: color-mix(in srgb, var(--acolor) 35%, transparent);
+          box-shadow:
+            0 0 16px color-mix(in srgb, var(--acolor) 15%, transparent),
+            inset 0 0 20px color-mix(in srgb, var(--acolor) 05%, transparent);
+        }
+        .ach-card.is-locked .ach-card__front {
+          opacity: 0.45;
+          filter: grayscale(0.6);
+        }
+
+        .ach-card__glow {
+          position: absolute; inset: 0;
+          background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--acolor) 12%, transparent), transparent 70%);
+          pointer-events: none;
+        }
+
+        .ach-card__icon {
+          font-size: 1.8rem; line-height: 1;
+          color: rgba(255,255,255,0.4); // for lock icon
+          position: relative; z-index: 1;
+        }
+        .ach-card.is-unlocked .ach-card__icon { color: var(--acolor); }
+
+        .ach-card__name {
+          font-size: 0.62rem; font-weight: 600;
+          color: rgba(255,255,255,0.75);
+          letter-spacing: 0.03em; line-height: 1.3;
+          position: relative; z-index: 1;
+        }
+
+        .ach-card__reward {
+          display: flex; align-items: center; gap: 0.2rem;
+          font-size: 0.6rem;
+          color: color-mix(in srgb, var(--acolor) 90%, white);
+          position: relative; z-index: 1;
+        }
+
+        .ach-card__locked-label {
+          font-size: 0.58rem; letter-spacing: 0.08em;
+          color: rgba(255,255,255,0.2);
+          text-transform: uppercase;
+        }
+
+        /* BACK */
+        .ach-card__back {
+          background: rgba(5, 2, 20, 0.97);
+          border: 1px solid color-mix(in srgb, var(--acolor) 50%, transparent);
+          box-shadow: 0 0 24px color-mix(in srgb, var(--acolor) 25%, transparent);
+          transform: rotateY(180deg);
+          gap: 0.4rem;
+          padding: 0.75rem;
+        }
+        .ach-card__back-icon { font-size: 1.4rem; line-height: 1; }
+        .ach-card__back-name {
+          font-size: 0.64rem; font-weight: 700;
+          color: var(--acolor); letter-spacing: 0.04em;
+        }
+        .ach-card__back-desc {
+          font-size: 0.6rem; color: rgba(255,255,255,0.6);
+          line-height: 1.5; margin: 0;
+        }
+        .ach-card__back-meta {
+          display: flex; flex-direction: column;
+          gap: 0.1rem; align-items: center;
+          font-size: 0.58rem;
+          color: rgba(255,255,255,0.3);
+          margin-top: 0.2rem;
+          border-top: 1px solid rgba(255,255,255,0.07);
+          padding-top: 0.3rem; width: 100%;
+        }
+        .ach-card__back-meta span:first-child {
+          color: color-mix(in srgb, var(--acolor) 80%, white);
+          font-weight: 600;
+        }
+
+        @media (max-width: 480px) {
+          .ach-page__panel { max-width: 95vw; padding: 1rem; }
+          .ach-page__grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+        }

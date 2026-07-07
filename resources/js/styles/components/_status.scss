@@ -1,0 +1,78 @@
+/*
+    status.scss
+*/
+@use '../base/variables';
+
+
+.error {
+      color: variables.$color-error;
+  
+  // Subtle dark background that blends with the app's dark theme
+  background: transparent;
+  border-left: 4px solid variables.$color-error; // accent with error color
+  
+  
+  padding: 5px 10px;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  text-shadow: 0 0 4px variables.$color-error, 0 0 8px rgba(variables.$color-error, 0.6);
+  font-size: 14px;
+  transition: all 0.2s ease-in-out;
+}
+
+.password-rules {
+  list-style: none;
+  margin: 0.5rem 0 0 0;
+  padding: 0.5rem 1rem;
+
+  background: rgba(7, 7, 10, 0.7);
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  color: #a3a3a3;
+  box-shadow: 0 0 8px rgba(0,0,0,0.5);
+
+  // 🔥 Animation setup
+  opacity: 0;
+  transform: translateY(-8px);
+  max-height: 0;
+  overflow: hidden;
+
+  animation: passwordRulesIn 0.5s ease-out forwards;
+
+  li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.25rem;
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #a3a3a3;
+      margin-right: 0.5rem;
+      flex-shrink: 0;
+      transition: background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    &.valid {
+      color: #00d1b2;
+      .dot {
+        background: #00d1b2;
+        box-shadow: 0 0 4px #00d1b2;
+      }
+    }
+  }
+}
+
+@keyframes passwordRulesIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 200px;
+  }
+}

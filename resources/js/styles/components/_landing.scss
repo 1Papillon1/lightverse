@@ -1,0 +1,441 @@
+/*
+    landing.scss - FULLY RESPONSIVE
+*/
+
+.landing-page {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #000;
+}
+
+// ✅ LOCKED UNIVERSE BACKGROUND
+.universe-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+
+  canvas {
+    pointer-events: none;
+  }
+}
+
+.universe-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+  pointer-events: none;
+}
+
+// ✅ CONTENT LAYER
+.landing-content {
+  position: relative;
+  z-index: 10;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  gap: 2rem; // ✅ Consistent spacing
+}
+
+// ✅ LOGO
+.landing-logo {
+  text-align: center;
+  animation: fadeInDown 1s ease;
+
+  h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(2rem, 8vw, 4rem); // ✅ Responsive font size
+    font-weight: bold;
+    color: #00ffff;
+    text-shadow: 0 0 30px rgba(0, 255, 255, 0.8),
+                 0 0 60px rgba(0, 255, 255, 0.4);
+    margin-bottom: 0.5rem;
+    user-select: none;
+  }
+
+  .tagline {
+    font-size: clamp(0.9rem, 2vw, 1.2rem); // ✅ Responsive
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 300;
+    user-select: none;
+  }
+}
+
+// ✅ SLIDER
+.landing-slider {
+  position: relative;
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  align-items: center;
+  justify-content: center; // ✅ Center alignment
+  gap: 1rem;
+  animation: fadeIn 1s ease 0.3s both;
+}
+
+.slider-content {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 280px;
+  height: 340px;
+  max-height: 340px;
+  user-select: none;
+}
+
+.slide-icon {
+  font-size: clamp(2.5rem, 6vw, 4rem); // ✅ Responsive
+  margin-bottom: 1rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.slide-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(1.3rem, 4vw, 2rem); // ✅ Responsive
+  color: #00ffff;
+  margin-bottom: 1rem;
+}
+
+.slide-description {
+  font-size: clamp(0.9rem, 2vw, 1.1rem); // ✅ Responsive
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+// ✅ SLIDER NAVIGATION
+.slider-nav {
+  background: rgba(0, 255, 255, 0.1);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  color: #00ffff;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    background: rgba(0, 255, 255, 0.2);
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+  }
+
+  i {
+    font-size: 1.2rem;
+  }
+}
+
+// ✅ DOTS
+.slider-dots {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  align-items: center; // ✅ Vertical alignment
+  margin-top: 1.5rem;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0; // ✅ Prevent shrinking
+  padding: 0; // ✅ Remove any default padding
+
+  &.active {
+    width: 12px; // ✅ SAME SIZE, just different color
+    height: 12px; // ✅ SAME SIZE
+    background: #00ffff;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+    // ✅ REMOVED: transform: scale(1.3);
+  }
+
+  &:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.5);
+  }
+}
+
+// ✅ CTA BUTTONS
+.landing-cta {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  justify-content: space-between;
+  flex-wrap: wrap; // ✅ Wrap on small screens
+  animation: fadeInUp 1s ease 0.6s both;
+  width: 100%;
+  max-width: 600px;
+}
+
+.btn {
+  padding: 16px 40px;
+  font-size: clamp(0.9rem, 2vw, 1.1rem); // ✅ Responsive
+  font-weight: 600;
+  border-radius: 50px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center; // ✅ Center icon + text
+  gap: 0.6rem;
+  transition: all 0.3s ease;
+  font-family: 'Rajdhani', sans-serif;
+  white-space: nowrap;
+
+  &--primary {
+    background: linear-gradient(135deg, #00ffff, #0088ff);
+    color: #000;
+    border: none;
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0, 255, 255, 0.5);
+    }
+  }
+
+  &--secondary {
+    background: transparent;
+    color: #00ffff;
+    border: 2px solid #00ffff;
+
+    &:hover {
+      background: rgba(0, 255, 255, 0.1);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0, 255, 255, 0.3);
+    }
+  }
+}
+
+// ✅ ANIMATIONS
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+// ✅ RESPONSIVE BREAKPOINTS
+
+/* Tablets & Small Laptops (768px - 1024px) */
+@media (max-width: 1024px) {
+  .landing-content {
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .slider-content {
+    padding: 1.5rem;
+    min-height: 260px;
+  }
+}
+
+/* Mobile Landscape & Small Tablets (481px - 767px) */
+@media (max-width: 767px) {
+  .landing-content {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+
+  .landing-logo {
+    margin-bottom: 0;
+  }
+
+  .landing-slider {
+    flex-direction: row; // ✅ Keep horizontal on mobile
+    gap: 0.8rem;
+    max-width: 100%;
+  }
+
+  .slider-nav {
+    width: 40px;
+    height: 40px;
+
+    i {
+      font-size: 1rem;
+    }
+  }
+
+  .slider-content {
+    padding: 1.5rem 1rem;
+    min-height: 240px;
+    
+    max-height: 280px;
+  }
+
+  .slide-icon {
+    margin-bottom: 0.8rem;
+  }
+
+  .slide-title {
+    margin-bottom: 0.8rem;
+  }
+
+  .slider-dots {
+    gap: 0.6rem;
+    margin-top: 1rem;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+
+    &.active {
+      width: 10px; // ✅ Keep same size
+      height: 10px;
+    }
+  }
+
+  .slide-description {
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .landing-cta {
+    gap: 0.8rem;
+    max-width: 100%;
+
+    .btn {
+      flex: 1;
+      min-width: 140px;
+      padding: 0.8rem 1.5rem;
+    }
+  }
+}
+
+/* Mobile Portrait (320px - 480px) */
+@media (max-width: 480px) {
+  .landing-content {
+    gap: 1rem;
+    padding: 1rem 0.8rem;
+  }
+
+  .landing-logo h1 {
+    font-size: 2rem;
+  }
+
+  .landing-logo .tagline {
+    font-size: 0.85rem;
+  }
+
+  .landing-slider {
+    gap: 0.5rem;
+  }
+
+  .slider-nav {
+    width: 35px;
+    height: 35px;
+  }
+
+  .slider-content {
+    padding: 1.2rem 0.8rem;
+    min-height: 220px;
+    max-height: 260px;
+  }
+
+  .slide-icon {
+    font-size: 2.5rem;
+  }
+
+  .slide-title {
+    font-size: 1.2rem;
+  }
+
+  .slide-description {
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+
+   .slider-dots {
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+
+    &.active {
+      width: 8px; // ✅ Keep same size
+      height: 8px;
+    }
+  }
+
+  .landing-cta {
+    flex-direction: column;
+    gap: 0.8rem;
+    max-width: 100%;
+    padding: 0 0.5rem;
+
+    .btn {
+      padding: 0.9rem 1.5rem;
+      font-size: 0.95rem;
+    }
+  }
+}
+
+/* Very Small Screens (< 320px) */
+@media (max-width: 319px) {
+  .landing-logo h1 {
+    font-size: 1.5rem;
+  }
+
+  .slider-content {
+    min-height: 200px;
+  }
+
+  .slide-title {
+    font-size: 1.1rem;
+  }
+
+  .slide-description {
+    font-size: 0.8rem;
+  }
+}

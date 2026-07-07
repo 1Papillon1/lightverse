@@ -1,0 +1,32 @@
+/*
+    note.scss
+*/
+
+@use '../base/variables';
+
+.note {
+    color: #fff;
+    font-size: 20px;
+    font-family: Orbitron, sans-serif;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 12px 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px #8f8fff;
+
+    z-index: 16;
+    min-width: 300px;
+    &__title {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        text-align: center;
+        color: variables.$color-text;
+    }
+    &__message {
+        font-size: 18px;
+        line-height: 1.5;
+        text-align: center;
+        color: variables.$color-muted;
+    }
+
+}

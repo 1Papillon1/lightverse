@@ -1,0 +1,614 @@
+/*
+    navigation.scss
+*/
+
+@use '../base/variables';
+
+.navigation {
+    position: fixed;
+    top: 2vh;
+    user-select: none;
+
+    &__item--has-dropdown {
+        position: relative;
+    
+        &:hover > .dropdown,
+        > .dropdown:hover {
+          opacity: 1;
+          visibility: visible;
+          transform: none;
+        }
+    }
+
+    &--horizontal {
+        width: 100vw;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 15;
+    }
+
+    &--vertical {
+        left: 0;
+        width: 15vw;
+        height: 101vh;
+        padding: 0;
+        margin-left: 1vw;
+        display: flex;
+        flex-direction: column; 
+        justify-content: flex-start; 
+        align-items: flex-start; 
+        z-index: 6;
+    }
+
+    &__admin {
+        &-button {
+            margin-right: 1rem;
+        }
+    }
+
+    &__list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: right;
+        align-items: end;
+        width: 100%;
+
+        &--horizontal {
+            width: 90%;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        &--vertical {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            height: 100%;
+            margin-bottom: 5vh;
+        }
+    }
+
+    &__item {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin: 2rem 0;
+        align-items: center;
+    }
+
+    &__balance {
+        margin-right: 2%;
+        display: flex;
+        align-items: center;
+    }
+
+    &__balance__content {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-weight: bold;
+        font-size: 16px;
+        color: variables.$color-text;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        user-select: none;
+        transition: all 0.3s ease;
+    }
+
+    &__balance__icon {
+        font-size: 18px;
+        filter: drop-shadow(0 4px 10px rgba(90, 15, 200, 0.5));
+        transition: transform 0.3s ease, filter 0.3s ease;
+    }
+
+    &__balance__value {
+        text-align: right;
+    }
+
+    &__balance:hover {
+        cursor: default;
+
+        .navigation__balance__icon {
+            transform: scale(1.15);
+            filter: drop-shadow(0 8px 15px rgba(107, 29, 230, 0.7));
+        }
+    }
+
+    &__account {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        vertical-align: middle;
+    }
+
+    &__wallet {
+        margin-right: 2%;
+    }
+
+    // ✅ Light display nav item
+    &__light {
+        display: flex;
+        align-items: center;
+        margin-right: 1.25rem;
+    }
+
+    &__link {
+        color: variables.$color-text;
+        text-decoration: none;
+        margin: 0 10px;
+        font-size: 16px;
+        font-weight: bold;
+        transition: color 0.3s ease;
+        text-transform: uppercase;
+        z-index: 9;
+
+        &__icon {
+            width: 24px;
+            height: auto;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 4px 10px rgba(90, 15, 200, 0.5));
+
+            &:hover {
+                transform: scale(1.1);
+                filter: drop-shadow(0 8px 15px rgba(107, 29, 230, 0.7));
+                cursor: pointer;
+            }
+        }
+
+        &__text {
+            display: none;
+            font-size: 16px;
+            font-weight: bold;
+            color: variables.$color-text;
+            margin-left: 1rem;
+            text-transform: uppercase;
+        }
+
+        &__label {
+            font-size: 18px;
+            font-weight: bold;
+            color: variables.$color-text;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            display: block;
+            letter-spacing: 1px;
+            margin-left: 1rem;
+        }
+
+        &--vertical {
+            background-color: transparent;
+            outline: none;
+            border: 0;
+            color: #d4bfff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+
+            &:hover {
+                cursor: pointer;
+                color: #fff;
+
+                .navigation__link__icon {
+                    filter: invert(96%) sepia(44%) saturate(0%) hue-rotate(287deg) brightness(103%) contrast(102%);
+                    transform: scale(1.2);
+                    transition: transform 0.3s ease-in-out;
+                }
+
+                > .tooltip {
+                    opacity: 1;
+                    transform: translateX(-60px) translateY(-40px);
+                }
+
+                .navigation__link__text {
+                    color: #fff;
+                    transition: color 0.3s ease;
+                }
+            }
+
+            &::before {
+                position: absolute;
+                left: 1rem;
+                top: 12px;
+                opacity: 0;
+                font-size: 12px;
+                transition: opacity 0.3s ease, transform 0.3s ease;
+                display: flex;
+                align-items: center;
+            }
+
+            &:hover::before {
+                opacity: 1;
+                transform: translateX(5px);
+            }
+        }
+    }
+}
+
+// ✅ Light display component
+.light-display {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    &__total {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        border: 1px solid rgba(180, 140, 255, 0.2);
+        border-radius: 20px;
+        cursor: default;
+        background: rgba(180, 140, 255, 0.06);
+        transition: border-color 0.2s, background 0.2s;
+
+        &:hover {
+            border-color: rgba(180, 140, 255, 0.4);
+            background: rgba(180, 140, 255, 0.12);
+        }
+    }
+
+    &__icon {
+        color: #c9a0ff;
+        font-size: 12px;
+        line-height: 1;
+    }
+
+    &__value {
+        color: #e8d5ff;
+        font-size: 13px;
+        font-weight: 500;
+        min-width: 16px;
+        text-align: right;
+        letter-spacing: 0.5px;
+    }
+
+    &__breakdown {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(10, 6, 24, 0.96);
+        border: 1px solid rgba(180, 140, 255, 0.2);
+        border-radius: 10px;
+        padding: 10px 14px;
+        min-width: 160px;
+        z-index: 100;
+        pointer-events: none; // doesn't steal hover from parent
+    }
+
+    &__row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 0;
+
+        &:not(:last-child) {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    }
+
+    &__label {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.4);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    &__amount {
+        font-size: 12px;
+        color: #e8d5ff;
+        font-weight: 500;
+    }
+}
+
+// Mobile menu button
+.mobile__menu__close {
+    display: none; 
+}
+
+.mobile__menu__button {
+    display: none;
+    position: fixed;
+    top: 2vh;
+    left: 2vw;
+    z-index: 999;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+
+    img {
+        width: 32px;
+        height: auto;
+    }
+}
+
+@media (max-width: 1440px) {
+    .navigation__link--vertical:hover {
+        .tooltip {
+            opacity: 1;
+            transform: translateX(-10px) translateY(-40px);
+        }
+    }
+}
+
+@media (max-width: 1024px) {
+    .navigation__link--vertical:hover {
+        .tooltip {
+            opacity: 1;
+            transform: translateX(0) translateY(-40px);
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .navigation--vertical {
+        transform: translateX(-105%);
+        transition: transform 0.3s ease-in-out;
+        background-color: rgb(0, 0, 0);
+        width: 70vw;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 13;
+
+        .navigation__link__text {
+            display: inline-block;
+        }
+    }
+
+    .navigation__link--vertical {
+        justify-content: flex-start;
+    }
+
+    .navigation--open {
+        transform: translateX(-5%);
+
+        .mobile__menu__button {
+            display: none;
+        }
+    }
+
+    .navigation__list--vertical {
+        flex-direction: column;
+        align-items: flex-start;
+        padding-left: 1rem;
+        margin-top: 1rem;
+    }
+
+    .navigation__list--horizontal {
+        width: 90%;
+        margin-right: 0;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 5%;
+    }
+
+    .mobile__menu__button {
+        display: block;
+    }
+
+    .mobile__menu__close {
+        display: block;
+        width: 100%;
+        text-align: right;
+    }
+
+    // On mobile, breakdown opens upward to avoid clipping
+    .light-display__breakdown {
+        top: auto;
+        bottom: calc(100% + 8px);
+    }
+}
+
+
+// ─────────────────────────────────────────────────────────────────
+// NAV HAMBURGER — append to bottom of navigation.scss
+// ─────────────────────────────────────────────────────────────────
+
+.nav-hamburger {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-right: 1.5rem;
+}
+
+// ── Toggle button ─────────────────────────────────────────────────
+.nav-hamburger__btn {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 36px;
+    height: 36px;
+    background: rgba(143, 0, 255, 0.08);
+    border: 1px solid rgba(143, 0, 255, 0.35);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+    padding: 0;
+    flex-shrink: 0;
+
+    &:hover {
+        background: rgba(143, 0, 255, 0.16);
+        border-color: rgba(143, 0, 255, 0.6);
+        box-shadow: 0 0 12px rgba(143, 0, 255, 0.3);
+    }
+
+    &.is-open {
+        background: rgba(143, 0, 255, 0.18);
+        border-color: rgba(0, 255, 255, 0.4);
+        box-shadow: 0 0 16px rgba(0, 255, 255, 0.2);
+    }
+}
+
+// ── Animated bars → X ─────────────────────────────────────────────
+.nav-hamburger__bar {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: #c9a0ff;
+    border-radius: 2px;
+    transition: transform 0.25s ease, opacity 0.25s ease, background 0.2s;
+    transform-origin: center;
+
+    .nav-hamburger__btn.is-open &:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+        background: #00ffff;
+    }
+    .nav-hamburger__btn.is-open &:nth-child(2) {
+        opacity: 0;
+        transform: scaleX(0);
+    }
+    .nav-hamburger__btn.is-open &:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+        background: #00ffff;
+    }
+}
+
+// ── Panel ─────────────────────────────────────────────────────────
+.nav-hamburger__panel {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 240px;
+    background: rgba(12, 8, 26, 0.96);
+    border: 1px solid rgba(143, 0, 255, 0.4);
+    border-radius: 14px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow:
+        0 0 20px rgba(143, 0, 255, 0.25),
+        0 0 40px rgba(0, 255, 255, 0.1),
+        0 8px 32px rgba(0, 0, 0, 0.5);
+    padding: 0.75rem 0;
+    z-index: 200;
+    opacity: 0;
+    transform: translateY(-8px);
+    pointer-events: none;
+    transition: opacity 0.22s ease, transform 0.22s ease;
+
+    &.is-open {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+}
+
+// ── Top row: username + light ─────────────────────────────────────
+.nav-hamburger__section {
+    padding: 0.65rem 1rem;
+    display: flex;
+    align-items: center;
+
+    // Username left, light right — space-between
+    &--row {
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+}
+
+.nav-hamburger__user {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.nav-hamburger__avatar {
+    width: 20px;
+    height: 20px;
+    opacity: 0.6;
+    filter: drop-shadow(0 0 6px rgba(143, 0, 255, 0.5));
+    flex-shrink: 0;
+}
+
+.nav-hamburger__username {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+// ── Divider ───────────────────────────────────────────────────────
+.nav-hamburger__divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.06);
+    margin: 0.2rem 0;
+}
+
+// ── Unified action list ───────────────────────────────────────────
+.nav-hamburger__list {
+    list-style: none;
+    margin: 0;
+    padding: 0.25rem 0 0;
+}
+
+// All items — same base style (button or div)
+.nav-hamburger__item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    width: 100%;
+    padding: 0.55rem 1rem;
+    background: transparent;
+    border: none;
+    color: #ccefff;
+    font-family: "Orbitron", sans-serif;
+    font-size: 0.82rem;
+    text-align: left;
+    cursor: pointer;
+    transition: color 0.2s, background 0.2s;
+    text-decoration: none;
+
+    &:hover {
+        color: #fff;
+        background: rgba(143, 0, 255, 0.1);
+        text-shadow: 0 0 12px rgba(143, 0, 255, 0.6), 0 0 22px rgba(0, 255, 255, 0.3);
+    }
+
+    // Notifications row — not a button, so pointer-events still work
+    // but no button reset needed since it's a li
+    &--notifications {
+        cursor: default; // bell handles its own click
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.82rem;
+
+        &:hover {
+            background: transparent;
+            text-shadow: none;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        // Override so bell icon keeps pointer
+        * { cursor: pointer; }
+    }
+
+    &--logout {
+        color: rgba(255, 100, 100, 0.6);
+
+        &:hover {
+            color: rgba(255, 120, 120, 0.9);
+            background: rgba(255, 60, 60, 0.08);
+            text-shadow: none;
+        }
+    }
+}

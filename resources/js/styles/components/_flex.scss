@@ -1,0 +1,15 @@
+/*
+    flex.scss
+*/
+
+.flex {
+    display: flex;
+    gap: 10px;
+    &--between {
+        justify-content: space-between;
+    }
+
+    &--row {
+        flex-direction: row;
+    }
+}

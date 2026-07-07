@@ -1,0 +1,214 @@
+// resources/scss/components/landing-intro.scss
+// Original animation restored — GENESIS label removed (lives in UniverseScene)
+
+// ─────────────────────────────────────────────
+//  WRAPPER
+// ─────────────────────────────────────────────
+.landing-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+  user-select: none;
+
+  &--reveal {
+    opacity: 0;
+  }
+  &--spark,
+  &--explode {
+    opacity: 1;
+  }
+}
+
+// ─────────────────────────────────────────────
+//  BLACK FADE OVERLAY
+// ─────────────────────────────────────────────
+.landing-intro__fade {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  transition: opacity 1.2s ease;
+
+  .landing-intro--spark & {
+    opacity: 1;
+  }
+  .landing-intro--explode &,
+  .landing-intro--reveal & {
+    opacity: 0;
+  }
+}
+
+// ─────────────────────────────────────────────
+//  LIGHT CORE (spark / dot)
+// ─────────────────────────────────────────────
+.landing-intro__spark {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow:
+    0 0 10px 4px rgba(255, 255, 255, 0.8),
+    0 0 30px 10px rgba(180, 220, 255, 0.4);
+  z-index: 2;
+  transition: all 0.6s ease;
+
+  .landing-intro--spark & {
+    animation: sparkPulse 1.8s ease infinite;
+  }
+
+  .landing-intro--explode & {
+    width: 20px;
+    height: 20px;
+    box-shadow:
+      0 0 40px 20px rgba(255, 255, 255, 0.9),
+      0 0 120px 60px rgba(100, 180, 255, 0.5),
+      0 0 200px 100px rgba(150, 100, 255, 0.3);
+  }
+
+  .landing-intro--reveal & {
+    width: 6px;
+    height: 6px;
+    opacity: 0;
+  }
+}
+
+// ─────────────────────────────────────────────
+//  SHOCKWAVE RING
+// ─────────────────────────────────────────────
+.landing-intro__ring {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  z-index: 2;
+  animation: ringExpand 1.2s ease forwards;
+}
+
+/*
+  landing.scss PATCH
+  ─────────────────────────────────────────────
+  ONLY changes:
+    1. Glass panel on .landing-pillars
+    2. White text on pillar items
+    3. Third pillar text no longer cut off
+  
+  Everything else (buttons, logo, slider, animations,
+  responsive breakpoints) is UNCHANGED from your original.
+  Paste this at the END of your existing landing.scss
+  to override just these selectors.
+*/
+
+// ── Pillars panel (glass card) ────────────────────────────────────
+.landing-pillars {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+
+  // Glass card
+  background: rgba(0, 5, 20, 0.65);
+  border: 1px solid rgba(0, 255, 255, 0.18);
+  border-radius: 16px;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  overflow: visible; // ← was clipping third row
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 60px rgba(0, 200, 255, 0.05);
+}
+
+// ── Each pillar row ───────────────────────────────────────────────
+.landing-pillar {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.9rem 1.2rem;
+  transition: background 0.2s ease;
+
+  // Divider between rows only — not top/bottom border
+  & + & {
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  &:hover {
+    background: rgba(0, 255, 255, 0.04);
+  }
+
+  // ── Icon ──
+  &__icon {
+    font-size: 1.15rem;
+    line-height: 1.55;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 5px rgba(0, 200, 255, 0.4));
+  }
+
+  // ── Text — was black/invisible, now white ──
+  &__text {
+    font-size: 0.87rem;
+    color: rgba(255, 255, 255, 0.85); // ← THE FIX
+    line-height: 1.6;
+    letter-spacing: 0.015em;
+    font-weight: 400;
+    // no overflow hidden, no max-height — full text shows
+  }
+}
+
+// ─────────────────────────────────────────────
+//  LANDING CONTENT visibility
+// ─────────────────────────────────────────────
+.landing-content {
+  transition: opacity 0.8s ease, transform 0.8s ease;
+
+  &--hidden {
+    opacity: 0;
+    transform: translateY(12px);
+    pointer-events: none;
+  }
+
+  &--visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ─────────────────────────────────────────────
+//  KEYFRAMES
+// ─────────────────────────────────────────────
+@keyframes sparkPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 10px 4px rgba(255, 255, 255, 0.8),
+      0 0 30px 10px rgba(180, 220, 255, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow:
+      0 0 20px 8px rgba(255, 255, 255, 1),
+      0 0 60px 20px rgba(180, 220, 255, 0.6);
+    transform: scale(1.4);
+  }
+}
+
+@keyframes ringExpand {
+  0% {
+    width: 20px;
+    height: 20px;
+    opacity: 1;
+    border-color: rgba(255, 255, 255, 0.8);
+  }
+  100% {
+    width: 120vw;
+    height: 120vw;
+    opacity: 0;
+    border-color: rgba(150, 100, 255, 0);
+  }
+}

@@ -1,0 +1,50 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # --------------------------------------------------------------------------
+    # ✅ ALLOW DIRECT ACCESS to static files (images, css, js, fonts)
+    # --------------------------------------------------------------------------
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteCond %{REQUEST_URI} \.(jpg|jpeg|png|gif|svg|webp|css|js|woff|woff2|ttf|eot|ico|xml|txt)$ [NC]
+    RewriteRule ^ - [L]
+
+    # --------------------------------------------------------------------------
+    # Block direct access to PHP files except index.php
+    # --------------------------------------------------------------------------
+    RewriteCond %{THE_REQUEST} \s/.*\.php[\s?] [NC]
+    RewriteCond %{REQUEST_URI} !/index\.php$ [NC]
+    RewriteRule ^ - [F,L]
+
+    # --------------------------------------------------------------------------
+    # Block access to hidden files (.env, .git, etc.)
+    # --------------------------------------------------------------------------
+    RewriteRule ^\. - [F,L]
+
+    # --------------------------------------------------------------------------
+    # Handle Authorization Header
+    # --------------------------------------------------------------------------
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Handle X-XSRF-Token Header
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # --------------------------------------------------------------------------
+    # Redirect Trailing Slashes If Not A Folder...
+    # --------------------------------------------------------------------------
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # --------------------------------------------------------------------------
+    # Send Requests To Front Controller...
+    # --------------------------------------------------------------------------
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>

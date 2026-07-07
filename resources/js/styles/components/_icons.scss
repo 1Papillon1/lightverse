@@ -1,0 +1,25 @@
+/*
+    icons 
+*/
+
+.icon {
+    width: 32px;
+    height: 32px;
+
+
+    &--filter {
+        filter: invert(40%) sepia(10%) saturate(0%) hue-rotate(287deg) brightness(70%) contrast(70%) drop-shadow(0 0 2px rgba(255, 255, 255, 0.13));
+    }
+
+    &--large {
+        width: 48px;
+        height: 48px;
+    }
+
+    &--close {
+        width: 32px; 
+        height: 32px;
+        padding-top: 1rem;
+        padding-right: 1rem;
+    }
+}
