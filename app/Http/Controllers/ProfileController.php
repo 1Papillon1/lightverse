@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Services\TaskService;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
+
 
 class ProfileController extends Controller
 {
@@ -45,6 +49,13 @@ class ProfileController extends Controller
         ]);
 
         $user->update($validated);
+
+         // ✅ Check if profile is now complete
+        $user = $request->user()->fresh();
+        if ($user->username && $user->bio && $user->cosmic_color) {
+            app(TaskService::class)
+                ->progress($user, 'create_profile');
+        }
 
         Log::info('PROFILE UPDATED', [
             'user_id' => $user->id,

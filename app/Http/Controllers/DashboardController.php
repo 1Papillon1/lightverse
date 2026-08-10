@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use App\Services\TaskService;
 use App\Models\User;
 
 class DashboardController extends Controller
@@ -45,7 +46,13 @@ class DashboardController extends Controller
             'view'   => 'galaxy',
         ]);
 
+         // ✅ Track galaxy visit for Explorer task
+        app(TaskService::class)->progress($request->user(), 'visit_all_galaxies');
+
+
         $this->awardExplorationAchievement($request->user(), $galaxyId);
+
+        app(TaskService::class)->progress($request->user(), 'read_10_nodes');
 
         return Inertia::render('Dashboard', ['galaxy' => $galaxyId]);
     }
@@ -123,6 +130,23 @@ class DashboardController extends Controller
 
             $extraProps['lastUpdated']      = $signalService->lastUpdated();
             $extraProps['sourceBreakdown']  = $signalService->sourceBreakdown();
+        }
+
+         if ($nodeId === 'notifications') {
+            $extraProps['notifications'] = $user->notifications()
+                ->orderBy('created_at', 'desc')
+                ->limit(50)
+                ->get()
+                ->map(fn($n) => [
+                    'id'         => $n->id,
+                    'type'       => $n->type,
+                    'title'      => $n->title,
+                    'message'    => $n->message,
+                    'action_url' => $n->action_url,
+                    'metadata'   => $n->metadata,
+                    'read_at'    => $n->read_at,
+                    'created_at' => $n->created_at,
+                ])->toArray();
         }
 
 

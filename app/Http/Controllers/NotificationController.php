@@ -57,7 +57,7 @@ class NotificationController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return inertia('Notifications/Index', [
+        return inertia('Galaxy/Identity/LightSignature/Notifications', [
             'notifications' => $notifications,
         ]);
     }

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Head, router } from '@inertiajs/react';
 import MainLayout from '@/MainLayout';
+import { observer } from 'mobx-react-lite';
 import UniverseBackdrop from '@/components/visuals/UniverseBackdrop';
  
 const TYPE_CONFIG = {
@@ -22,30 +23,27 @@ const timeAgo = (dateString) => {
 };
  
 const NotificationsIndex = ({ notifications: initial = [] }) => {
-  const [items, setItems] = useState(initial);
- 
+   const { notificationsStore } = useContext(RootStoreContext);
+  const items = notificationsStore.notifications;
+
   const markRead = (id) => {
     router.post(`/notifications/${id}/read`, {}, {
       preserveState: true, preserveScroll: true,
-      onSuccess: () => setItems(prev =>
-        prev.map(n => n.id === id ? { ...n, read_at: new Date().toISOString() } : n)
-      ),
+      onSuccess: () => notificationsStore.markRead(id),
     });
   };
- 
+
   const markAllRead = () => {
-    router.post('/notifications/read-all', {}, {
+    router.post('/notifications/mark-all-read', {}, {
       preserveState: true, preserveScroll: true,
-      onSuccess: () => setItems(prev =>
-        prev.map(n => ({ ...n, read_at: n.read_at ?? new Date().toISOString() }))
-      ),
+      onSuccess: () => notificationsStore.markAllRead(),
     });
   };
- 
+
   const deleteItem = (id) => {
     router.delete(`/notifications/${id}`, {
       preserveState: true, preserveScroll: true,
-      onSuccess: () => setItems(prev => prev.filter(n => n.id !== id)),
+      onSuccess: () => notificationsStore.remove(id),
     });
   };
  
@@ -106,14 +104,24 @@ const NotificationsIndex = ({ notifications: initial = [] }) => {
  
                       <div className="notif-page__row-actions" onClick={e => e.stopPropagation()}>
                         {isUnread && (
-                          <button className="notif-page__btn-read" onClick={() => markRead(n.id)} title="Mark as read">
-                            ✓
-                          </button>
+                            <button
+                                className="notif-page__btn-read"
+                                onClick={() => markRead(n.id)}
+                                title="Mark as read"
+                            >
+                                ●
+                            </button>
                         )}
-                        <button className="notif-page__btn-delete" onClick={() => deleteItem(n.id)} title="Delete">
-                          ×
+                        <button
+                            className="notif-page__btn-delete"
+                            onClick={() => deleteItem(n.id)}
+                            title="Delete"
+                        >
+                            ×
                         </button>
-                      </div>
+                    </div>
+
+
                     </div>
                   );
                 })}

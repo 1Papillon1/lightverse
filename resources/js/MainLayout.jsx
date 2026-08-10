@@ -23,6 +23,7 @@ const MainLayout = observer(({ children }) => {
     universeStore,
     visualLoadStore,
     lightStore,
+    notificationsStore,
   } = rootStore;
 
  
@@ -30,11 +31,29 @@ const MainLayout = observer(({ children }) => {
   const page = usePage();
   const { url, props } = page;
 
+  
+
   /* ----------------------------------
      🔑 INERTIA → MOBX AUTH SYNC
   ---------------------------------- */
   const inertiaUser  = props?.auth?.user  ?? null;
   const inertiaLight = props?.light?.user ?? null; 
+
+  const inertiaNotifs = props?.recentNotifications ?? [];
+  const inertiaCount  = props?.unreadNotificationsCount ?? 0;
+
+  // Hydrate on every page visit if logged in
+useEffect(() => {
+  if (!inertiaUser) return; // ← guard
+  notificationsStore.hydrate(inertiaNotifs, inertiaCount);
+}, [inertiaUser, inertiaNotifs, inertiaCount]);
+
+// Start polling only when authenticated
+useEffect(() => {
+  if (!inertiaUser) return;
+  notificationsStore.startPolling(30000);
+  return () => notificationsStore.stopPolling();
+}, [!!inertiaUser]);
 
   useEffect(() => {
     if (!inertiaUser) return;

@@ -122,6 +122,32 @@ Route::middleware('auth')->group(function () {
 });
 
 // ============================================
+// Notifications API (for fetching notifications via AJAX)
+// ============================================
+Route::get('/api/notifications', function (Request $request) {
+    $notifications = $request->user()
+        ->notifications()
+        ->orderBy('created_at', 'desc')
+        ->limit(50)
+        ->get()
+        ->map(fn($n) => [
+            'id'         => $n->id,
+            'type'       => $n->type,
+            'title'      => $n->title,
+            'message'    => $n->message,
+            'action_url' => $n->action_url,
+            'metadata'   => $n->metadata,
+            'read_at'    => $n->read_at,
+            'created_at' => $n->created_at,
+        ]);
+
+    return response()->json([
+        'notifications' => $notifications,
+        'unread_count'  => $notifications->filter(fn($n) => !$n['read_at'])->count(),
+    ]);
+})->middleware('auth');
+
+// ============================================
 // 👤 PROFILE ROUTE
 // ============================================
 Route::middleware(['auth'])->group(function () {

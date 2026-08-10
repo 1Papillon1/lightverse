@@ -1,32 +1,25 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useContext } from 'react';
 import { router, usePage } from '@inertiajs/react';
+import { observer } from 'mobx-react-lite';
+import { RootStoreContext } from '@/stores/RootStore';
 import NotificationRow from '@/components/notifications/NotificationRow';
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-const NotificationBell = () => {
-  const {
-    recentNotifications = [],
-    unreadNotificationsCount = 0,
-  } = usePage().props;
 
-  const [open, setOpen] = useState(false);
-  const [localNotifs, setLocalNotifs] = useState(recentNotifications);
-  const [localCount, setLocalCount] = useState(unreadNotificationsCount);
+const NotificationBell = observer(() => {
+  const { notificationsStore } = useContext(RootStoreContext); // ← no 's'
 
+  const localNotifs = notificationsStore.notifications;
+  const localCount  = notificationsStore.unreadCount;
+
+  const [open, setOpen] = useState(false); // ← add this
+  const bellRef  = useRef(null);
   const panelRef = useRef(null);
-  const bellRef = useRef(null);
 
-  // Sync props
-  useEffect(() => {
-    setLocalNotifs(recentNotifications);
-    setLocalCount(unreadNotificationsCount);
-  }, [recentNotifications, unreadNotificationsCount]);
-
-  // Close on outside click
+  // Outside click handler
   useEffect(() => {
     if (!open) return;
-
     const handler = (e) => {
       if (
         panelRef.current &&
@@ -37,59 +30,29 @@ const NotificationBell = () => {
         setOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
-  // ─── Actions ───────────────────────────────────────────────────────────────
 
   const markRead = (id) => {
     router.post(`/notifications/${id}/read`, {}, {
-      preserveState: true,
-      preserveScroll: true,
-      onSuccess: () => {
-        setLocalNotifs((prev) =>
-          prev.map((n) =>
-            n.id === id
-              ? { ...n, read_at: new Date().toISOString() }
-              : n
-          )
-        );
-        setLocalCount((c) => Math.max(0, c - 1));
-      },
+      preserveState: true, preserveScroll: true,
+      onSuccess: () => notificationsStore.markRead(id),
     });
   };
 
   const markAllRead = () => {
-    router.post('/notifications/read-all', {}, {
-      preserveState: true,
-      preserveScroll: true,
-      onSuccess: () => {
-        setLocalNotifs((prev) =>
-          prev.map((n) => ({
-            ...n,
-            read_at: n.read_at ?? new Date().toISOString(),
-          }))
-        );
-        setLocalCount(0);
-      },
+    router.post('/notifications/mark-all-read', {}, {
+      preserveState: true, preserveScroll: true,
+      onSuccess: () => notificationsStore.markAllRead(),
     });
   };
 
   const deleteNotif = (id) => {
     router.delete(`/notifications/${id}`, {
-      preserveState: true,
-      preserveScroll: true,
-      onSuccess: () => {
-        const removed = localNotifs.find((n) => n.id === id);
-
-        setLocalNotifs((prev) => prev.filter((n) => n.id !== id));
-
-        if (removed && !removed.read_at) {
-          setLocalCount((c) => Math.max(0, c - 1));
-        }
-      },
+      preserveState: true, preserveScroll: true,
+      onSuccess: () => notificationsStore.remove(id),
     });
   };
 
@@ -99,19 +62,13 @@ const NotificationBell = () => {
     <div className="notif-bell">
       {/* Bell */}
       <button
-        ref={bellRef}
-        className={`notif-bell__btn ${
-          open ? 'notif-bell__btn--open' : ''
-        }`}
-        onClick={() => setOpen((v) => !v)}
-        aria-label="Notifications"
+        ref={bellRef}  // ✅ make sure this is here
+        className={`notif-bell__btn ${open ? 'notif-bell__btn--open' : ''}`}
+        onClick={() => setOpen(v => !v)}
       >
         <span className="notif-bell__icon">🔔</span>
-
         {localCount > 0 && (
-          <span className="notif-bell__badge">
-            {localCount > 9 ? '9+' : localCount}
-          </span>
+          <span className="notif-bell__badge">{localCount > 9 ? '9+' : localCount}</span>
         )}
       </button>
 
@@ -157,7 +114,7 @@ const NotificationBell = () => {
                 className="notif-bell__view-all"
                 onClick={() => {
                   setOpen(false);
-                  router.visit('/notifications');
+                 router.visit('/galaxy/identity/light-signature/notifications');
                 }}
               >
                 View all
@@ -168,6 +125,6 @@ const NotificationBell = () => {
       )}
     </div>
   );
-};
+});
 
 export default NotificationBell;

@@ -313,37 +313,16 @@
   color: rgba(180, 140, 255, 0.9);
 }
 
-/* ─── Mobile adjustments ─────────────────────────────────────────────────── */
 
-@media (max-width: 768px) {
-  .notif-bell__panel {
-    position: fixed;
-    top: auto;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    width: 100%;
-    border-radius: 16px 16px 0 0;
-    max-height: 70vh;
-  }
-
-  .notif-bell__list {
-    max-height: calc(70vh - 100px);
-  }
-}
-
-
-
-/*
-─── CSS additions for the full-page view ────────────────────────────────────────
-Add to notifications.css
-*/
- 
-/*
 .notif-page__card {
-  width: min(560px, 92vw) !important;
+  width: min(620px, 92vw) !important;
   max-height: 80vh;
   overflow: hidden;
+  /* Override lumina-codex__card absolute positioning */
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
 }
  
 .notif-page__core {
@@ -352,6 +331,8 @@ Add to notifications.css
   display: flex;
   flex-direction: column;
   gap: 0;
+  padding: 0;
+  height: 60vh;
 }
  
 .notif-page__header {
@@ -372,14 +353,13 @@ Add to notifications.css
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0;
   transition: color 0.15s;
 }
 .notif-page__mark-all:hover { color: rgba(180, 140, 255, 0.9); }
  
 .notif-page__list {
   overflow-y: auto;
-  max-height: calc(80vh - 120px);
+  max-height: calc(80vh - 100px);
   scrollbar-width: thin;
   scrollbar-color: rgba(180, 140, 255, 0.15) transparent;
   width: 100%;
@@ -402,9 +382,9 @@ Add to notifications.css
   width: 100%;
 }
 .notif-page__row:last-child { border-bottom: none; }
-.notif-page__row--unread { background: rgba(180, 140, 255, 0.03); border-radius: 8px; padding: 12px 8px; }
+.notif-page__row--unread { background: rgba(180, 140, 255, 0.03); border-radius: 8px;}
 .notif-page__row--clickable { cursor: pointer; }
-.notif-page__row--clickable:hover { background: rgba(180, 140, 255, 0.07); border-radius: 8px; padding: 12px 8px; }
+.notif-page__row--clickable:hover { background: rgba(180, 140, 255, 0.07); border-radius: 8px; }
  
 .notif-page__row-icon { font-size: 16px; margin-top: 2px; flex-shrink: 0; width: 20px; text-align: center; }
 .notif-page__row-body { flex: 1; min-width: 0; }
@@ -433,4 +413,31 @@ Add to notifications.css
   transition: background 0.15s, color 0.15s;
 }
 .notif-page__btn-delete:hover { background: rgba(255, 60, 60, 0.08); color: rgba(255, 100, 100, 0.8); border-color: rgba(255, 60, 60, 0.2); }
+
+
+/* ─── Mobile adjustments ─────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .notif-bell__panel {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    border-radius: 16px 16px 0 0;
+    max-height: 70vh;
+  }
+
+  .notif-bell__list {
+    max-height: calc(70vh - 100px);
+  }
+}
+
+
+
+/*
+─── CSS additions for the full-page view ────────────────────────────────────────
+Add to notifications.css
 */
+ 

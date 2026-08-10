@@ -149,6 +149,7 @@ export const universeConfig = {
           nodes: [
             { id: "profile", label: "Profile", color: "#ffbb00", route: "/galaxy/identity/light-signature/profile" },
             { id: "verifications", label: "Verifications & Connections", color: "#ff9900", route: "/galaxy/identity/light-signature/verifications" },
+            { id: "notifications", label: "Notifications", color: "#ffaa33", route: "/galaxy/identity/light-signature/notifications"   },
           ]
         },
         {

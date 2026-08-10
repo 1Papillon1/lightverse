@@ -10,7 +10,9 @@ import NarratorStore from "./NarratorStore";
 import VisualLoadStore from "./VisualLoadStore";
 import AchievementsStore from "./AchievementsStore";
 import LightStore from "./LightStore";
+import NotificationsStore from "./NotificationsStore";
 import { makeAutoObservable } from "mobx";
+
 
 class RootStore {
 
@@ -24,6 +26,7 @@ class RootStore {
     visualLoadStore;
     achievementsStore;
     lightStore;
+    notificationsStore;
 
     constructor() {
         this.uiStore = new UIStore(this);
@@ -36,6 +39,7 @@ class RootStore {
         this.visualLoadStore = new VisualLoadStore(this);
         this.achievementsStore = new AchievementsStore(this);
         this.lightStore = new LightStore(this);
+        this.notificationsStore = new NotificationsStore(this);
 
         makeAutoObservable(this);
 

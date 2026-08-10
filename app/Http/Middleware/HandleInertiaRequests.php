@@ -4,6 +4,8 @@ namespace App\Http\Middleware;
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
+use Closure;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
@@ -28,6 +30,21 @@ class HandleInertiaRequests extends Middleware
     public function version(Request $request): ?string
     {
         return parent::version($request);
+    }
+
+    // Override the handle method to set cache headers for Inertia requests 
+    // Example - json data request as user wont return if you go back in browser
+    public function handle(Request $request, Closure $next): Response
+    {
+        $response = parent::handle($request, $next);
+
+        if ($request->header('X-Inertia')) {
+            $response->headers->set('Vary', 'X-Inertia');
+            $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
+            $response->headers->set('Pragma', 'no-cache');
+        }
+
+        return $response;
     }
 
     /**
@@ -93,6 +110,17 @@ class HandleInertiaRequests extends Middleware
                     ->orderBy('created_at', 'desc')
                     ->limit(5)
                     ->get();
+            },
+
+            'tasks' => function () use ($request) {
+                if (!$request->user()) return null;
+
+                $taskService = app(\App\Services\TaskService::class);
+
+                // Handle daily login on every page load — TaskService prevents double-firing
+                $taskService->handleDailyLogin($request->user());
+
+                return $taskService->getUserTasks($request->user());
             },
 
             // Ziggy routes + trenutna adresa

@@ -27,7 +27,6 @@ const UniverseScene = observer(({ onSceneSelect, locked = false }) => {
   const { universeStore, marketStore, visualLoadStore } = useContext(RootStoreContext);
   
 
-
    useEffect(() => {
     console.log("🧪 UniverseScene render:", {
     zoomLevel: universeStore.zoomLevel,
@@ -210,7 +209,7 @@ const centerGalaxy = (galaxyId, position) => {
     universeStore.setZoomLevel("galaxy");
 
     Inertia.visit(galaxy.route, {
-      preserveState: true,
+      preserveState: false,
       preserveScroll: true,
     });
   };

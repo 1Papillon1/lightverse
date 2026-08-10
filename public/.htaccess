@@ -4,6 +4,11 @@
     </IfModule>
 
     RewriteEngine On
+    
+    # --------------------------------------------------------------------------
+    # ✅ ALLOW Let's Encrypt challenge files
+    # --------------------------------------------------------------------------
+    RewriteRule ^\.well-known/ - [L]
 
     # --------------------------------------------------------------------------
     # ✅ ALLOW DIRECT ACCESS to static files (images, css, js, fonts)

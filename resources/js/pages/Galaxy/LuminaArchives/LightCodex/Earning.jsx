@@ -41,7 +41,7 @@ const Earning = () => {
         "Node Exploration → 2 Light"
       ]
     },
-    {
+    /* {
       title: "Share Knowledge",
       icon: "📚",
       lightValue: "10-50 Light",
@@ -51,7 +51,7 @@ const Earning = () => {
         "Create Tutorial → 30-75 Light",
         "Share Insights → 10-25 Light"
       ]
-    },
+    }, */
     {
       title: "Daily Engagement",
       icon: "📅",
@@ -63,7 +63,7 @@ const Earning = () => {
         "Monthly Streak → 25 Light bonus"
       ]
     },
-    {
+   /*  {
       title: "Help Others",
       icon: "🤝",
       lightValue: "5-20 Light",
@@ -73,8 +73,8 @@ const Earning = () => {
         "Helpful Comment → 2-10 Light",
         "Mentor New Users → 15-20 Light"
       ]
-    },
-    {
+    }, */
+   /*  {
       title: "Light Multipliers",
       icon: "✨",
       lightValue: "×1.5 - ×2.0",
@@ -84,7 +84,7 @@ const Earning = () => {
         "7-Day Streak → ×2.0",
         "Quality Bonus → ×1.25"
       ]
-    }
+    } */
   ];
 
   return (
