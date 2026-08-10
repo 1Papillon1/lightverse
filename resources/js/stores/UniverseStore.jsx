@@ -10,6 +10,8 @@ class UniverseStore {
 
   constructor() {
     makeAutoObservable(this);
+
+    
   }
 
   /* ------------------

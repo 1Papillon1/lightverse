@@ -31,14 +31,7 @@ const MainLayout = observer(({ children }) => {
   const page = usePage();
   const { url, props } = page;
 
-  useEffect(() => {
-    const handlePopState = () => {
-      window.location.reload();
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  
 
   /* ----------------------------------
      🔑 INERTIA → MOBX AUTH SYNC

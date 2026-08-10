@@ -1,14 +1,22 @@
 // resources/js/components/visuals/core/UniverseScene.jsx
-import { useEffect, useRef, useState, useContext, Suspense, use } from "react";
+
+import {
+  useEffect,
+  useRef,
+  useState,
+  useContext,
+  Suspense,
+} from "react";
+
 import { observer } from "mobx-react-lite";
 import { Canvas } from "@react-three/fiber";
 import { Stars, OrbitControls } from "@react-three/drei";
 import { usePage } from "@inertiajs/react";
 import gsap from "gsap";
+
 import { RootStoreContext } from "@/stores/RootStore";
 import { universeConfig } from "@/config/universe";
 import { Inertia } from "@inertiajs/inertia";
-
 
 // Components
 import NebulaBackdrop from "@/components/visuals/core/NebulaBackdrop";
@@ -19,533 +27,1288 @@ import RisingStarGrid from "@/components/layout/RisingStarGrid";
 import FloatingNodeGrid from "@/components/visuals/nodes/FloatingNodeGrid";
 import SpiralGalaxy from "@/components/visuals/galaxies/SpiralGalaxy";
 import LightCore from "@/components/visuals/core/LightCore";
-import GalaxyLabelsOverlay from '@/components/ui/GalaxyLabelsOverlay';
+import GalaxyLabelsOverlay from "@/components/ui/GalaxyLabelsOverlay";
+
 
 const UniverseScene = observer(({ onSceneSelect, locked = false }) => {
-  const orbitRef = useRef();
-  
-  const { universeStore, marketStore, visualLoadStore } = useContext(RootStoreContext);
-  
 
-   useEffect(() => {
-    console.log("🧪 UniverseScene render:", {
-    zoomLevel: universeStore.zoomLevel,
-    activeSystem: universeStore.activeSystem,
-    activeSystemHasPos: !!universeStore.activeSystem?.pos
-  });
-}, [universeStore.zoomLevel, universeStore.activeSystem]);
-  
+  /*
+  |--------------------------------------------------------------------------
+  | INERTIA PAGE STATE
+  |--------------------------------------------------------------------------
+  |
+  | URL više NIJE izveden iz UniverseStorea.
+  | Inertia je source of truth.
+  |
+  */
+
+  const { props } = usePage();
+
+  const {
+    galaxy: pageGalaxy,
+    system: pageSystem,
+    node: pageNode,
+    light,
+  } = props;
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | STORES
+  |--------------------------------------------------------------------------
+  |
+  | UniverseStore više nije potreban.
+  | Ostavljamo samo storeove koji nisu odgovorni za navigaciju.
+  |
+  */
+
+  const {
+    marketStore,
+    visualLoadStore,
+  } = useContext(RootStoreContext);
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | ROUTE → VIEW
+  |--------------------------------------------------------------------------
+  */
+
+  const getId = (value) => {
+    if (!value) return null;
+
+    if (typeof value === "string") {
+      return value;
+    }
+
+    if (typeof value === "object") {
+      return (
+        value.id ??
+        value.slug ??
+        value.symbol ??
+        value.name ??
+        null
+      );
+    }
+
+    return null;
+  };
+
+
+  const galaxyIdFromPage = getId(pageGalaxy);
+  const systemIdFromPage = getId(pageSystem);
+  const nodeIdFromPage = getId(pageNode);
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | FIND DATA FROM UNIVERSE CONFIG
+  |--------------------------------------------------------------------------
+  */
+
+  let activeGalaxy = null;
+  let activeSystem = null;
+  let activeNode = null;
+
+
+  // First try galaxy directly from Inertia props
+  if (galaxyIdFromPage) {
+    activeGalaxy = universeConfig.galaxies.find(
+      (g) => g.id === galaxyIdFromPage
+    );
+  }
+
+
+  // Find system
+  if (systemIdFromPage) {
+
+    for (const galaxy of universeConfig.galaxies) {
+
+      const system = galaxy.starSystems?.find(
+        (s) => s.id === systemIdFromPage
+      );
+
+      if (system) {
+        activeSystem = system;
+
+        // If backend did not provide galaxy,
+        // derive it from the system.
+        if (!activeGalaxy) {
+          activeGalaxy = galaxy;
+        }
+
+        break;
+      }
+    }
+  }
+
+
+  // Find node
+  if (nodeIdFromPage) {
+
+    for (const galaxy of universeConfig.galaxies) {
+
+      for (const system of galaxy.starSystems ?? []) {
+
+        const node = system.nodes?.find(
+          (n) => n.id === nodeIdFromPage
+        );
+
+        if (node) {
+
+          activeNode = node;
+
+          // Derive system if necessary
+          if (!activeSystem) {
+            activeSystem = system;
+          }
+
+          // Derive galaxy if necessary
+          if (!activeGalaxy) {
+            activeGalaxy = galaxy;
+          }
+
+          break;
+        }
+      }
+
+      if (activeNode) break;
+    }
+  }
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | CURRENT VIEW
+  |--------------------------------------------------------------------------
+  |
+  | Priority:
+  |
+  | node
+  | ↓
+  | system
+  | ↓
+  | galaxy
+  | ↓
+  | universe
+  |
+  */
+
+  const view =
+    activeNode
+      ? "node"
+      : activeSystem
+        ? "system"
+        : activeGalaxy
+          ? "galaxy"
+          : "universe";
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | DEBUG
+  |--------------------------------------------------------------------------
+  */
+
+  useEffect(() => {
+
+    console.log("🌌 UNIVERSE SCENE ROUTE STATE", {
+      pathname: window.location.pathname,
+
+      props: {
+        galaxy: pageGalaxy,
+        system: pageSystem,
+        node: pageNode,
+      },
+
+      resolved: {
+        galaxyId: activeGalaxy?.id ?? null,
+        systemId: activeSystem?.id ?? null,
+        nodeId: activeNode?.id ?? null,
+      },
+
+      view,
+    });
+
+  }, [
+    pageGalaxy,
+    pageSystem,
+    pageNode,
+    view,
+  ]);
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | REFS / LOCAL UI STATE
+  |--------------------------------------------------------------------------
+  */
+
+  const orbitRef = useRef(null);
+
   const [sceneReady, setSceneReady] = useState(false);
-  
-  // ✅ Track which galaxy is centered (not yet entered)
+
+  // UI only:
+  // first click = center
+  // second click = enter
   const [centeredGalaxyId, setCenteredGalaxyId] = useState(null);
-  
-  // ✅ NEW: Track hovered galaxy for 2D tooltip
+
+  // UI only
   const [hoveredGalaxy, setHoveredGalaxy] = useState(null);
 
-  // ✅ Get system Light from Inertia props
-  const { light } = usePage().props;
+
+  /*
+  |--------------------------------------------------------------------------
+  | SYSTEM LIGHT
+  |--------------------------------------------------------------------------
+  */
+
   const systemLight = light?.system?.total || 0;
 
+
+  /*
+  |--------------------------------------------------------------------------
+  | SCENE READY
+  |--------------------------------------------------------------------------
+  */
+
   useEffect(() => {
+
     marketStore.setSceneReady(true);
+
     setSceneReady(true);
+
     visualLoadStore.markUniverseReady();
-  }, []);
+
+  }, [
+    marketStore,
+    visualLoadStore,
+  ]);
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | RESET LOCAL GALAXY CENTER WHEN LEAVING UNIVERSE
+  |--------------------------------------------------------------------------
+  */
 
   useEffect(() => {
-  if (!sceneReady) return;
-  
-  universeStore.detectFromUrl();
-  
-  // Position camera after detecting zoom level
-  setTimeout(() => {
-    if (!orbitRef.current) return;
-    
-    const camera = orbitRef.current.object;
+
+    if (view !== "universe") {
+      setCenteredGalaxyId(null);
+      setHoveredGalaxy(null);
+    }
+
+  }, [view]);
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | CAMERA POSITIONING
+  |--------------------------------------------------------------------------
+  */
+
+  const positionCameraForView = () => {
+
     const controls = orbitRef.current;
-    
-    // ✅ ADD THIS:
-    if (universeStore.zoomLevel === "universe") {
-      camera.position.set(0, 150, 500);
-      controls.target.set(0, 0, 0);
+
+    if (!controls) {
+      console.log("📷 Camera positioning skipped - controls not ready");
+      return;
+    }
+
+    const camera = controls.object;
+
+    if (!camera) {
+      console.log("📷 Camera positioning skipped - camera not ready");
+      return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | UNIVERSE
+    |--------------------------------------------------------------------------
+    */
+
+    if (view === "universe") {
+
+      camera.position.set(
+        0,
+        150,
+        500
+      );
+
+      controls.target.set(
+        0,
+        0,
+        0
+      );
+
       controls.update();
-    }
-    else if (universeStore.zoomLevel === "system" && universeStore.activeSystem) {
-      // ... existing system camera positioning
-    }
-    else if (universeStore.zoomLevel === "galaxy" && universeStore.activeGalaxy) {
-      // ... existing galaxy camera positioning
-    }
-  }, 0);
-}, [sceneReady]);
 
-  /* --------------------------------------------------
-     🏠 RETURN TO UNIVERSE CENTER
-  -------------------------------------------------- */
+      console.log("📷 Camera → UNIVERSE");
+
+      return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | GALAXY
+    |--------------------------------------------------------------------------
+    */
+
+    if (view === "galaxy" && activeGalaxy) {
+
+      const [x, y, z] = activeGalaxy.position;
+
+      camera.position.set(
+        x,
+        y + 60,
+        z + 200
+      );
+
+      controls.target.set(
+        x,
+        y,
+        z
+      );
+
+      controls.update();
+
+      console.log("📷 Camera → GALAXY", {
+        galaxy: activeGalaxy.id,
+        position: activeGalaxy.position,
+      });
+
+      return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SYSTEM
+    |--------------------------------------------------------------------------
+    */
+
+    if (view === "system" && activeSystem) {
+
+      const [x, y, z] = activeSystem.position;
+
+      camera.position.set(
+        x,
+        y + 12,
+        z + 18
+      );
+
+      controls.target.set(
+        x,
+        y,
+        z
+      );
+
+      controls.update();
+
+      console.log("📷 Camera → SYSTEM", {
+        system: activeSystem.id,
+        position: activeSystem.position,
+      });
+
+      return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | NODE
+    |--------------------------------------------------------------------------
+    |
+    | Node page itself does not render the 3D scene through Dashboard,
+    | but if UniverseScene is ever kept mounted, we preserve system camera.
+    |
+    */
+
+    if (view === "node" && activeSystem) {
+
+      const [x, y, z] = activeSystem.position;
+
+      camera.position.set(
+        x,
+        y + 12,
+        z + 18
+      );
+
+      controls.target.set(
+        x,
+        y,
+        z
+      );
+
+      controls.update();
+
+      console.log("📷 Camera → NODE / SYSTEM CONTEXT", {
+        node: activeNode?.id,
+        system: activeSystem.id,
+      });
+
+    }
+
+  };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | POSITION CAMERA WHEN ROUTE / VIEW CHANGES
+  |--------------------------------------------------------------------------
+  */
+
+  useEffect(() => {
+
+    if (!sceneReady) return;
+
+    /*
+     * OrbitControls ref may not exist during the first effect pass.
+     * Give React/R3F one frame to attach it.
+     */
+
+    const frame = requestAnimationFrame(() => {
+
+      positionCameraForView();
+
+    });
+
+    return () => cancelAnimationFrame(frame);
+
+  }, [
+    sceneReady,
+    view,
+    activeGalaxy?.id,
+    activeSystem?.id,
+    activeNode?.id,
+  ]);
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | RETURN TO UNIVERSE
+  |--------------------------------------------------------------------------
+  */
+
   const returnToUniverseCenter = () => {
-    const camera = orbitRef.current?.object;
+
     const controls = orbitRef.current;
-    if (!camera || !controls) return;
 
-    // ✅ Clear centered galaxy state
+    if (!controls) return;
+
+    const camera = controls.object;
+
     setCenteredGalaxyId(null);
-    universeStore.setZoomLevel("universe");
-    universeStore.setActiveGalaxy(null);
 
-    // Animate camera back to initial position
+    gsap.killTweensOf(camera.position);
+    gsap.killTweensOf(controls.target);
+
+
     gsap.to(camera.position, {
+
       x: 0,
       y: 150,
       z: 500,
+
       duration: 1.2,
+
       ease: "power2.inOut",
+
     });
 
-    // Animate OrbitControls target back to center
+
     gsap.to(controls.target, {
+
       x: 0,
       y: 0,
       z: 0,
+
       duration: 1.2,
+
       ease: "power2.inOut",
+
       onUpdate: () => controls.update(),
+
+      onComplete: () => {
+
+        controls.update();
+
+      },
+
     });
 
-    // Navigate to dashboard if not already there
+
+    /*
+     * IMPORTANT:
+     *
+     * No UniverseStore mutation.
+     *
+     * URL becomes the state.
+     */
+
     if (window.location.pathname !== "/dashboard") {
+
       Inertia.visit("/dashboard", {
         preserveState: true,
         preserveScroll: true,
       });
+
     }
+
   };
 
-/* --------------------------------------------------
-   🌌 CENTER GALAXY (FIRST CLICK) - FIXED
--------------------------------------------------- */
-const centerGalaxy = (galaxyId, position) => {
-  const camera = orbitRef.current?.object;
-  const controls = orbitRef.current;
-  if (!camera || !controls) return;
 
-  const galaxy = universeConfig.galaxies.find(g => g.id === galaxyId);
-  if (!galaxy) return;
+  /*
+  |--------------------------------------------------------------------------
+  | CENTER GALAXY
+  |--------------------------------------------------------------------------
+  */
 
-  console.log("🎯 Centering galaxy:", galaxyId, "at position:", position);
+  const centerGalaxy = (galaxyId, position) => {
 
-  // ✅ Mark this galaxy as centered (but not entered)
-  setCenteredGalaxyId(galaxyId);
+    const controls = orbitRef.current;
 
-  // Target position (where OrbitControls will orbit around)
-  const targetPosition = { 
-    x: position[0], 
-    y: position[1], // ✅ Use actual Y position from galaxy
-    z: position[2] 
-  };
-  
-  // ✅ IMPROVED: Calculate camera offset based on galaxy position
-  // For galaxies positioned vertically (high/low Y), adjust camera more dramatically
-  
-  const distanceFromCenter = Math.sqrt(
-    position[0] ** 2 + position[1] ** 2 + position[2] ** 2
-  );
-  
-  // Determine if galaxy is primarily vertical or horizontal
-  const isVertical = Math.abs(position[1]) > Math.abs(position[0]) && 
-                     Math.abs(position[1]) > Math.abs(position[2]);
-  
-  let cameraOffset;
-  
-  if (isVertical) {
-    // ✅ For vertical galaxies (top/bottom), position camera to the side
-    cameraOffset = {
-      x: position[0] + 150, // Move camera to side
-      y: position[1],        // Match galaxy Y
-      z: position[2] + 100   // Pull back
-    };
-  } else {
-    // ✅ For horizontal galaxies (left/right), position camera above and back
-    cameraOffset = {
-      x: position[0],
-      y: position[1] + 60,   // Lift camera up
-      z: position[2] + 200   // Pull back significantly
-    };
-  }
+    if (!controls) return;
 
-  console.log("📐 Camera offset:", cameraOffset);
+    const camera = controls.object;
 
-  // Animate camera position
-  gsap.to(camera.position, {
-    x: cameraOffset.x,
-    y: cameraOffset.y,
-    z: cameraOffset.z,
-    duration: 1.5,
-    ease: "power2.inOut",
-  });
+    const galaxy = universeConfig.galaxies.find(
+      (g) => g.id === galaxyId
+    );
 
-  // Animate OrbitControls target
-  gsap.to(controls.target, {
-    x: targetPosition.x,
-    y: targetPosition.y,
-    z: targetPosition.z,
-    duration: 1.5,
-    ease: "power2.inOut",
-    onUpdate: () => controls.update(),
-  });
-};
-
-  /* --------------------------------------------------
-     🚪 ENTER GALAXY (SECOND CLICK)
-  -------------------------------------------------- */
-  const enterGalaxy = (galaxyId, position) => {
-    const galaxy = universeConfig.galaxies.find(g => g.id === galaxyId);
     if (!galaxy) return;
 
-    console.log("🚪 Entering galaxy:", galaxyId);
 
-    // Set state and navigate
-    universeStore.setActiveGalaxy({ id: galaxyId, pos: position });
-    universeStore.setZoomLevel("galaxy");
+    console.log(
+      "🎯 Centering galaxy:",
+      galaxyId
+    );
+
+
+    setCenteredGalaxyId(galaxyId);
+
+
+    const targetPosition = {
+
+      x: position[0],
+      y: position[1],
+      z: position[2],
+
+    };
+
+
+    const isVertical =
+      Math.abs(position[1]) > Math.abs(position[0]) &&
+      Math.abs(position[1]) > Math.abs(position[2]);
+
+
+    let cameraOffset;
+
+
+    if (isVertical) {
+
+      cameraOffset = {
+
+        x: position[0] + 150,
+        y: position[1],
+        z: position[2] + 100,
+
+      };
+
+    } else {
+
+      cameraOffset = {
+
+        x: position[0],
+        y: position[1] + 60,
+        z: position[2] + 200,
+
+      };
+
+    }
+
+
+    gsap.killTweensOf(camera.position);
+    gsap.killTweensOf(controls.target);
+
+
+    gsap.to(camera.position, {
+
+      x: cameraOffset.x,
+      y: cameraOffset.y,
+      z: cameraOffset.z,
+
+      duration: 1.5,
+
+      ease: "power2.inOut",
+
+    });
+
+
+    gsap.to(controls.target, {
+
+      x: targetPosition.x,
+      y: targetPosition.y,
+      z: targetPosition.z,
+
+      duration: 1.5,
+
+      ease: "power2.inOut",
+
+      onUpdate: () => controls.update(),
+
+    });
+
+  };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | ENTER GALAXY
+  |--------------------------------------------------------------------------
+  */
+
+  const enterGalaxy = (galaxyId) => {
+
+    const galaxy = universeConfig.galaxies.find(
+      (g) => g.id === galaxyId
+    );
+
+    if (!galaxy) return;
+
+
+    console.log(
+      "🚪 ENTER GALAXY:",
+      galaxyId
+    );
+
+
+    /*
+     * URL changes.
+     *
+     * Backend returns new Inertia props.
+     * usePage() updates.
+     * view becomes "galaxy".
+     */
 
     Inertia.visit(galaxy.route, {
+
       preserveState: false,
       preserveScroll: true,
+
     });
+
   };
 
-  /* --------------------------------------------------
-     🎯 HANDLE GALAXY CLICK (TWO-STAGE)
-  -------------------------------------------------- */
-  const handleGalaxyClick = (galaxyId, position) => {
+
+  /*
+  |--------------------------------------------------------------------------
+  | GALAXY CLICK
+  |--------------------------------------------------------------------------
+  */
+
+  const handleGalaxyClick = (
+    galaxyId,
+    position
+  ) => {
+
     if (centeredGalaxyId === galaxyId) {
-      // ✅ Second click on same galaxy → ENTER
-      enterGalaxy(galaxyId, position);
+
+      // Second click
+      enterGalaxy(galaxyId);
+
     } else {
-      // ✅ First click or different galaxy → CENTER
-      centerGalaxy(galaxyId, position);
+
+      // First click
+      centerGalaxy(
+        galaxyId,
+        position
+      );
+
     }
+
   };
 
-  /* --------------------------------------------------
-     🌌 DOUBLE-CLICK GALAXY (SKIP TO ENTER)
-  -------------------------------------------------- */
-  const fastZoomIntoGalaxy = (galaxyId, position) => {
-    const galaxy = universeConfig.galaxies.find(g => g.id === galaxyId);
+
+  /*
+  |--------------------------------------------------------------------------
+  | DOUBLE CLICK GALAXY
+  |--------------------------------------------------------------------------
+  */
+
+  const fastZoomIntoGalaxy = (galaxyId) => {
+
+    const galaxy = universeConfig.galaxies.find(
+      (g) => g.id === galaxyId
+    );
+
     if (!galaxy) return;
 
-    console.log("⚡ Fast entering galaxy:", galaxyId);
 
-    // Set state immediately and navigate
+    console.log(
+      "⚡ FAST ENTER GALAXY:",
+      galaxyId
+    );
+
+
     setCenteredGalaxyId(galaxyId);
-    universeStore.setActiveGalaxy({ id: galaxyId, pos: position });
-    universeStore.setZoomLevel("galaxy");
+
 
     Inertia.visit(galaxy.route, {
-      preserveState: true,
+
+      preserveState: false,
       preserveScroll: true,
+
     });
+
   };
 
- /* --------------------------------------------------
-   ⭐ ZOOM INTO STAR SYSTEM (INSTANT - NO ANIMATION)
--------------------------------------------------- */
-const zoomIntoSystem = (systemId, position) => {
-  const camera = orbitRef.current?.object;
-  const controls = orbitRef.current;
-  if (!camera || !controls) return;
 
-  const galaxy = universeConfig.galaxies.find(g => 
-    g.starSystems.some(s => s.id === systemId)
-  );
-  
-  const system = galaxy?.starSystems.find(s => s.id === systemId);
-  if (!system) return;
+  /*
+  |--------------------------------------------------------------------------
+  | ENTER SYSTEM
+  |--------------------------------------------------------------------------
+  */
 
-  console.log("⭐ Entering system instantly:", systemId);
+  const zoomIntoSystem = (
+    systemId
+  ) => {
 
-  // Set state
-  universeStore.setActiveSystem({ id: systemId, pos: position });
-  universeStore.setZoomLevel("system");
-
-  // Position camera instantly (no GSAP animation)
-  camera.position.set(
-    position[0],
-    position[1] + 12,
-    position[2] + 18
-  );
-  
-  controls.target.set(
-    position[0],
-    position[1],
-    position[2]
-  );
-  
-  controls.update();
-
-
-
-  // Navigate
-  Inertia.visit(system.route, {
-    preserveState: true,
-    preserveScroll: true,
-    only: ['activeSystem'],
-  });
-  
-  onSceneSelect?.(systemId);
-};
-
-  /* --------------------------------------------------
-     ⌨️ KEYBOARD NAVIGATION
-  -------------------------------------------------- */
-  useEffect(() => {
-    const handleKeyPress = (e) => {
-      if (e.key === "Escape") {
-        if (universeStore.zoomLevel === "system") {
-          // Return to galaxy view
-          const galaxy = universeConfig.galaxies.find(g =>
-            g.starSystems.some(s => s.id === universeStore.activeSystem?.id)
-          );
-          if (galaxy && universeStore.activeGalaxy) {
-            const camera = orbitRef.current?.object;
-            const controls = orbitRef.current;
-            if (!camera || !controls) return;
-
-            const position = universeStore.activeGalaxy.pos;
-            const targetPosition = { x: position[0], y: 0, z: position[2] };
-            const cameraOffset = { x: position[0], y: 60, z: position[2] + 200 };
-
-            gsap.to(camera.position, {
-              x: cameraOffset.x,
-              y: cameraOffset.y,
-              z: cameraOffset.z,
-              duration: 1.2,
-              ease: "power2.inOut",
-            });
-
-            gsap.to(controls.target, {
-              x: targetPosition.x,
-              y: targetPosition.y,
-              z: targetPosition.z,
-              duration: 1.2,
-              ease: "power2.inOut",
-              onUpdate: () => controls.update(),
-              onComplete: () => {
-                universeStore.setZoomLevel("galaxy");
-                universeStore.setActiveSystem(null);
-                
-                const targetRoute = `/galaxy/${galaxy.id}`;
-                if (window.location.pathname !== targetRoute) {
-                  Inertia.visit(targetRoute, {
-                    preserveState: true,
-                    preserveScroll: true,
-                  });
-                }
-              },
-            });
-          }
-        } else if (universeStore.zoomLevel === "galaxy") {
-          // Return to universe view
-          returnToUniverseCenter();
-        } else if (centeredGalaxyId !== null) {
-          // ✅ NEW: If galaxy is centered but not entered, ESC returns to universe
-          returnToUniverseCenter();
-        }
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyPress);
-    return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [universeStore.zoomLevel, universeStore.activeGalaxy, universeStore.activeSystem, centeredGalaxyId]);
-
-/* --------------------------------------------------
-   🎯 HANDLE DIRECT NAVIGATION TO SYSTEM VIEW
--------------------------------------------------- */
-useEffect(() => {
-  console.log("🔍 useEffect triggered:", {
-    sceneReady,
-    zoomLevel: universeStore.zoomLevel,
-    activeSystemId: universeStore.activeSystem?.id,
-    hasOrbitRef: !!orbitRef.current
-  });
-
-  if (!sceneReady || universeStore.zoomLevel !== "system" || !orbitRef.current) {
-    console.log("⏸️ Skipping camera fix");
-    return;
-  }
-
-  // ✅ Add a small delay to ensure everything is mounted
-  const timer = setTimeout(() => {
-  
-
-    const camera = orbitRef.current?.object;
-    const controls = orbitRef.current;
-    
-    if (!camera || !controls) {
-      console.log("❌ Camera/controls not ready");
-      return;
-    }
-
-    const systemId = universeStore.activeSystem?.id;
-    if (!systemId) {
-      console.log("❌ No active system ID");
-      return;
-    }
-
-    const galaxy = universeConfig.galaxies.find(g =>
-      g.starSystems.some(s => s.id === systemId)
+    const galaxy = universeConfig.galaxies.find(
+      (g) =>
+        g.starSystems?.some(
+          (s) => s.id === systemId
+        )
     );
-    const system = galaxy?.starSystems.find(s => s.id === systemId);
+
+
+    const system = galaxy?.starSystems?.find(
+      (s) => s.id === systemId
+    );
+
 
     if (!system) {
-      console.log("❌ System not found:", systemId);
+
+      console.error(
+        "❌ Cannot find system:",
+        systemId
+      );
+
       return;
+
     }
 
-    const [x, y, z] = system.position;
 
-   
+    console.log(
+      "⭐ ENTER SYSTEM:",
+      systemId
+    );
 
-    camera.position.set(x, y + 12, z + 18);
-    controls.target.set(x, y, z);
-    controls.update();
 
-    console.log("✅ Camera positioned at:", camera.position.toArray());
-  }, 100); // Small delay
+    /*
+     * Again:
+     *
+     * NO STORE MUTATION.
+     *
+     * URL is the state.
+     */
 
-  return () => clearTimeout(timer);
+    Inertia.visit(system.route, {
 
-}, [
-  sceneReady, 
-  universeStore.zoomLevel, 
-  universeStore.activeSystem?.id, // ✅ Add this!
-  orbitRef.current // ✅ And this
-]);
+      preserveState: false,
+      preserveScroll: true,
+
+    });
+
+
+    onSceneSelect?.(
+      systemId
+    );
+
+  };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | KEYBOARD NAVIGATION
+  |--------------------------------------------------------------------------
+  */
+
+  useEffect(() => {
+
+    const handleKeyPress = (event) => {
+
+      if (event.key !== "Escape") {
+        return;
+      }
+
+
+      /*
+      |--------------------------------------------------------------------------
+      | SYSTEM → GALAXY
+      |--------------------------------------------------------------------------
+      */
+
+      if (view === "system" && activeGalaxy) {
+
+        const controls = orbitRef.current;
+
+        if (!controls) return;
+
+        const camera = controls.object;
+
+        const [
+          x,
+          y,
+          z
+        ] = activeGalaxy.position;
+
+
+        gsap.killTweensOf(camera.position);
+        gsap.killTweensOf(controls.target);
+
+
+        gsap.to(camera.position, {
+
+          x,
+          y: y + 60,
+          z: z + 200,
+
+          duration: 1.2,
+
+          ease: "power2.inOut",
+
+        });
+
+
+        gsap.to(controls.target, {
+
+          x,
+          y,
+          z,
+
+          duration: 1.2,
+
+          ease: "power2.inOut",
+
+          onUpdate: () =>
+            controls.update(),
+
+          onComplete: () => {
+
+            Inertia.visit(
+              activeGalaxy.route,
+              {
+                preserveState: false,
+                preserveScroll: true,
+              }
+            );
+
+          },
+
+        });
+
+
+        return;
+
+      }
+
+
+      /*
+      |--------------------------------------------------------------------------
+      | GALAXY → UNIVERSE
+      |--------------------------------------------------------------------------
+      */
+
+      if (view === "galaxy") {
+
+        returnToUniverseCenter();
+
+        return;
+
+      }
+
+
+      /*
+      |--------------------------------------------------------------------------
+      | CENTERED GALAXY → UNIVERSE
+      |--------------------------------------------------------------------------
+      */
+
+      if (
+        view === "universe" &&
+        centeredGalaxyId !== null
+      ) {
+
+        returnToUniverseCenter();
+
+      }
+
+    };
+
+
+    window.addEventListener(
+      "keydown",
+      handleKeyPress
+    );
+
+
+    return () => {
+
+      window.removeEventListener(
+        "keydown",
+        handleKeyPress
+      );
+
+    };
+
+  }, [
+    view,
+    activeGalaxy?.id,
+    activeSystem?.id,
+    centeredGalaxyId,
+  ]);
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | RENDER
+  |--------------------------------------------------------------------------
+  */
 
   return (
+
     <>
-    <Canvas
-      camera={{ position: [0, 150, 500], fov: 80 }}
-      gl={{
-        outputColorSpace: "srgb",
-        antialias: true,
-        powerPreference: "high-performance",
-      }}
-      style={{ pointerEvents: locked ? 'none' : 'auto' }} // ✅ add this
-    >
-      <TutorialZoomTracker />
 
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[10, 10, 15]} intensity={0.8} />
-      <pointLight position={[0, 0, 20]} intensity={2} color="#00ffff" />
+      <Canvas
 
-      <NebulaBackdrop />
-      <Stars radius={400} depth={50} count={3000} factor={6} fade />
-      <SparkleFieldGroup />
+        camera={{
+          position: [0, 150, 500],
+          fov: 80,
+        }}
 
-      {universeStore.zoomLevel === "system" && <AsteroidField count={20} radius={40} repulsionRadius={5} />}
-      
+        gl={{
+          outputColorSpace: "srgb",
+          antialias: true,
+          powerPreference: "high-performance",
+        }}
 
-      <OrbitControls
-        ref={orbitRef}
-        enablePan={false}
-        enableZoom={!locked}  // ✅ Disable zoom if locked
-        enabled={!locked}      // ✅ Disable all controls if locked
-        autoRotate={locked}    // ✅ Auto-rotate when locked
-        minDistance={universeStore.zoomLevel === "system" ? 10 : 100}  // ✅ Was 8, now 3
-        maxDistance={universeStore.zoomLevel === "system" ? 50 : 200} // ✅ Was 40, now 35
-      />
+        style={{
+          pointerEvents:
+            locked
+              ? "none"
+              : "auto",
+        }}
 
-      {/* ============================================
-          🌌 UNIVERSE VIEW
-          ============================================ */}
-      {universeStore.zoomLevel === "universe" && (
-        <Suspense fallback={null}>
-          {/* ✅ EVOLVED LIGHT CORE */}
-          <LightCore systemLight={systemLight} />
+      >
 
-          {/* ✅ INTERACTIVE SPIRAL GALAXIES - TWO-STAGE CLICK */}
-          {universeConfig.galaxies.map((galaxy) => (
-            <SpiralGalaxy
-              key={galaxy.id}
-              position={galaxy.position}
-              color={galaxy.color}
-              label={galaxy.label}
-              description={galaxy.description}
-              size={20}
-              isCentered={centeredGalaxyId === galaxy.id}
-              onClick={() => handleGalaxyClick(galaxy.id, galaxy.position)}
-              onDoubleClick={() => fastZoomIntoGalaxy(galaxy.id, galaxy.position)}
-              onPointerOver={(e) => {
-                 document.body.style.cursor = "pointer";
-                setHoveredGalaxy(galaxy); // ✅ This is used by GalaxyLabelsOverlay
-                e.stopPropagation();
-              }}
-              onPointerOut={() => {
-                 document.body.style.cursor = "auto";
-                setHoveredGalaxy(null); // ✅ Clear hover state
-              }}
-            />
-          ))}
-        </Suspense>
-      )}
+        <TutorialZoomTracker />
 
-      {/* ============================================
-          ⭐ GALAXY VIEW
-          ============================================ */}
-      {universeStore.zoomLevel === "galaxy" && universeStore.activeGalaxy && (
-        <Suspense fallback={null}>
-          <RisingStarGrid
-            galaxyId={universeStore.activeGalaxy.id}
-            onSelect={zoomIntoSystem}
+
+        <ambientLight
+          intensity={0.5}
+        />
+
+        <directionalLight
+          position={[10, 10, 15]}
+          intensity={0.8}
+        />
+
+        <pointLight
+          position={[0, 0, 20]}
+          intensity={2}
+          color="#00ffff"
+        />
+
+
+        <NebulaBackdrop />
+
+        <Stars
+          radius={400}
+          depth={50}
+          count={3000}
+          factor={6}
+          fade
+        />
+
+        <SparkleFieldGroup />
+
+
+        {/* ==================================================
+            SYSTEM EFFECTS
+        ================================================== */}
+
+        {view === "system" && (
+
+          <AsteroidField
+            count={20}
+            radius={40}
+            repulsionRadius={5}
           />
-        </Suspense>
-      )}
 
-      {/* ============================================
-          🪐 SYSTEM VIEW
-          ============================================ */}
-      {universeStore.zoomLevel === "system" && universeStore.activeSystem && (
-        <Suspense fallback={null}>
-          {(() => {
-            const galaxy = universeConfig.galaxies.find(g =>
-              g.starSystems.some(s => s.id === universeStore.activeSystem.id)
-            );
-            const system = galaxy?.starSystems.find(s => s.id === universeStore.activeSystem.id);
-            
-            if (!system) return null;
+        )}
 
-            return (
-              <group position={system.position}>
-                <FloatingNodeGrid
-                  activeSystem={system.id}
-                  nodes={system.nodes}
-                  orbitRadius={system.orbitRadius}
-                  onSelect={(nodeId) => {
-                    const node = system.nodes.find(n => n.id === nodeId);
-                    if (node) {
-                      universeStore.setZoomLevel("node");
-                      Inertia.visit(node.route);
-                    }
+
+        {/* ==================================================
+            CONTROLS
+        ================================================== */}
+
+        <OrbitControls
+
+          ref={orbitRef}
+
+          enablePan={false}
+
+          enableZoom={!locked}
+
+          enabled={!locked}
+
+          autoRotate={locked}
+
+          minDistance={
+            view === "system"
+              ? 10
+              : 100
+          }
+
+          maxDistance={
+            view === "system"
+              ? 50
+              : 200
+          }
+
+        />
+
+
+        {/* ==================================================
+            🌌 UNIVERSE VIEW
+        ================================================== */}
+
+        {view === "universe" && (
+
+          <Suspense fallback={null}>
+
+            <LightCore
+              systemLight={systemLight}
+            />
+
+
+            {universeConfig.galaxies.map(
+              (galaxy) => (
+
+                <SpiralGalaxy
+
+                  key={galaxy.id}
+
+                  position={
+                    galaxy.position
+                  }
+
+                  color={
+                    galaxy.color
+                  }
+
+                  label={
+                    galaxy.label
+                  }
+
+                  description={
+                    galaxy.description
+                  }
+
+                  size={20}
+
+                  isCentered={
+                    centeredGalaxyId ===
+                    galaxy.id
+                  }
+
+                  onClick={() =>
+                    handleGalaxyClick(
+                      galaxy.id,
+                      galaxy.position
+                    )
+                  }
+
+                  onDoubleClick={() =>
+                    fastZoomIntoGalaxy(
+                      galaxy.id
+                    )
+                  }
+
+                  onPointerOver={(e) => {
+
+                    document.body.style.cursor =
+                      "pointer";
+
+                    setHoveredGalaxy(
+                      galaxy
+                    );
+
+                    e.stopPropagation();
+
                   }}
-                />
-              </group>
-            );
-          })()}
-        </Suspense>
-      )}
-    </Canvas>
 
-    {universeStore.zoomLevel === "universe" && sceneReady && (
-      <GalaxyLabelsOverlay
-        galaxies={universeConfig.galaxies}
-        camera={orbitRef.current?.object}
-        centeredGalaxyId={centeredGalaxyId}
-        hoveredGalaxyId={hoveredGalaxy?.id}
-      />
-    )}
+                  onPointerOut={() => {
+
+                    document.body.style.cursor =
+                      "auto";
+
+                    setHoveredGalaxy(
+                      null
+                    );
+
+                  }}
+
+                />
+
+              )
+            )}
+
+          </Suspense>
+
+        )}
+
+
+        {/* ==================================================
+            ⭐ GALAXY VIEW
+        ================================================== */}
+
+        {view === "galaxy" &&
+          activeGalaxy && (
+
+            <Suspense fallback={null}>
+
+              <RisingStarGrid
+
+                galaxyId={
+                  activeGalaxy.id
+                }
+
+                onSelect={
+                  zoomIntoSystem
+                }
+
+              />
+
+            </Suspense>
+
+          )
+        }
+
+
+        {/* ==================================================
+            🪐 SYSTEM VIEW
+        ================================================== */}
+
+        {view === "system" &&
+          activeSystem && (
+
+            <Suspense fallback={null}>
+
+              <group
+                position={
+                  activeSystem.position
+                }
+              >
+
+                <FloatingNodeGrid
+
+                  activeSystem={
+                    activeSystem.id
+                  }
+
+                  nodes={
+                    activeSystem.nodes
+                  }
+
+                  orbitRadius={
+                    activeSystem.orbitRadius
+                  }
+
+                  onSelect={(nodeId) => {
+
+                    const node =
+                      activeSystem.nodes?.find(
+                        (n) =>
+                          n.id === nodeId
+                      );
+
+
+                    if (!node) {
+                      return;
+                    }
+
+
+                    console.log(
+                      "🪐 ENTER NODE:",
+                      node.id
+                    );
+
+
+                    Inertia.visit(
+                      node.route,
+                      {
+                        preserveState: false,
+                        preserveScroll: true,
+                      }
+                    );
+
+                  }}
+
+                />
+
+              </group>
+
+            </Suspense>
+
+          )
+        }
+
+
+      </Canvas>
+
+
+      {/* ==================================================
+          GALAXY LABELS
+      ================================================== */}
+
+      {view === "universe" &&
+        sceneReady && (
+
+          <GalaxyLabelsOverlay
+
+            galaxies={
+              universeConfig.galaxies
+            }
+
+            camera={
+              orbitRef.current?.object
+            }
+
+            centeredGalaxyId={
+              centeredGalaxyId
+            }
+
+            hoveredGalaxyId={
+              hoveredGalaxy?.id
+            }
+
+          />
+
+        )
+      }
+
     </>
+
   );
+
 });
+
 
 export default UniverseScene;
