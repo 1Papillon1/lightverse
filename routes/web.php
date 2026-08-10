@@ -103,6 +103,22 @@ Route::middleware(['auth'])->group(function () {
         : redirect()->route('login');
 }); */
 
+
+// ============================================
+// 🧱 VOXEL ROUTES (for Forge)
+// ============================================
+
+
+Route::middleware(['auth'])->prefix('api')->group(function () {
+    Route::get('/api/voxels/{planetId}', [VoxelController::class, 'show']);
+    Route::post('/api/voxels/{planetId}', [VoxelController::class, 'update']);
+});
+
+
+// ============================================
+// 🔔 NOTIFICATIONS ROUTES
+// ============================================
+
 Route::middleware('auth')->group(function () {
     // Mark as read
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])

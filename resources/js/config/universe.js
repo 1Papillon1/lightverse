@@ -342,5 +342,36 @@ export const universeConfig = {
     ]
   },
 
+  // ==========================================
+  // 🎨 GALAXY 6: ART GALAXY (Digital Art & Creation)
+  // ==========================================
+
+    {
+    id: "art-galaxy",
+    label: "Art Galaxy",
+    description: "Build your digital world",
+    position: [-20, 0, 100],
+    color: "#ff66cc",
+    route: "/galaxy/art-galaxy",
+    starSystems: [
+      {
+        id: "digital-canvas",
+        label: "Digital Canvas",
+        position: [0, 0, 0],
+        orbitRadius: 4,
+        color: "#ff66cc",
+        route: "/galaxy/art-galaxy/digital-canvas",
+        nodes: [
+          {
+            id: "verse-forge",
+            label: "Verse Forge",
+            color: "#ff44aa",
+            route: "/galaxy/art-galaxy/digital-canvas/verse-forge"
+          }
+        ]
+      }
+    ]
+  },
+
   ]
 };

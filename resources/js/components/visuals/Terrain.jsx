@@ -1,12 +1,13 @@
-import React, { useRef, useEffect, useMemo } from "react";
-import { RepeatWrapping, SRGBColorSpace } from "three";
+// resources/js/components/visuals/Terrain.jsx
+import React, { useRef, useEffect } from "react";
 import { useLoader } from "@react-three/fiber";
-import { TextureLoader } from "three";
+import { TextureLoader, RepeatWrapping, SRGBColorSpace } from "three";
 import { useRootStore } from "@/stores/RootStore";
 
 export default function Terrain({ type = "token" }) {
   const mesh = useRef();
   const { visualLoadStore } = useRootStore();
+  const currentUrl = window.location.pathname;
 
   const textureMap = {
     wallet: "/textures/wallet_node_4k.jpg",
@@ -16,9 +17,13 @@ export default function Terrain({ type = "token" }) {
     identity: "/textures/identity_node_4k.jpg",
     ai: "/textures/ai_node_4k.jpg",
     token: "/textures/market_node_4k.jpg",
+    digital: "/textures/futuristic-panels_4k.png",
   };
 
-  const textureURL = textureMap[type] ?? textureMap.token;
+  // ✅ POPRAVAK: Koristimo 'let' jer ćemo možda redefinirati vrijednost
+  // Ili još bolje, odredimo je odmah u jednom koraku:
+  const isForge = currentUrl === "/galaxy/art-galaxy/digital-canvas/verse-forge";
+  const textureURL = isForge ? textureMap.digital : (textureMap[type] ?? textureMap.token);
 
   const texture = useLoader(TextureLoader, textureURL);
 
@@ -27,19 +32,17 @@ export default function Terrain({ type = "token" }) {
 
     texture.wrapS = texture.wrapT = RepeatWrapping;
     texture.repeat.set(16, 16);
-
-    // ✅ THIS FIXES THE DARK / ORANGE ISSUE
     texture.colorSpace = SRGBColorSpace;
     texture.needsUpdate = true;
 
-    // ✅ UNIVERSE IS READY ONLY NOW
     visualLoadStore.markUniverseReady();
   }, [texture, visualLoadStore]);
 
   return (
     <mesh
       ref={mesh}
-      rotation={[-Math.PI / 1.6, 0, 0]}
+      // Koristimo isForge varijablu za lakšu čitljivost nagiba
+      rotation={isForge ? [-Math.PI / 1.95, 0, 0] : [-Math.PI / 1.6, 0, 0]}
       position={[0, -22, -20]}
       scale={[12, 6, 1]}
       receiveShadow
