@@ -19,9 +19,14 @@ const VerseForge = () => {
 
             {/* 2D UI za selekciju materijala može ići ovdje */}
             <div className="forge-build__overlay" style={{ pointerEvents: 'none' }}>
-                <div style={{ position: 'absolute', bottom: '40px', left: '50%', transform: 'translateX(-50%)', pointerEvents: 'auto' }}>
-                    <p style={{ color: 'white', fontFamily: 'Orbitron', textAlign: 'center' }}>
-                        LEFT CLICK TO PLACE | ALT+CLICK TO REMOVE
+                <div style={{   position: 'absolute', 
+                    bottom: '40px', 
+                    left: '40px', 
+                    pointerEvents: 'auto'  }}>
+                    <p style={{ color: 'white', fontWeight: 'bold', fontFamily: 'Orbitron', textAlign: 'center' }}>
+                        LEFT CLICK TO PLACE 
+                        <br />
+                        ALT+CLICK TO REMOVE
                     </p>
                 </div>
             </div>

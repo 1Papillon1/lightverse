@@ -8,44 +8,51 @@ const VoxelBuilder = () => {
   const [hoverPos, setHoverPos] = useState(null);
   const groupRef = useRef();
 
-
   const neonPurple = "#0a0a1f";
   const SIZE = 8;
-    const Y_SINK = SIZE * 0.45;  // sink 45% into ground
-    const minY = SIZE / 2 - Y_SINK;
+  const Y_SINK  = SIZE * 0.45;
+  const minY    = SIZE / 2 - Y_SINK;
+
+  // ── 🚀 NOVI LIMITI (Približeni sredini) ──────────────────────────
+  const BOUND_X      = 40;   // Ukupna širina je sada 80 jedinica
+  const BOUND_Z_FAR  = 40;   // Maksimalna dubina (prema horizontu)
+  const BOUND_Z_NEAR = -8;   // Limit prema tebi
 
   const snapXZ = (val) => Math.round(val / SIZE) * SIZE;
-  
-  // Poboljšani snapY koji osigurava precizno slaganje jedan na drugi
-  const snapY = (val) => {
-    const rawY = Math.floor(val / SIZE) * SIZE + SIZE / 2;
-    const finalY = rawY - Y_SINK;
-    // ✅ FLOOR LIMIT: Ne dopušta poziciju nižu od prvog reda na terrainu
-    return Math.max(minY, finalY);
+
+  const snapHeight = (val) => {
+    const rawHeight = Math.floor(val / SIZE) * SIZE + SIZE / 2;
+    const finalHeight = rawHeight - Y_SINK;
+    return Math.max(minY, finalHeight);
   };
 
   const getPositionFromEvent = useCallback((e) => {
     if (!groupRef.current) return null;
 
-    const worldPoint = e.point.clone();
+    const worldPoint  = e.point.clone();
     const worldNormal = e.face.normal.clone();
     worldNormal.transformDirection(e.object.matrixWorld);
-    
-    // Suptilniji offset za Raycaster (0.45 je "sweet spot")
     worldPoint.add(worldNormal.multiplyScalar(SIZE * 0.45));
+
     const localPoint = groupRef.current.worldToLocal(worldPoint);
 
-    return {
-      x: snapXZ(localPoint.x),
-      y: snapY(localPoint.y),
-      z: snapXZ(localPoint.z),
-    };
+    // Mapiranje: x=X, y=Dubina, z=Visina
+    const gridX = snapXZ(localPoint.x);
+    const gridZ = snapXZ(localPoint.y); 
+    const gridY = snapHeight(localPoint.z);
+
+    // ── Provjera granica ──────────────────────────────────────────
+    if (Math.abs(gridX) > BOUND_X) return null;
+    if (gridZ > BOUND_Z_FAR)      return null;
+    if (gridZ < BOUND_Z_NEAR)     return null;
+
+    return { x: gridX, y: gridY, z: gridZ };
   }, []);
 
   const onMove = useCallback((e) => {
     e.stopPropagation();
     const pos = getPositionFromEvent(e);
-    if (pos) setHoverPos(pos);
+    setHoverPos(pos); 
   }, [getPositionFromEvent]);
 
   const onDown = useCallback((e) => {
@@ -54,8 +61,10 @@ const VoxelBuilder = () => {
 
     if (altKey || button === 2) {
       if (object.name === "voxel-mesh") {
-        setVoxels((prev) => prev.filter((v) => 
-          v.x !== object.position.x || v.y !== object.position.y || v.z !== object.position.z
+        setVoxels((prev) => prev.filter((v) =>
+          Math.abs(v.x - object.position.x) > 0.1 ||
+          Math.abs(v.y - object.position.z) > 0.1 || // Provjera dubine
+          Math.abs(v.z - object.position.y) > 0.1    // Provjera visine
         ));
       }
       return;
@@ -71,40 +80,30 @@ const VoxelBuilder = () => {
   }, [getPositionFromEvent]);
 
   return (
-    <group 
-  ref={groupRef} 
-  rotation={[-Math.PI / 1.95, 0, 0]} 
-  position={[0, -22, -20]}  // ✅ match terrain exactly
->
-      <mesh 
-        onPointerMove={onMove} 
-        onPointerDown={onDown} 
-        onPointerOut={() => setHoverPos(null)} 
-        visible={false}
-        position={[0, 0, 0]}  // relative to group
-        >
+    <group ref={groupRef} rotation={[-Math.PI / 1.95, 0, 0]} position={[0, -22, -20]}>
+      {/* Senzor klika (može ostati velik, granice u kodu rade filtriranje) */}
+      <mesh onPointerMove={onMove} onPointerDown={onDown} onPointerOut={() => setHoverPos(null)} visible={false}>
         <planeGeometry args={[1000, 1000]} />
         <meshBasicMaterial transparent opacity={0} side={THREE.DoubleSide} />
-        </mesh>
+      </mesh>
 
-      {/* RENDERIRANJE VOXELA */}
+      {/* RENDERIRANJE: position=[X, Visina, Dubina] */}
       {voxels.map((v) => (
-        <mesh key={`${v.x}-${v.y}-${v.z}`} position={[v.x, v.y, v.z]} name="voxel-mesh" onPointerMove={onMove} onPointerDown={onDown}>
+        <mesh 
+          key={`${v.x}-${v.y}-${v.z}`} 
+          position={[v.x, v.z, v.y]} 
+          name="voxel-mesh" 
+          onPointerMove={onMove} 
+          onPointerDown={onDown}
+        >
           <boxGeometry args={[SIZE, SIZE, SIZE]} />
-          <meshStandardMaterial 
-            color="#000810" 
-            emissive={neonPurple} 
-            emissiveIntensity={2} 
-            transparent 
-            opacity={0.95} 
-          />
+          <meshStandardMaterial color="#000810" emissive={neonPurple} emissiveIntensity={2} transparent opacity={0.95} />
           <Edges threshold={15} color={neonPurple} scale={1.01} />
         </mesh>
       ))}
 
-      {/* GHOST PREVIEW */}
       {hoverPos && (
-        <mesh position={[hoverPos.x, hoverPos.y, hoverPos.z]} pointerEvents="none">
+        <mesh position={[hoverPos.x, hoverPos.z, hoverPos.y]}>
           <boxGeometry args={[SIZE + 0.1, SIZE + 0.1, SIZE + 0.1]} />
           <meshStandardMaterial color={neonPurple} opacity={0.3} transparent />
           <Edges color="#ffffff" />

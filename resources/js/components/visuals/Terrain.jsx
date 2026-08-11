@@ -43,8 +43,8 @@ export default function Terrain({ type = "token" }) {
       ref={mesh}
       // Koristimo isForge varijablu za lakšu čitljivost nagiba
       rotation={isForge ? [-Math.PI / 1.95, 0, 0] : [-Math.PI / 1.6, 0, 0]}
-      position={[0, -22, -20]}
-      scale={[12, 6, 1]}
+      position={[0, -25, -20]}
+      scale={[12, 4, 1]}
       receiveShadow
     >
       <planeGeometry args={[140, 140]} />
