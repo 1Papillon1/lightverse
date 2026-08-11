@@ -9,6 +9,7 @@ use App\Http\Controllers\ForgeController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Api\VoxelController;
 use Inertia\Inertia;
 
 
@@ -110,8 +111,8 @@ Route::middleware(['auth'])->group(function () {
 
 
 Route::middleware(['auth'])->prefix('api')->group(function () {
-    Route::get('/api/voxels/{planetId}', [VoxelController::class, 'show']);
-    Route::post('/api/voxels/{planetId}', [VoxelController::class, 'update']);
+    Route::get('/voxels/{planetId}', [VoxelController::class, 'show']);
+    Route::post('/voxels/{planetId}', [VoxelController::class, 'save']); // Mora biti 'save' ako se tako zove u kontroleru!
 });
 
 

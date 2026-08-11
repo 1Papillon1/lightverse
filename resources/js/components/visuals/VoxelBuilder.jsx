@@ -1,12 +1,27 @@
 // resources/js/Pages/Galaxy/Art/DigitalCanvas/VoxelBuilder.jsx
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import * as THREE from "three";
 import { Edges } from "@react-three/drei";
+import { useRootStore } from "@/stores/RootStore";
+import { observer } from "mobx-react-lite";
 
-const VoxelBuilder = () => {
+const VoxelBuilder = observer(() => {
   const [voxels, setVoxels] = useState([]);
   const [hoverPos, setHoverPos] = useState(null);
   const groupRef = useRef();
+  const { voxelStore } = useRootStore();
+  const PLANET_ID = "verse-forge";
+
+  // Učitaj bazu na mountu
+  useEffect(() => {
+    voxelStore.fetchVoxels(PLANET_ID);
+  }, []);
+
+  // Kad postavljaš blok:
+  // voxelStore.addVoxel(pos, PLANET_ID);
+
+  // Kad brišeš:
+  // voxelStore.removeVoxel(object.position, PLANET_ID);
 
   const neonPurple = "#0a0a1f";
   const SIZE = 8;
@@ -111,6 +126,6 @@ const VoxelBuilder = () => {
       )}
     </group>
   );
-};
+});
 
 export default VoxelBuilder;

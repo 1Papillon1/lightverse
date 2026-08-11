@@ -11,6 +11,7 @@ import VisualLoadStore from "./VisualLoadStore";
 import AchievementsStore from "./AchievementsStore";
 import LightStore from "./LightStore";
 import NotificationsStore from "./NotificationsStore";
+import VoxelStore from "./VoxelStore";
 import { makeAutoObservable } from "mobx";
 
 
@@ -27,6 +28,7 @@ class RootStore {
     achievementsStore;
     lightStore;
     notificationsStore;
+    voxelStore;
 
     constructor() {
         this.uiStore = new UIStore(this);
@@ -40,6 +42,7 @@ class RootStore {
         this.achievementsStore = new AchievementsStore(this);
         this.lightStore = new LightStore(this);
         this.notificationsStore = new NotificationsStore(this);
+        this.voxelStore = new VoxelStore(this);
 
         makeAutoObservable(this);
 
