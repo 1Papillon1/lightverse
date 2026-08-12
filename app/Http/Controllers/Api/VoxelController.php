@@ -60,10 +60,10 @@ class VoxelController extends Controller
         $light = $user->total_light ?? 0; // Provjeri kako ti se točno zove polje/metoda za ukupno svjetlo
 
         if ($light <= 100) {
-            return 20; // Tvoj početni limit
+            return 50; // Tvoj početni limit
         }
 
         // Npr. nakon 100 Lighta, na svakih 5 novih Lighta dobiješ +1 blok
-        return 20 + floor(($light - 100) / 5);
+        return 50 + floor(($light - 100) / 5);
     }
 }
