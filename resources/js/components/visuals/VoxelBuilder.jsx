@@ -5,33 +5,42 @@ import { Edges } from "@react-three/drei";
 import { useRootStore } from "@/stores/RootStore";
 import { observer } from "mobx-react-lite";
 
+/**
+ * Grid -> lokalni Three.js prostor.
+ *
+ * Grid: { x, y (visina), z (dubina) }
+ * Grupa je rotirana (rotation=[-Math.PI/1.95,0,0]) tako da njena lokalna
+ * Y os prati dubinu, a lokalna Z os prati visinu - zato je mapiranje
+ * [x, z, y], a NE [x, y, z]. Ovo je jedino mjesto u cijeloj aplikaciji
+ * gdje se ta zamjena osi smije dogoditi - i voxel mesh i hover preview
+ * prolaze kroz istu funkciju, pa nema više mogućnosti da se negdje
+ * pomiješaju (to je bio prijašnji bug).
+ */
+const toLocalPosition = (v) => [v.x, v.z, v.y];
+
 const VoxelBuilder = observer(() => {
-  const [voxels, setVoxels] = useState([]);
   const [hoverPos, setHoverPos] = useState(null);
   const groupRef = useRef();
   const { voxelStore } = useRootStore();
   const PLANET_ID = "verse-forge";
 
-  // Učitaj bazu na mountu
   useEffect(() => {
     voxelStore.fetchVoxels(PLANET_ID);
+    // Ako korisnik ode sa stranice dok debounce (2s) još čeka, ne gubimo zadnju izmjenu.
+    return () => {
+      voxelStore.flushSync();
+    };
   }, []);
-
-  // Kad postavljaš blok:
-  // voxelStore.addVoxel(pos, PLANET_ID);
-
-  // Kad brišeš:
-  // voxelStore.removeVoxel(object.position, PLANET_ID);
 
   const neonPurple = "#0a0a1f";
   const SIZE = 8;
-  const Y_SINK  = SIZE * 0.45;
-  const minY    = SIZE / 2 - Y_SINK;
+  const Y_SINK = SIZE * 0.45;
+  const minY = SIZE / 2 - Y_SINK;
 
-  // ── 🚀 NOVI LIMITI (Približeni sredini) ──────────────────────────
-  const BOUND_X      = 40;   // Ukupna širina je sada 80 jedinica
-  const BOUND_Z_FAR  = 40;   // Maksimalna dubina (prema horizontu)
-  const BOUND_Z_NEAR = -8;   // Limit prema tebi
+  // ── LIMITI (nepromijenjeno) ──────────────────────────────────────
+  const BOUND_X = 40;
+  const BOUND_Z_FAR = 40;
+  const BOUND_Z_NEAR = -8;
 
   const snapXZ = (val) => Math.round(val / SIZE) * SIZE;
 
@@ -41,10 +50,11 @@ const VoxelBuilder = observer(() => {
     return Math.max(minY, finalHeight);
   };
 
+  // ── Pozicioniranje / preview (nepromijenjeno) ────────────────────
   const getPositionFromEvent = useCallback((e) => {
     if (!groupRef.current) return null;
 
-    const worldPoint  = e.point.clone();
+    const worldPoint = e.point.clone();
     const worldNormal = e.face.normal.clone();
     worldNormal.transformDirection(e.object.matrixWorld);
     worldPoint.add(worldNormal.multiplyScalar(SIZE * 0.45));
@@ -53,62 +63,70 @@ const VoxelBuilder = observer(() => {
 
     // Mapiranje: x=X, y=Dubina, z=Visina
     const gridX = snapXZ(localPoint.x);
-    const gridZ = snapXZ(localPoint.y); 
+    const gridZ = snapXZ(localPoint.y);
     const gridY = snapHeight(localPoint.z);
 
-    // ── Provjera granica ──────────────────────────────────────────
+    // ── Provjera granica ────────────────────────────────────────
     if (Math.abs(gridX) > BOUND_X) return null;
-    if (gridZ > BOUND_Z_FAR)      return null;
-    if (gridZ < BOUND_Z_NEAR)     return null;
+    if (gridZ > BOUND_Z_FAR) return null;
+    if (gridZ < BOUND_Z_NEAR) return null;
 
     return { x: gridX, y: gridY, z: gridZ };
   }, []);
 
-  const onMove = useCallback((e) => {
-    e.stopPropagation();
-    const pos = getPositionFromEvent(e);
-    setHoverPos(pos); 
-  }, [getPositionFromEvent]);
+  const onMove = useCallback(
+    (e) => {
+      e.stopPropagation();
+      setHoverPos(getPositionFromEvent(e));
+    },
+    [getPositionFromEvent]
+  );
 
-  const onDown = useCallback((e) => {
-    e.stopPropagation();
-    const { button, altKey, object } = e;
+  const onDown = useCallback(
+    (e) => {
+      e.stopPropagation();
+      const { button, altKey, object } = e;
 
-    if (altKey || button === 2) {
-      if (object.name === "voxel-mesh") {
-        setVoxels((prev) => prev.filter((v) =>
-          Math.abs(v.x - object.position.x) > 0.1 ||
-          Math.abs(v.y - object.position.z) > 0.1 || // Provjera dubine
-          Math.abs(v.z - object.position.y) > 0.1    // Provjera visine
-        ));
+      // Brisanje (alt-klik ili desni klik)
+      if (altKey || button === 2) {
+        if (object.name === "voxel-mesh") {
+          // object.position je u lokalnom render prostoru [x, z(dubina), y(visina)],
+          // pa ga vraćamo natrag u grid prostor prije poziva store-a.
+          voxelStore.removeVoxel({
+            x: object.position.x,
+            y: object.position.z,
+            z: object.position.y,
+          });
+        }
+        return;
       }
-      return;
-    }
 
-    const pos = getPositionFromEvent(e);
-    if (!pos) return;
+      // Dodavanje
+      const pos = getPositionFromEvent(e);
+      if (!pos) return;
 
-    setVoxels((prev) => {
-      if (prev.some(v => v.x === pos.x && v.y === pos.y && v.z === pos.z)) return prev;
-      return [...prev, pos];
-    });
-  }, [getPositionFromEvent]);
+      voxelStore.addVoxel(pos);
+      // Ako je addVoxel vratio false (npr. limit dosegnut ili blok već postoji),
+      // ništa se ne događa - store je jedini koji to odlučuje.
+    },
+    [getPositionFromEvent, voxelStore]
+  );
 
   return (
     <group ref={groupRef} rotation={[-Math.PI / 1.95, 0, 0]} position={[0, -22, -20]}>
-      {/* Senzor klika (može ostati velik, granice u kodu rade filtriranje) */}
+      {/* Senzor klika */}
       <mesh onPointerMove={onMove} onPointerDown={onDown} onPointerOut={() => setHoverPos(null)} visible={false}>
         <planeGeometry args={[1000, 1000]} />
         <meshBasicMaterial transparent opacity={0} side={THREE.DoubleSide} />
       </mesh>
 
-      {/* RENDERIRANJE: position=[X, Visina, Dubina] */}
-      {voxels.map((v) => (
-        <mesh 
-          key={`${v.x}-${v.y}-${v.z}`} 
-          position={[v.x, v.z, v.y]} 
-          name="voxel-mesh" 
-          onPointerMove={onMove} 
+      {/* Blokovi - čitaju se direktno iz store-a, nema lokalnog state-a */}
+      {voxelStore.voxels.map((v) => (
+        <mesh
+          key={`${v.x}-${v.y}-${v.z}`}
+          position={toLocalPosition(v)}
+          name="voxel-mesh"
+          onPointerMove={onMove}
           onPointerDown={onDown}
         >
           <boxGeometry args={[SIZE, SIZE, SIZE]} />
@@ -117,8 +135,9 @@ const VoxelBuilder = observer(() => {
         </mesh>
       ))}
 
+      {/* Preview blok - nepromijenjeno ponašanje */}
       {hoverPos && (
-        <mesh position={[hoverPos.x, hoverPos.z, hoverPos.y]}>
+        <mesh position={toLocalPosition(hoverPos)}>
           <boxGeometry args={[SIZE + 0.1, SIZE + 0.1, SIZE + 0.1]} />
           <meshStandardMaterial color={neonPurple} opacity={0.3} transparent />
           <Edges color="#ffffff" />

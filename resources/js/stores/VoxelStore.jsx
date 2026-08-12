@@ -2,97 +2,122 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import axios from "axios";
 
+const SYNC_DEBOUNCE_MS = 2000;
+
+/**
+ * Grid prostor (jedini format u kojem se voxeli spremaju i šalju na server):
+ *   { x, y, z }  gdje je   x = lijevo/desno,  y = visina,  z = dubina
+ *
+ * VoxelBuilder je odgovoran za pretvorbu ovog formata u lokalni Three.js
+ * prostor za render (vidi toLocalPosition u VoxelBuilder.jsx). Store se
+ * time uopće ne bavi - on samo drži i sinkronizira grid koordinate.
+ */
 class VoxelStore {
   voxels = [];
-  hoverPos = null;
-  loading = false;
-  SIZE = 8;
-  Y_SINK = 8 * 0.45;
   maxBlocks = 20;
+  loading = false;
+  syncing = false;
+  planetId = null;
+  _syncTimer = null;
 
-  constructor(rootStore) {
-    this.rootStore = rootStore;
-    makeAutoObservable(this);
+  constructor() {
+    makeAutoObservable(this, {
+      // interni timer ne treba biti observable
+      _syncTimer: false,
+    });
+  }
+
+  hasVoxelAt(pos) {
+    return this.voxels.some(
+      (v) => v.x === pos.x && v.y === pos.y && v.z === pos.z
+    );
+  }
+
+  get isFull() {
+    return this.voxels.length >= this.maxBlocks;
   }
 
   async fetchVoxels(planetId) {
+    this.planetId = planetId;
     this.loading = true;
     try {
       const { data } = await axios.get(`/api/voxels/${planetId}`);
       runInAction(() => {
-        this.voxels = data.data || [];
-        this.maxBlocks = data.limit || 20;
+        this.voxels = Array.isArray(data.data) ? data.data : [];
+        this.maxBlocks = data.limit ?? this.maxBlocks;
         this.loading = false;
       });
-    } catch (e) {
-      runInAction(() => (this.loading = false));
+    } catch (err) {
+      console.error("VoxelStore: greška pri dohvaćanju voxela", err);
+      runInAction(() => {
+        this.loading = false;
+      });
     }
   }
 
-  async persist(planetId) {
-    try {
-      await axios.post(`/api/voxels/${planetId}`, { data: this.voxels });
-    } catch (e) { console.error("Save failed", e); }
+  /**
+   * Dodaje blok. Vraća true/false ovisno o uspjehu, tako da UI
+   * (VoxelBuilder) može odlučiti hoće li nešto prikazati korisniku
+   * (npr. "limit dosegnut") bez da store zna za UI.
+   */
+  addVoxel(pos) {
+    if (!pos) return false;
+    if (this.isFull) return false;
+    if (this.hasVoxelAt(pos)) return false;
+
+    this.voxels.push({ x: pos.x, y: pos.y, z: pos.z });
+    this._scheduleSync();
+    return true;
   }
 
-  setHover(pos) { this.hoverPos = pos; }
-
-  addVoxel(pos, planetId) {
-    if (this.voxels.length >= this.maxBlocks) return alert("Limit reached!");
-    
-    if (this.voxels.some(v => 
-      Math.abs(v.x - pos.x) < 0.1 && Math.abs(v.y - pos.y) < 0.1 && Math.abs(v.z - pos.z) < 0.1
-    )) return;
-
-    const newV = { ...pos, size: this.SIZE };
-    this.voxels = this._mergePass([...this.voxels, newV], this.SIZE);
-    this.persist(planetId);
-  }
-
-  removeVoxel(meshPos, planetId) {
-    // 🚀 FIX: Usklađivanje osi za brisanje (v.z u renderu je visina v.y)
-    this.voxels = this.voxels.filter(v =>
-      !(Math.abs(v.x - meshPos.x) < 0.1 &&
-        Math.abs(v.y - meshPos.z) < 0.1 && 
-        Math.abs(v.z - meshPos.y) < 0.1)
+  removeVoxel(pos) {
+    if (!pos) return;
+    const before = this.voxels.length;
+    this.voxels = this.voxels.filter(
+      (v) => !(v.x === pos.x && v.y === pos.y && v.z === pos.z)
     );
-    this.persist(planetId);
+    if (this.voxels.length !== before) this._scheduleSync();
   }
 
-  _mergePass(list, size) {
-    const nextSize = size * 2;
-    let merged = false;
-    const used = new Set();
-    const result = [];
+  /**
+   * Mjesto za buduću "spajanje više blokova u jedan" funkcionalnost.
+   * Kad dođemo do toga: prolazi kroz voxels, traži susjedne blokove
+   * istog materijala i grupira ih u jedan entry s size: {w,h,d} umjesto
+   * pojedinačnih 1x1x1 blokova. Sad je namjerno isključeno dok
+   * koordinate/store nisu bili čvrsti - a sad jesu.
+   */
 
-    for (let i = 0; i < list.length; i++) {
-      if (used.has(i)) continue;
-      const v = list[i];
-      if (v.size !== size) { result.push(v); continue; }
+  _scheduleSync() {
+    if (this._syncTimer) clearTimeout(this._syncTimer);
+    this._syncTimer = setTimeout(() => {
+      this.syncToServer();
+    }, SYNC_DEBOUNCE_MS);
+  }
 
-      const ax = Math.floor(v.x / nextSize) * nextSize;
-      const ay = Math.floor((v.y + this.Y_SINK) / nextSize) * nextSize - this.Y_SINK;
-      const az = Math.floor(v.z / nextSize) * nextSize;
-
-      const expected = [];
-      for (let dx = 0; dx < 2; dx++)
-        for (let dy = 0; dy < 2; dy++)
-          for (let dz = 0; dz < 2; dz++)
-            expected.push({ x: ax + dx * size + size / 2, y: ay + dy * size + size / 2, z: az + dz * size + size / 2 });
-
-      const matches = [];
-      for (const exp of expected) {
-        const idx = list.findIndex((lv, li) => !used.has(li) && lv.size === size && Math.abs(lv.x - exp.x) < 0.1 && Math.abs(lv.y - exp.y) < 0.1 && Math.abs(lv.z - exp.z) < 0.1);
-        if (idx !== -1) matches.push(idx);
-      }
-
-      if (matches.length === 8) {
-        matches.forEach(idx => used.add(idx));
-        result.push({ x: ax + nextSize / 2, y: ay + nextSize / 2, z: az + nextSize / 2, size: nextSize });
-        merged = true;
-      } else { result.push(v); used.add(i); }
+  async syncToServer() {
+    if (!this.planetId || this.syncing) return;
+    this.syncing = true;
+    try {
+      await axios.post(`/api/voxels/${this.planetId}`, {
+        data: this.voxels.slice(),
+      });
+    } catch (err) {
+      console.error("VoxelStore: greška pri spremanju voxela", err);
+    } finally {
+      runInAction(() => {
+        this.syncing = false;
+      });
     }
-    return merged ? this._mergePass(result, nextSize) : result;
+  }
+
+  /** Poziva se npr. na unmount da se ne izgubi zadnja izmjena ako je debounce još u tijeku. */
+  flushSync() {
+    if (this._syncTimer) {
+      clearTimeout(this._syncTimer);
+      this._syncTimer = null;
+    }
+    return this.syncToServer();
   }
 }
+
 export default VoxelStore;

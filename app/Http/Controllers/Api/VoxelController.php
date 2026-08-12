@@ -8,17 +8,50 @@ use Illuminate\Http\Request;
 
 class VoxelController extends Controller
 {
-    
     public function show(string $planetId)
     {
         $user = auth()->user();
+
         $voxelData = Voxel::where('user_id', $user->id)
             ->where('planet_id', $planetId)
             ->first();
 
         return response()->json([
             'data'  => $voxelData ? $voxelData->data : [],
-            'limit' => $this->calculateLimit($user)
+            'limit' => $this->calculateLimit($user),
+        ]);
+    }
+
+    public function save(Request $request, string $planetId)
+    {
+        $user = auth()->user();
+
+        $validated = $request->validate([
+            'data'     => ['required', 'array'],
+            'data.*.x' => ['required', 'numeric'],
+            'data.*.y' => ['required', 'numeric'],
+            'data.*.z' => ['required', 'numeric'],
+        ]);
+
+        $limit = $this->calculateLimit($user);
+
+        // Server je zadnja linija obrane - frontend limit je samo UX,
+        // ovo sprječava da netko ručnim pozivom API-ja zaobiđe limit.
+        if (count($validated['data']) > $limit) {
+            return response()->json([
+                'message' => 'Broj blokova prelazi dopušteni limit.',
+                'limit'   => $limit,
+            ], 422);
+        }
+
+        $voxel = Voxel::updateOrCreate(
+            ['user_id' => $user->id, 'planet_id' => $planetId],
+            ['data' => $validated['data']]
+        );
+
+        return response()->json([
+            'data'  => $voxel->data,
+            'limit' => $limit,
         ]);
     }
 
