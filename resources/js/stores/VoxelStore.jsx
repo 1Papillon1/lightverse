@@ -118,6 +118,29 @@ class VoxelStore {
     }
     return this.syncToServer();
   }
+
+  /**
+   * Objavi trenutno stanje kao novu izgradnju u javnoj galeriji (Building snapshot).
+   * Prije objave osiguravamo da je zadnje stanje sinkronizirano na server, jer
+   * backend čita iz Voxel tablice (ne prima voxele direktno u ovom pozivu).
+   */
+  async publishBuilding(title) {
+    if (!this.planetId) return null;
+    if (this.voxels.length === 0) return null;
+
+    await this.flushSync();
+
+    try {
+      const { data } = await axios.post("/api/buildings", {
+        planet_id: this.planetId,
+        title,
+      });
+      return data;
+    } catch (err) {
+      console.error("VoxelStore: greška pri objavi izgradnje", err);
+      return null;
+    }
+  }
 }
 
 export default VoxelStore;

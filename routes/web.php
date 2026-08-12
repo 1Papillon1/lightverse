@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Api\VoxelController;
+use App\Http\Controllers\Api\GalleryController;
 use Inertia\Inertia;
 
 
@@ -50,6 +51,23 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
 
+ 
+// ============================================
+// 🖼️ GALLERY ROUTES (Art Galaxy - Building publish/contribute/comment/rate)
+// ============================================
+ 
+Route::middleware(['auth'])->prefix('api')->group(function () {
+    Route::get('/buildings', [GalleryController::class, 'index']);
+    Route::get('/buildings/{building}', [GalleryController::class, 'show']);
+    Route::post('/buildings', [GalleryController::class, 'publish']);
+    Route::post('/buildings/{building}/contribute', [GalleryController::class, 'contribute']);
+    Route::post('/buildings/{building}/comments', [GalleryController::class, 'comment']);
+    Route::post('/buildings/{building}/rating', [GalleryController::class, 'rate']);
+});
+ 
+// Ne zaboravi import na vrhu web.php:
+// use App\Http\Controllers\Api\GalleryController;
+ 
 
 
 // ============================================

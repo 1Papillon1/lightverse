@@ -4,14 +4,18 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Voxel;
+use App\Services\LightService;
 use Illuminate\Http\Request;
 
 class VoxelController extends Controller
 {
+    public function __construct(private LightService $light)
+    {
+    }
+
     public function show(string $planetId)
     {
         $user = auth()->user();
-
         $voxelData = Voxel::where('user_id', $user->id)
             ->where('planet_id', $planetId)
             ->first();
@@ -35,8 +39,6 @@ class VoxelController extends Controller
 
         $limit = $this->calculateLimit($user);
 
-        // Server je zadnja linija obrane - frontend limit je samo UX,
-        // ovo sprječava da netko ručnim pozivom API-ja zaobiđe limit.
         if (count($validated['data']) > $limit) {
             return response()->json([
                 'message' => 'Broj blokova prelazi dopušteni limit.',
@@ -57,13 +59,17 @@ class VoxelController extends Controller
 
     private function calculateLimit($user)
     {
-        $light = $user->total_light ?? 0; // Provjeri kako ti se točno zove polje/metoda za ukupno svjetlo
+        // VAŽNO: NE čitamo $user->total_light direktno - taj stupac se nikad ne
+        // ažurira kroz LightService::award() (koji upisuje samo u light_transactions
+        // ledger + SystemState). Ledger je izvor istine, uključujući expire logiku
+        // za Active Light, pa limit mora pratiti isti izračun kao i HandleInertiaRequests.
+        $light = $this->light->calculateUser($user)['total'];
 
         if ($light <= 100) {
-            return 50; // Tvoj početni limit
+            return 20; // Tvoj početni limit
         }
 
         // Npr. nakon 100 Lighta, na svakih 5 novih Lighta dobiješ +1 blok
-        return 50 + floor(($light - 100) / 5);
+        return 20 + floor(($light - 100) / 5);
     }
 }

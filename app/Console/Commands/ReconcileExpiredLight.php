@@ -4,15 +4,15 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\LightTransaction;
-use App\Models\SystemState;
+use App\Services\LightService;
 use Carbon\Carbon;
 
 class ReconcileExpiredLight extends Command
 {
     protected $signature = 'light:reconcile-expired';
-    protected $description = 'Remove expired active light from system totals';
+    protected $description = 'Remove expired active light from system totals and affected users';
 
-    public function handle()
+    public function handle(LightService $lightService)
     {
         $expired = LightTransaction::where('type', 'active')
             ->whereNotNull('expires_at')
@@ -24,16 +24,13 @@ class ReconcileExpiredLight extends Command
             return;
         }
 
-        $state = SystemState::first();
-
         foreach ($expired as $transaction) {
-            $state->active_light -= $transaction->amount;
-            $state->total_light -= $transaction->amount;
-
-            $transaction->reconciled_at = Carbon::now();
-            $transaction->save();
+            // reconcileExpired() radi sve u jednoj DB transakciji:
+            // - označi transaction kao reconciled
+            // - oduzme sa SystemState (active_light, total_light)
+            // - oduzme s usera (active_light, total_light) <- ovo je prije nedostajalo,
+            //   pa su users.active_light/total_light ostajali trajno previsoki nakon isteka
+            $lightService->reconcileExpired($transaction);
         }
-
-        $state->save();
     }
 }

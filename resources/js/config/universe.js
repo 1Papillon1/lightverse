@@ -367,7 +367,13 @@ export const universeConfig = {
             label: "Verse Forge",
             color: "#ff44aa",
             route: "/galaxy/art-galaxy/digital-canvas/verse-forge"
-          }
+          },
+           {
+              id: "gallery",
+              label: "Gallery",
+              color: "#ff88dd",
+              route: "/galaxy/art-galaxy/digital-canvas/gallery"
+            }
         ]
       }
     ]

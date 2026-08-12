@@ -7,11 +7,10 @@ use App\Models\SystemState;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-
 class LightService
 {
     /**
-     * Calculate user's Light breakdown
+     * Calculate user's Light breakdown (live, iz ledgera - izvor istine).
      */
     public function calculateUser(User $user): array
     {
@@ -58,36 +57,60 @@ class LightService
     /**
      * Award Light to a user
      */
- public function award(User $user, string $type, int $amount, ?string $source = null, ?Carbon $expiresAt = null): void
-{
-    // ✅ VALIDATION
-    if (!in_array($type, ['core', 'stable', 'active'])) {
-        throw new \InvalidArgumentException("Invalid light type: {$type}");
+    public function award(User $user, string $type, int $amount, ?string $source = null, ?Carbon $expiresAt = null): void
+    {
+        // ✅ VALIDATION
+        if (!in_array($type, ['core', 'stable', 'active'])) {
+            throw new \InvalidArgumentException("Invalid light type: {$type}");
+        }
+
+        if ($amount <= 0) {
+            throw new \InvalidArgumentException("Light amount must be positive");
+        }
+
+        if ($type === 'active' && !$expiresAt) {
+            throw new \InvalidArgumentException("Active light requires expires_at");
+        }
+
+        if ($type !== 'active' && $expiresAt) {
+            throw new \InvalidArgumentException("Only active light can have expires_at");
+        }
+
+        DB::transaction(function () use ($user, $type, $amount, $source, $expiresAt) {
+            $user->lightTransactions()->create([
+                'type' => $type,
+                'amount' => $amount,
+                'source' => $source,
+                'expires_at' => $expiresAt,
+            ]);
+
+            $this->updateSystemTotals($type, $amount);
+            $this->updateUserTotals($user, $type, $amount);
+        });
     }
 
-    if ($amount <= 0) {
-        throw new \InvalidArgumentException("Light amount must be positive");
+    /**
+     * Reconcile (ukloni) istekli Active Light - poziva ga ReconcileExpiredLight command.
+     * Ovdje mora simetrično oduzeti i sa SystemState i s User cache stupaca -
+     * inače se ponavlja ista greška u suprotnom smjeru (stupci ostaju previsoki zauvijek).
+     */
+    public function reconcileExpired(\App\Models\LightTransaction $transaction): void
+    {
+        DB::transaction(function () use ($transaction) {
+            $transaction->update(['reconciled_at' => now()]);
+
+            $state = SystemState::first();
+            if ($state) {
+                $state->active_light -= $transaction->amount;
+                $state->total_light -= $transaction->amount;
+                $state->save();
+            }
+
+            $user = $transaction->user;
+            $user->decrement('active_light', $transaction->amount);
+            $user->decrement('total_light', $transaction->amount);
+        });
     }
-
-    if ($type === 'active' && !$expiresAt) {
-        throw new \InvalidArgumentException("Active light requires expires_at");
-    }
-
-    if ($type !== 'active' && $expiresAt) {
-        throw new \InvalidArgumentException("Only active light can have expires_at");
-    }
-
-    DB::transaction(function () use ($user, $type, $amount, $source, $expiresAt) {
-        $user->lightTransactions()->create([
-            'type' => $type,
-            'amount' => $amount,
-            'source' => $source,
-            'expires_at' => $expiresAt,
-        ]);
-
-        $this->updateSystemTotals($type, $amount);
-    });
-}
 
     /**
      * Update system-wide Light totals
@@ -119,5 +142,20 @@ class LightService
 
         $state->total_light += $amount;
         $state->save();
+    }
+
+    /**
+     * Update user's cached Light columns (core_light/stable_light/active_light/total_light).
+     * Ovo je jedini razlog zašto ti stupci uopće postoje - brzo sortiranje na
+     * RankingController leaderboardu bez live SUM() preko cijele light_transactions
+     * tablice za svakog usera. Ledger (light_transactions) ostaje izvor istine;
+     * ovi stupci su isključivo denormalizirani cache za performanse.
+     */
+    private function updateUserTotals(User $user, string $type, int $amount): void
+    {
+        $column = "{$type}_light"; // core_light / stable_light / active_light
+
+        $user->increment($column, $amount);
+        $user->increment('total_light', $amount);
     }
 }
