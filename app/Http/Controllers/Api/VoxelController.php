@@ -26,12 +26,12 @@ class VoxelController extends Controller
         ]);
     }
 
-    public function save(Request $request, string $planetId)
+   public function save(Request $request, string $planetId)
     {
         $user = auth()->user();
 
         $validated = $request->validate([
-            'data'     => ['required', 'array'],
+            'data'     => ['present', 'array'],   // was ['required', 'array']
             'data.*.x' => ['required', 'numeric'],
             'data.*.y' => ['required', 'numeric'],
             'data.*.z' => ['required', 'numeric'],
@@ -65,11 +65,11 @@ class VoxelController extends Controller
         // za Active Light, pa limit mora pratiti isti izračun kao i HandleInertiaRequests.
         $light = $this->light->calculateUser($user)['total'];
 
-        if ($light <= 100) {
-            return 20; // Tvoj početni limit
+        if ($light <= 200) {
+            return 100; // Tvoj početni limit
         }
 
         // Npr. nakon 100 Lighta, na svakih 5 novih Lighta dobiješ +1 blok
-        return 20 + floor(($light - 100) / 5);
+        return 100 + floor(($light - 200) / 5);
     }
 }

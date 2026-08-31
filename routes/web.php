@@ -19,6 +19,10 @@ use Inertia\Inertia;
 // ============================================
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
+// routes/web.php — temporary, remove after inspecting
+Route::get('/debug/models', function () {
+    return inertia('Debug/ModelInspector');
+});
 
 // ============================================
 // 🌐 LANDING PAGE (Public or redirect if authenticated)

@@ -1,9 +1,11 @@
-// resources/js/Pages/Galaxy/Art/DigitalCanvas/VoxelBuilder.jsx
+// resources/js/Pages/Galaxy/ArtGalaxy/DigitalCanvas/VoxelBuilder.jsx
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import * as THREE from "three";
 import { Edges } from "@react-three/drei";
 import { useRootStore } from "@/stores/RootStore";
 import { observer } from "mobx-react-lite";
+import { classifyStructure } from "@/utils/voxelClassifier";
+import VoxelTile from "@/components/visuals/VoxelTile";
 
 /**
  * Grid -> lokalni Three.js prostor.
@@ -11,10 +13,12 @@ import { observer } from "mobx-react-lite";
  * Grid: { x, y (visina), z (dubina) }
  * Grupa je rotirana (rotation=[-Math.PI/1.95,0,0]) tako da njena lokalna
  * Y os prati dubinu, a lokalna Z os prati visinu - zato je mapiranje
- * [x, z, y], a NE [x, y, z]. Ovo je jedino mjesto u cijeloj aplikaciji
- * gdje se ta zamjena osi smije dogoditi - i voxel mesh i hover preview
- * prolaze kroz istu funkciju, pa nema više mogućnosti da se negdje
- * pomiješaju (to je bio prijašnji bug).
+ * [x, z, y], a NE [x, y, z].
+ *
+ * VoxelTile baseRotation=[Math.PI/2,0,0] ispravlja nesklad između modelove
+ * vlastite Y-up orijentacije (glTF standard) i lokalne Z-visine ovdje -
+ * vidi detaljan komentar u VoxelTile.jsx. Ako modeli ispadnu naopako,
+ * prvo probaj -Math.PI/2 na tom jednom mjestu (ne mijenjaj ništa drugo).
  */
 const toLocalPosition = (v) => [v.x, v.z, v.y];
 
@@ -26,7 +30,6 @@ const VoxelBuilder = observer(() => {
 
   useEffect(() => {
     voxelStore.fetchVoxels(PLANET_ID);
-    // Ako korisnik ode sa stranice dok debounce (2s) još čeka, ne gubimo zadnju izmjenu.
     return () => {
       voxelStore.flushSync();
     };
@@ -37,7 +40,6 @@ const VoxelBuilder = observer(() => {
   const Y_SINK = SIZE * 0.45;
   const minY = SIZE / 2 - Y_SINK;
 
-  // ── LIMITI (nepromijenjeno) ──────────────────────────────────────
   const BOUND_X = 40;
   const BOUND_Z_FAR = 40;
   const BOUND_Z_NEAR = -8;
@@ -50,7 +52,6 @@ const VoxelBuilder = observer(() => {
     return Math.max(minY, finalHeight);
   };
 
-  // ── Pozicioniranje / preview (nepromijenjeno) ────────────────────
   const getPositionFromEvent = useCallback((e) => {
     if (!groupRef.current) return null;
 
@@ -61,12 +62,10 @@ const VoxelBuilder = observer(() => {
 
     const localPoint = groupRef.current.worldToLocal(worldPoint);
 
-    // Mapiranje: x=X, y=Dubina, z=Visina
     const gridX = snapXZ(localPoint.x);
     const gridZ = snapXZ(localPoint.y);
     const gridY = snapHeight(localPoint.z);
 
-    // ── Provjera granica ────────────────────────────────────────
     if (Math.abs(gridX) > BOUND_X) return null;
     if (gridZ > BOUND_Z_FAR) return null;
     if (gridZ < BOUND_Z_NEAR) return null;
@@ -87,11 +86,8 @@ const VoxelBuilder = observer(() => {
       e.stopPropagation();
       const { button, altKey, object } = e;
 
-      // Brisanje (alt-klik ili desni klik)
       if (altKey || button === 2) {
         if (object.name === "voxel-mesh") {
-          // object.position je u lokalnom render prostoru [x, z(dubina), y(visina)],
-          // pa ga vraćamo natrag u grid prostor prije poziva store-a.
           voxelStore.removeVoxel({
             x: object.position.x,
             y: object.position.z,
@@ -101,16 +97,17 @@ const VoxelBuilder = observer(() => {
         return;
       }
 
-      // Dodavanje
       const pos = getPositionFromEvent(e);
       if (!pos) return;
 
       voxelStore.addVoxel(pos);
-      // Ako je addVoxel vratio false (npr. limit dosegnut ili blok već postoji),
-      // ništa se ne događa - store je jedini koji to odlučuje.
     },
     [getPositionFromEvent, voxelStore]
   );
+
+  // Klasifikacija se računa svaki render (broj blokova je malen - do
+  // par stotina max po limitu - pa nije potreban memo/optimizacija ovdje).
+  const classified = classifyStructure(voxelStore.voxels);
 
   return (
     <group ref={groupRef} rotation={[-Math.PI / 1.95, 0, 0]} position={[0, -22, -20]}>
@@ -120,22 +117,38 @@ const VoxelBuilder = observer(() => {
         <meshBasicMaterial transparent opacity={0} side={THREE.DoubleSide} />
       </mesh>
 
-      {/* Blokovi - čitaju se direktno iz store-a, nema lokalnog state-a */}
-      {voxelStore.voxels.map((v) => (
-        <mesh
-          key={`${v.x}-${v.y}-${v.z}`}
-          position={toLocalPosition(v)}
-          name="voxel-mesh"
-          onPointerMove={onMove}
-          onPointerDown={onDown}
-        >
-          <boxGeometry args={[SIZE, SIZE, SIZE]} />
-          <meshStandardMaterial color="#000810" emissive={neonPurple} emissiveIntensity={2} transparent opacity={0.95} />
-          <Edges threshold={15} color={neonPurple} scale={1.01} />
-        </mesh>
+      {/* Placirani blokovi - sad pravi GLB modeli po klasifikaciji.
+          Klik/brisanje i dalje rade preko istog senzor-mesh triku, samo
+          nevidljiv "hit target" mesh ostaje po bloku (VoxelTile ne prima
+          pointer evente - GLB modeli imaju kompleksniju geometriju koja
+          otežava pouzdano hit-testiranje, pa nevidljivi box iza njega i
+          dalje hvata klikove). */}
+     {classified.map((v) => (
+        <group key={`${v.x}-${v.y}-${v.z}`} position={toLocalPosition(v)}>
+          {!v.isBridge && (
+            <mesh
+              name="voxel-mesh"
+              onPointerMove={onMove}
+              onPointerDown={onDown}
+              visible={false}
+            >
+              <boxGeometry args={[SIZE, SIZE, SIZE]} />
+            </mesh>
+          )}
+
+          <VoxelTile
+            voxel={v}
+            classification={v.classification}
+            position={[0, 0, 0]}
+            baseRotation={[Math.PI / 2, 0, 0]}
+          />
+        </group>
       ))}
 
-      {/* Preview blok - nepromijenjeno ponašanje */}
+      {/* Preview blok - ostaje jednostavna kocka (ne pravi GLB), jer je
+          ovo samo indikator "gdje bi sljedeći blok stao", ne stvarni
+          objekt - klasificirati ga po susjedstvu bi bilo nepotrebno
+          skupo/nestabilno dok se miš stalno miče. */}
       {hoverPos && (
         <mesh position={toLocalPosition(hoverPos)}>
           <boxGeometry args={[SIZE + 0.1, SIZE + 0.1, SIZE + 0.1]} />

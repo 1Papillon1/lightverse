@@ -1,55 +1,39 @@
 // resources/js/Pages/Galaxy/ArtGalaxy/DigitalCanvas/Gallery.jsx
-//
-// VAŽNO O PUTANJI: DashboardController::resolveNodeComponent() pretvara
-// "art-galaxy" -> "ArtGalaxy" (kebabToPascal). Provjeri da li tvoj STVARNI
-// folder na disku odgovara ovome, ili je i dalje "Art" (kako je bilo u
-// starijem VerseForge.jsx pathu). Ako je "Art" - ili preimenuj folder u
-// "ArtGalaxy", ili promijeni galaxy id u universe.js na "art" umjesto
-// "art-galaxy". Jedno od to dvoje mora biti točno, inače Inertia baca
-// "Page not found" grešku kod resolveanja komponente.
-
 import React, { useEffect, useState, useCallback } from "react";
 import { Head } from "@inertiajs/react";
+import { observer } from "mobx-react-lite";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import axios from "axios";
 import MainLayout from "@/MainLayout";
+import UniverseBackdrop from "@/components/visuals/UniverseBackdrop";
 import VoxelPreview from "@/components/visuals/VoxelPreview";
 
 // ─────────────────────────────────────────────────────────────
-// LISTA
+// LISTA - grid hologram kartica koje "materijaliziraju" iz projektora
 // ─────────────────────────────────────────────────────────────
 
-const BuildingCard = ({ building, onOpen }) => (
+const BuildingCard = ({ building, index, onOpen }) => (
   <div
+    className="lumina-codex__card lumina-codex__card--grid"
+    style={{ animationDelay: `${Math.min(index * 0.05, 0.6)}s` }}
     onClick={() => onOpen(building.id)}
-    style={{
-      background: "rgba(255,255,255,0.03)",
-      border: "1px solid rgba(0,242,255,0.15)",
-      borderRadius: "8px",
-      overflow: "hidden",
-      cursor: "pointer",
-    }}
   >
-    <div style={{ height: "200px" }}>
-      <Canvas camera={{ position: [40, 30, 40], fov: 45 }}>
-        <ambientLight intensity={0.6} />
-        <pointLight position={[20, 20, 20]} intensity={1} />
-        <VoxelPreview voxels={building.voxel_data} />
-      </Canvas>
-    </div>
-    <div style={{ padding: "12px" }}>
-      <h3 style={{ color: "white", fontFamily: "Orbitron", fontSize: "14px", margin: 0 }}>
-        {building.title}
-      </h3>
-      <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "11px", margin: "4px 0" }}>
-        by {building.user?.username}
-      </p>
-      <div style={{ display: "flex", gap: "12px", fontSize: "11px", color: "#00f2ff" }}>
-        <span>✦ {building.light_received}</span>
-        <span>💬 {building.comment_count}</span>
-        <span>★ {building.rating_average || "—"} ({building.rating_count})</span>
+    <div className="lumina-codex__core">
+      <div className="lumina-codex__thumb">
+        <Canvas camera={{ position: [40, 30, 40], fov: 45 }}>
+          <ambientLight intensity={0.6} />
+          <pointLight position={[20, 20, 20]} intensity={1} />
+          <VoxelPreview voxels={building.voxel_data} />
+        </Canvas>
       </div>
+      <h3>{building.title}</h3>
+      <div className="lumina-codex__badge">✦ {building.light_received} Light</div>
+      <p>by {building.user?.username} · {building.block_count} blocks</p>
+      <ul className="lumina-codex__examples">
+        <li>💬 {building.comment_count} comments</li>
+        <li>★ {building.rating_average || "—"} ({building.rating_count} ratings)</li>
+      </ul>
     </div>
   </div>
 );
@@ -67,36 +51,28 @@ const GalleryList = ({ onOpen }) => {
   }, []);
 
   return (
-    <>
-      <h1 style={{ color: "white", fontFamily: "Orbitron", marginBottom: "24px" }}>
-        DIGITAL ART GALLERY
-      </h1>
+    <div className="lumina-codex__grid">
+      {loading && <p style={{ color: "#e0f7ff" }}>Loading...</p>}
 
-      {loading && <p style={{ color: "white" }}>Učitavanje...</p>}
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-          gap: "20px",
-        }}
-      >
-        {buildings.map((b) => (
-          <BuildingCard key={b.id} building={b} onOpen={onOpen} />
-        ))}
-      </div>
+      {buildings.map((b, i) => (
+        <BuildingCard key={b.id} building={b} index={i} onOpen={onOpen} />
+      ))}
 
       {!loading && buildings.length === 0 && (
-        <p style={{ color: "rgba(255,255,255,0.5)" }}>
-          Još nema objavljenih izgradnji. Budi prvi!
-        </p>
+        <div className="lumina-codex__empty">
+          <h2 className="lumina-codex__empty-title">The Gallery Is Empty</h2>
+          <p className="lumina-codex__empty-text">
+            No creations have been published yet. Step into Verse Forge, build
+            something, and be the first to leave your mark here.
+          </p>
+        </div>
       )}
-    </>
+    </div>
   );
 };
 
 // ─────────────────────────────────────────────────────────────
-// DETALJ
+// DETALJ - jedna centralna hologram kartica (isti mehanizam kao Earning.jsx)
 // ─────────────────────────────────────────────────────────────
 
 const StarRating = ({ myRating, onRate, disabled }) => {
@@ -104,19 +80,14 @@ const StarRating = ({ myRating, onRate, disabled }) => {
   const shown = hover ?? myRating ?? 0;
 
   return (
-    <div style={{ display: "flex", gap: "4px" }}>
+    <div className="lumina-codex__stars">
       {[1, 2, 3, 4, 5].map((n) => (
         <span
           key={n}
+          className={`lumina-codex__star ${n <= shown ? "lumina-codex__star--filled" : ""}`}
           onClick={() => !disabled && onRate(n)}
           onMouseEnter={() => !disabled && setHover(n)}
           onMouseLeave={() => !disabled && setHover(null)}
-          style={{
-            cursor: disabled ? "default" : "pointer",
-            fontSize: "22px",
-            color: n <= shown ? "#00f2ff" : "rgba(255,255,255,0.2)",
-            transition: "color 0.15s ease",
-          }}
         >
           ★
         </span>
@@ -199,127 +170,86 @@ const GalleryDetail = ({ buildingId, onBack }) => {
     }
   };
 
-  if (loading) return <p style={{ color: "white" }}>Učitavanje...</p>;
-  if (!building) return <p style={{ color: "white" }}>Izgradnja nije pronađena.</p>;
+  if (loading || !building) {
+    return (
+      <div className="lumina-codex__card" style={{ opacity: 1, pointerEvents: "auto" }}>
+        <div className="lumina-codex__core">
+          <p style={{ color: "#e0f7ff", textAlign: "center" }}>
+            {loading ? "Učitavanje..." : "Izgradnja nije pronađena."}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <button
-        onClick={onBack}
-        style={{
-          background: "none",
-          border: "none",
-          color: "#00f2ff",
-          cursor: "pointer",
-          marginBottom: "16px",
-          fontSize: "13px",
-        }}
-      >
-        ← Natrag na galeriju
-      </button>
-
-      <h1 style={{ color: "white", fontFamily: "Orbitron", marginBottom: "4px" }}>
-        {building.title}
-      </h1>
-      <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "13px", marginBottom: "20px" }}>
-        by {building.user?.username} · {building.block_count} blokova
-      </p>
-
-      <div style={{ height: "420px", background: "rgba(255,255,255,0.03)", borderRadius: "8px" }}>
-        <Canvas camera={{ position: [50, 40, 50], fov: 45 }}>
-          <ambientLight intensity={0.6} />
-          <pointLight position={[30, 30, 30]} intensity={1} />
-          <VoxelPreview voxels={building.voxel_data} autoRotate={false} />
-          <OrbitControls enablePan={false} />
-        </Canvas>
-      </div>
-
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "20px 0" }}>
-        <div style={{ display: "flex", gap: "24px", alignItems: "center" }}>
-          <span style={{ color: "#00f2ff" }}>✦ {building.light_received} Light primljeno</span>
-          <StarRating myRating={myRating} onRate={handleRate} disabled={busy} />
-          <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "12px" }}>
-            ({building.rating_average || "—"} / {building.rating_count} ocjena)
-          </span>
+    <div className="lumina-codex__card" style={{ opacity: 1, pointerEvents: "auto" }}>
+      <div className="lumina-codex__core lumina-codex__core--detail">
+        <div className="lumina-codex__thumb">
+          <Canvas camera={{ position: [50, 40, 50], fov: 45 }}>
+            <ambientLight intensity={0.6} />
+            <pointLight position={[30, 30, 30]} intensity={1} />
+            <VoxelPreview voxels={building.voxel_data} autoRotate={false} />
+            <OrbitControls enablePan={false} />
+          </Canvas>
         </div>
 
-        <button
-          onClick={handleContribute}
-          disabled={hasContributed || busy}
-          style={{
-            background: hasContributed ? "rgba(255,255,255,0.05)" : "#00f2ff",
-            color: hasContributed ? "rgba(255,255,255,0.4)" : "#000",
-            border: "none",
-            borderRadius: "6px",
-            padding: "10px 20px",
-            fontFamily: "Orbitron",
-            fontSize: "12px",
-            cursor: hasContributed || busy ? "default" : "pointer",
-          }}
-        >
-          {hasContributed ? "✓ Podržano" : "✦ Podrži s Light"}
-        </button>
+        <h3>{building.title}</h3>
+        <p style={{ textAlign: "center", marginTop: "-0.5rem" }}>
+          by {building.user?.username} · {building.block_count} blokova
+        </p>
+
+        <div className="lumina-codex__actions">
+          <div className="lumina-codex__badge">✦ {building.light_received} Light</div>
+          <StarRating myRating={myRating} onRate={handleRate} disabled={busy} />
+          <button
+            className="lumina-codex__contribute-btn"
+            onClick={handleContribute}
+            disabled={hasContributed || busy}
+          >
+            {hasContributed ? "✓ Podržano" : "Podrži"}
+          </button>
+        </div>
+
+        <form className="lumina-codex__comment-form" onSubmit={handleComment}>
+          <input
+            className="lumina-codex__comment-input"
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            placeholder="Ostavi komentar..."
+            maxLength={500}
+          />
+        </form>
+
+        <div className="lumina-codex__comment-list">
+          {comments.map((c) => (
+            <div key={c.id} className="lumina-codex__comment">
+              <strong>{c.user?.username}</strong>
+              <p>{c.body}</p>
+            </div>
+          ))}
+          {comments.length === 0 && (
+            <p style={{ color: "rgba(224,247,255,0.4)", fontSize: "0.8rem" }}>
+              No comments yet. Be the first to share your thoughts!
+            </p>
+          )}
+        </div>
+
+        <div className="lumina-codex__footer">
+          <span className="slide-indicator" style={{ cursor: "pointer" }} onClick={onBack}>
+            ← Back to Gallery
+          </span>
+        </div>
       </div>
-
-      <h3 style={{ color: "white", fontFamily: "Orbitron", fontSize: "14px", marginTop: "32px" }}>
-        KOMENTARI ({comments.length})
-      </h3>
-
-      <form onSubmit={handleComment} style={{ display: "flex", gap: "8px", margin: "12px 0 20px" }}>
-        <input
-          value={commentText}
-          onChange={(e) => setCommentText(e.target.value)}
-          placeholder="Ostavi komentar..."
-          maxLength={500}
-          style={{
-            flex: 1,
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.15)",
-            borderRadius: "6px",
-            padding: "8px 12px",
-            color: "white",
-          }}
-        />
-        <button
-          type="submit"
-          disabled={!commentText.trim() || busy}
-          style={{
-            background: "rgba(0,242,255,0.15)",
-            border: "1px solid #00f2ff",
-            color: "#00f2ff",
-            borderRadius: "6px",
-            padding: "8px 16px",
-            cursor: "pointer",
-          }}
-        >
-          Pošalji
-        </button>
-      </form>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-        {comments.map((c) => (
-          <div key={c.id} style={{ borderLeft: "2px solid rgba(0,242,255,0.3)", paddingLeft: "12px" }}>
-            <p style={{ color: "#00f2ff", fontSize: "12px", margin: 0 }}>{c.user?.username}</p>
-            <p style={{ color: "rgba(255,255,255,0.8)", fontSize: "13px", margin: "2px 0" }}>{c.body}</p>
-          </div>
-        ))}
-        {comments.length === 0 && (
-          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "13px" }}>
-            Još nema komentara. Budi prvi.
-          </p>
-        )}
-      </div>
-    </>
+    </div>
   );
 };
 
 // ─────────────────────────────────────────────────────────────
-// GLAVNA KOMPONENTA - jedan node, prebacuje prikaz lokalno
+// GLAVNA KOMPONENTA
 // ─────────────────────────────────────────────────────────────
 
-const Gallery = () => {
-  // Čita ?building=42 iz URL-a na mountu - omogućuje shareable link na
-  // konkretnu izgradnju bez dodatnog route segmenta.
+const Gallery = observer(() => {
   const [activeBuildingId, setActiveBuildingId] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get("building");
@@ -328,7 +258,7 @@ const Gallery = () => {
   const openBuilding = (id) => {
     const url = new URL(window.location.href);
     url.searchParams.set("building", id);
-    window.history.pushState({}, "", url); // ne triggera Inertia/Laravel round-trip
+    window.history.pushState({}, "", url);
     setActiveBuildingId(id);
   };
 
@@ -340,19 +270,25 @@ const Gallery = () => {
   };
 
   return (
-    <div style={{ padding: "40px", maxWidth: "900px", margin: "0 auto" }}>
+    <div onContextMenu={(e) => e.preventDefault()} style={{ width: "100vw", height: "100vh" }}>
       <Head>
         <title>Digital Art Gallery</title>
       </Head>
 
-      {activeBuildingId ? (
-        <GalleryDetail buildingId={activeBuildingId} onBack={backToList} />
-      ) : (
-        <GalleryList onOpen={openBuilding} />
-      )}
+      <UniverseBackdrop />
+
+      <section className="lumina-codex">
+        <div className="lumina-codex__projector" />
+
+        {activeBuildingId ? (
+          <GalleryDetail buildingId={activeBuildingId} onBack={backToList} />
+        ) : (
+          <GalleryList onOpen={openBuilding} />
+        )}
+      </section>
     </div>
   );
-};
+});
 
 Gallery.layout = (page) => <MainLayout children={page} />;
 export default Gallery;

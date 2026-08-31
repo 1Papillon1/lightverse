@@ -23,7 +23,8 @@ export default function Terrain({ type = "token" }) {
   // ✅ POPRAVAK: Koristimo 'let' jer ćemo možda redefinirati vrijednost
   // Ili još bolje, odredimo je odmah u jednom koraku:
   const isForge = currentUrl === "/galaxy/art-galaxy/digital-canvas/verse-forge";
-  const textureURL = isForge ? textureMap.digital : (textureMap[type] ?? textureMap.token);
+  /* const textureURL = isForge ? textureMap.digital : (textureMap[type] ?? textureMap.token); */
+  const textureURL = textureMap.digital; // Trenutno forsiramo digitalnu teksturu za sve, jer je to vizualni efekt koji želimo u svim slučajevima.
 
   const texture = useLoader(TextureLoader, textureURL);
 

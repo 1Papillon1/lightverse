@@ -1,0 +1,245 @@
+/* art-gallery.scss
+   ─────────────────────────────────────────────────────────────
+   NADOGRADNJA na lumina-codex.scss - ništa se u originalu ne mijenja.
+   Reuse-a .lumina-codex, .lumina-codex__core, .lumina-codex__projector,
+   .lumina-codex__badge itd. kako jesu (isti hologram vizualni jezik).
+   Dodaje samo ono što lumina-codex nema: grid prikaz više kartica
+   odjednom (Earning.jsx radi jedan carousel, Gallery treba grid).
+
+   Importaj ovo NAKON lumina-codex.scss, u istom app.scss / main.scss.
+   ───────────────────────────────────────────────────────────── */
+
+.lumina-codex__grid {
+  position: absolute;
+  inset: 0;
+  top: 130px;      // ostavlja prostora za breadcrumb gore
+  bottom: 170px;    // ostavlja prostora za projector + controls dolje
+  overflow-y: auto;
+  overflow-x: hidden;
+  pointer-events: auto;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  padding: 0 40px;
+}
+
+/* Override apsolutnog carousel pozicioniranja iz baznog .lumina-codex__card -
+   grid item mora teći normalno u gridu, ne biti centriran/stackan. */
+.lumina-codex__card--grid {
+  position: static;
+  top: auto;
+  left: auto;
+  transform: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  cursor: pointer;
+  transition: transform 0.25s ease;
+
+  // KLJUČNO ZA MOBILNI BUG: CSS Grid item ima podrazumijevani min-width:
+  // auto, što znači da se NE SMIJE smanjiti ispod intrinzične širine svog
+  // sadržaja. Three.js <canvas> unutar .lumina-codex__thumb ima vlastitu
+  // piksel-širinu koju grid uzima kao "minimum" kolone - na desktopu grid
+  // je dovoljno širok da to sakrije, ali na mobitelu (uski single-column
+  // grid) kartica ne može postati uža od te canvas širine, pa se probije
+  // preko ruba ekrana. min-width: 0 to eksplicitno dopušta.
+  min-width: 0;
+
+  // Staggered "materijalizacija" efekt na mount - kartice se pojavljuju
+  // kao da isplivavaju iz projektora, ne naprosto snap-appear.
+  animation: lumina-materialize 0.5s ease backwards;
+}
+
+.lumina-codex__card--grid:hover {
+  transform: translateY(-4px) !important;
+}
+
+.lumina-codex__card--grid .lumina-codex__core {
+  width: 100%; // grid item puna širina umjesto fiksnog 320px iz baznog stila
+  min-width: 0; // isti razlog kao gore - core je dijete, nasljeđuje isti rizik
+  box-shadow: 0 5px 30px rgba(153, 102, 255, 0.5);
+}
+
+@keyframes lumina-materialize {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Thumbnail (Three.js Canvas preview) unutar grid kartice */
+.lumina-codex__thumb {
+  width: 100%;
+  height: 160px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  background: rgba(153, 102, 255, 0.05);
+  border: 1px solid rgba(153, 102, 255, 0.2);
+}
+
+/* R3F Canvas zna postaviti vlastiti inline width/height u pikselima -
+   ovo ga prisiljava da uvijek prati kontejner, dodatna sigurnost uz
+   min-width: 0 fix gore (dva različita uzroka istog vizualnog problema). */
+.lumina-codex__thumb canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* Detalj prikaz - veći, centralni hologram (isti mehanizam kao Earning.jsx
+   single-slide carousel, samo se ne koristi navigacija naprijed/nazad) */
+.lumina-codex__core--detail {
+  width: 480px;
+}
+
+.lumina-codex__core--detail .lumina-codex__thumb {
+  height: 320px;
+}
+
+/* Mala interaktivna traka (contribute + rating) unutar detail kartice */
+.lumina-codex__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 1rem 0;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.lumina-codex__contribute-btn {
+  background: rgba(0, 242, 255, 0.12);
+  border: 1px solid rgba(0, 242, 255, 0.6);
+  color: #00f2ff;
+  border-radius: 20px;
+  padding: 0.4rem 1.2rem;
+  font-family: "Rajdhani", sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 242, 255, 0.25);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.lumina-codex__contribute-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+.lumina-codex__contribute-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  box-shadow: none;
+}
+
+.lumina-codex__stars {
+  display: flex;
+  gap: 4px;
+}
+
+.lumina-codex__star {
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.2);
+  transition: color 0.15s ease;
+}
+
+.lumina-codex__star--filled {
+  color: #9966ff;
+  filter: drop-shadow(0 0 6px rgba(153, 102, 255, 0.7));
+}
+
+.lumina-codex__comment-form {
+  display: flex;
+  gap: 8px;
+  margin: 1rem 0;
+}
+
+.lumina-codex__comment-input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(153, 102, 255, 0.4);
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  color: #e0f7ff;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.85rem;
+}
+
+.lumina-codex__comment-input::placeholder {
+  color: rgba(224, 247, 255, 0.35);
+}
+
+.lumina-codex__comment-list {
+  max-height: 160px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.lumina-codex__comment {
+  border-left: 2px solid rgba(153, 102, 255, 0.4);
+  padding-left: 0.7rem;
+  margin-bottom: 0.6rem;
+}
+
+.lumina-codex__comment strong {
+  color: #9966ff;
+  font-size: 0.78rem;
+}
+
+.lumina-codex__comment p {
+  margin: 0.15rem 0 0;
+  font-size: 0.82rem;
+  color: #d0e7ff;
+}
+
+/* Empty state - tipografski jezik posuđen iz overlay__title/__text
+   (comingsoon stil), ali NIJE fixed overlay preko cijelog ekrana -
+   samo opisna poruka unutar grid prostora, jer ne definira "state" rute
+   nego samo trenutni sadržaj (prazna lista). */
+.lumina-codex__empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 2rem;
+  font-family: "Orbitron", sans-serif;
+}
+
+.lumina-codex__empty-title {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 0 10px #8f00ff, 0 0 16px rgba(144, 0, 255, 0.6);
+  letter-spacing: 1.5px;
+  margin-bottom: 0.75rem;
+}
+
+.lumina-codex__empty-text {
+  font-size: 1rem;
+  color: #e0e0e0;
+  max-width: 420px;
+  line-height: 1.6;
+  opacity: 0.85;
+  font-family: "Rajdhani", sans-serif;
+}
+
+@media (max-width: 768px) {
+  .lumina-codex__empty-title {
+    font-size: 1.3rem;
+  }
+
+  .lumina-codex__grid {
+    grid-template-columns: 1fr;
+    padding: 0 20px;
+  }
+
+  .lumina-codex__core--detail {
+    width: 280px;
+  }
+}

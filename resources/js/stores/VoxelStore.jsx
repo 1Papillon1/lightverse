@@ -60,15 +60,30 @@ class VoxelStore {
    * (VoxelBuilder) može odlučiti hoće li nešto prikazati korisniku
    * (npr. "limit dosegnut") bez da store zna za UI.
    */
-  addVoxel(pos) {
-    if (!pos) return false;
-    if (this.isFull) return false;
-    if (this.hasVoxelAt(pos)) return false;
+  // Provjerava ima li već blok NEPOSREDNO uz zadanu poziciju na X/Z
+// osima (isti y, susjed na jednoj od 4 strane) - koristi se da
+// spriječi izgradnju dodirujućih blokova, po zahtjevu.
+hasAdjacentVoxel(pos) {
+  const SIZE = 8; // ista konstanta kao VoxelBuilder
+  const offsets = [
+    { x: SIZE, z: 0 }, { x: -SIZE, z: 0 },
+    { x: 0, z: SIZE }, { x: 0, z: -SIZE },
+  ];
+  return offsets.some(({ x, z }) =>
+    this.hasVoxelAt({ x: pos.x + x, y: pos.y, z: pos.z + z })
+  );
+}
 
-    this.voxels.push({ x: pos.x, y: pos.y, z: pos.z });
-    this._scheduleSync();
-    return true;
-  }
+addVoxel(pos) {
+  if (!pos) return false;
+  if (this.isFull) return false;
+  if (this.hasVoxelAt(pos)) return false;
+  if (this.hasAdjacentVoxel(pos)) return false;
+
+  this.voxels.push({ x: pos.x, y: pos.y, z: pos.z });
+  this._scheduleSync();
+  return true;
+}
 
   removeVoxel(pos) {
     if (!pos) return;
@@ -77,6 +92,21 @@ class VoxelStore {
       (v) => !(v.x === pos.x && v.y === pos.y && v.z === pos.z)
     );
     if (this.voxels.length !== before) this._scheduleSync();
+  }
+
+  /**
+   * Briše SVE blokove odjednom - namijenjeno za testiranje (npr. rotacije
+   * modela, dekoracijskog sustava) bez ručnog brisanja blok-po-blok.
+   * Sync ide odmah (flush), ne debounced - brisanje cijele strukture je
+   * namjerna, rijetka akcija, nema potrebe čekati.
+   */
+  async clearAll() {
+    this.voxels = [];
+    if (this._syncTimer) {
+      clearTimeout(this._syncTimer);
+      this._syncTimer = null;
+    }
+    return this.syncToServer();
   }
 
   /**

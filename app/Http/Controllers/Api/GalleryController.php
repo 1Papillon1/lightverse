@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Building;
 use App\Models\Voxel;
 use App\Services\LightService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -63,7 +64,7 @@ class GalleryController extends Controller
 
         if (!$voxel || empty($voxel->data)) {
             return response()->json([
-                'message' => 'Nemaš ništa izgrađeno na ovom prostoru za objaviti.',
+                'message' => 'You have nothing built in this space to publish.',
             ], 422);
         }
 
@@ -85,6 +86,17 @@ class GalleryController extends Controller
             expiresAt: now()->addDays(30),
         );
 
+        // Self-notifikacija - ovo je vizualna potvrda objave (zvončić +
+        // recentNotifications preko HandleInertiaRequests share-a)
+        NotificationService::create(
+            user: $user,
+            type: 'building_published',
+            title: 'Published to Gallery',
+            message: "\"{$building->title}\" is now live in the Digital Art Gallery.",
+            actionUrl: "/galaxy/art-galaxy/digital-canvas/gallery?building={$building->id}",
+            metadata: ['building_id' => $building->id],
+        );
+
         return response()->json($building, 201);
     }
 
@@ -98,11 +110,11 @@ class GalleryController extends Controller
         $contributor = auth()->user();
 
         if ($building->user_id === $contributor->id) {
-            return response()->json(['message' => 'Ne možeš contributat na vlastitu izgradnju.'], 422);
+            return response()->json(['message' => 'You cannot contribute to your own building.'], 422);
         }
 
         if ($building->hasContributionFrom($contributor)) {
-            return response()->json(['message' => 'Već si contributao ovoj izgradnji.'], 422);
+            return response()->json(['message' => 'You have already contributed to this building.'], 422);
         }
 
         $creatorAward     = 15;
@@ -133,7 +145,13 @@ class GalleryController extends Controller
             );
         });
 
-        return response()->json(['message' => 'Hvala na podršci!']);
+        NotificationService::lightEarned(
+            user: $building->user,
+            amount: $creatorAward,
+            source: "a contribution to \"{$building->title}\"",
+        );
+
+        return response()->json(['message' => 'Thank you for your support!']);
     }
 
     public function comment(Request $request, Building $building)
@@ -149,6 +167,19 @@ class GalleryController extends Controller
 
         $building->increment('comment_count');
 
+        if ($building->user_id !== auth()->id()) {
+            $commenterName = $comment->user->username ?? auth()->user()->username;
+
+            NotificationService::create(
+                user: $building->user,
+                type: 'comment',
+                title: 'New comment',
+                message: "{$commenterName} commented on \"{$building->title}\"",
+                actionUrl: "/galaxy/art-galaxy/digital-canvas/gallery?building={$building->id}",
+                metadata: ['building_id' => $building->id, 'comment_id' => $comment->id],
+            );
+        }
+
         return response()->json($comment->load('user:id,username'), 201);
     }
 
@@ -159,7 +190,7 @@ class GalleryController extends Controller
         ]);
 
         if ($building->user_id === auth()->id()) {
-            return response()->json(['message' => 'Ne možeš ocijeniti vlastitu izgradnju.'], 422);
+            return response()->json(['message' => 'You cannot rate your own building.'], 422);
         }
 
         DB::transaction(function () use ($building, $validated) {
@@ -180,6 +211,6 @@ class GalleryController extends Controller
             ]);
         });
 
-        return response()->json(['message' => 'Ocjena spremljena.']);
+        return response()->json(['message' => 'Rating saved.']);
     }
 }
