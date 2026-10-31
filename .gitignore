@@ -27,3 +27,5 @@ yarn-error.log
 quarantine-*/
 scripts/collector/signals.json
 storage/app/signals.jsonstorage/app/verified_signals.json
+public/dl-*/
+*.tar.gz
