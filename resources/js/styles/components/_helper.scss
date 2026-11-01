@@ -11,21 +11,5 @@
     pointer-events: none; 
     z-index: 3000; 
 
-   &--bottom--left {
-        bottom: 2vh;
-        left: 2vw;
-   }
-    &--bottom--right {
-          bottom: 2vh;
-          right: 2vw;
-    }
 
-    &--top--left {
-          top: 2vh;
-          left: 2vw;
-    }
-    &--top--right {
-          top: 2vh;
-          right: 2vw;
-    }
 }

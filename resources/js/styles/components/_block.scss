@@ -1,8 +1,0 @@
-@use '../base/mixins';
-@use '../base/variables';
-
-.block {
-    &--active {
-        z-index: 7;
-    }
-}

@@ -114,8 +114,8 @@ const VerseForge = observer(() => {
 
             {/* 2D UI za selekciju materijala može ići ovdje */}
             <div className="forge-build__overlay" style={{ pointerEvents: 'none' }}>
-               <div style={{ position: 'absolute', top: '40px', left: '40px', pointerEvents: 'none' }}>
-                    <h2 style={{ color: 'white', fontFamily: 'Orbitron', fontSize: '18px', margin: 0 }}>
+               <div style={{ position: 'absolute', top: '10vh', left: '40px', pointerEvents: 'none' }}>
+                    <h2 className="forge-build__overlay__title" style={{ color: 'white', fontFamily: 'Orbitron', fontSize: '18px', margin: 0 }}>
                         VOXEL CAPACITY
                     </h2>
                     <div style={{
@@ -135,7 +135,7 @@ const VerseForge = observer(() => {
 
                 {/* Publish gumb - pointerEvents auto jer je klikabilan,
                     dok mu je parent pointerEvents:none (HUD passthrough) */}
-                <div style={{ position: 'absolute', top: '40px', right: '40px', pointerEvents: 'auto' }}>
+                <div style={{ position: 'absolute', top: '17vh', left: "40px", pointerEvents: 'auto' }}>
                     <button
                         onClick={() => setShowPublishModal(true)}
                         disabled={voxelStore.voxels.length === 0}

@@ -110,7 +110,7 @@ const VoxelBuilder = observer(() => {
   const classified = classifyStructure(voxelStore.voxels);
 
   return (
-    <group ref={groupRef} rotation={[-Math.PI / 1.95, 0, 0]} position={[0, -22, -20]}>
+    <group ref={groupRef} rotation={[-Math.PI / 1.95, 0, 0]} position={[0, -25.6, -20]}>
       {/* Senzor klika */}
       <mesh onPointerMove={onMove} onPointerDown={onDown} onPointerOut={() => setHoverPos(null)} visible={false}>
         <planeGeometry args={[1000, 1000]} />
@@ -151,7 +151,7 @@ const VoxelBuilder = observer(() => {
           skupo/nestabilno dok se miš stalno miče. */}
       {hoverPos && (
         <mesh position={toLocalPosition(hoverPos)}>
-          <boxGeometry args={[SIZE + 0.1, SIZE + 0.1, SIZE + 0.1]} />
+          <boxGeometry args={[SIZE + 0.1, SIZE + 0.1, SIZE + 8]} />
           <meshStandardMaterial color={neonPurple} opacity={0.3} transparent />
           <Edges color="#ffffff" />
         </mesh>

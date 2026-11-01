@@ -81,12 +81,7 @@
   animation: emitterPulse 3s ease-in-out infinite;
 }
 
-/* ---- OPTIONAL: Glow under the 2D image (if fallback) ---- */
-.auria__img {
-  width: 100%;
-  height: auto;
-  display: none; /* hidden bcs we now use 3D model */
-}
+
 
 /* Pulsating emitter animation */
 @keyframes emitterPulse {

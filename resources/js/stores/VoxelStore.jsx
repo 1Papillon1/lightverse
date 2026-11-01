@@ -78,7 +78,6 @@ addVoxel(pos) {
   if (!pos) return false;
   if (this.isFull) return false;
   if (this.hasVoxelAt(pos)) return false;
-  if (this.hasAdjacentVoxel(pos)) return false;
 
   this.voxels.push({ x: pos.x, y: pos.y, z: pos.z });
   this._scheduleSync();

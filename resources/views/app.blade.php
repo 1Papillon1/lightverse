@@ -37,7 +37,7 @@
         <meta name="twitter:title" content="Lightverse - Build Your Cosmic Identity | Earn Light">
         <meta name="twitter:description" content="Build your cosmic identity. Earn Light through contributions. Explore a 3D Web3 universe.">
         <meta name="twitter:image" content="{{ url('/twitter-card.png') }}">
-        <meta name="twitter:image:alt" content="Lightverse - Where Light Becomes Reality">
+        <meta name="twitter:image:alt" content="Where Light Becomes Reality">
         
         {{-- ✅ MOBILE/PWA META --}}
         <meta name="mobile-web-app-capable" content="yes">
@@ -186,7 +186,7 @@
         {{-- ✅ NOSCRIPT FALLBACK (for crawlers without JS) --}}
         <noscript>
             <div class="noscript-content">
-                <h1>LIGHTVERSE</h1>
+                <h1></h1>
                 <p>Where Light Becomes Reality</p>
                 <h2 style="color: #ff9900; font-size: 1.8rem; margin: 2rem 0;">Build Your Cosmic Identity</h2>
                 <p>Earn Light through contributions, unlock achievements, and explore a 3D universe where your reputation matters. Join the future of Web3.</p>

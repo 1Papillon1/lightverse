@@ -13,10 +13,14 @@ const BASE = '/resources/models/kenney-building-kit/';
 // (5-10 at a time) so each one is big enough on screen to actually see.
 const FILES_TO_CHECK = [
   'wall-corner.glb',
-  'wall-corner-round.glb',
-  'wall-corner-diagonal.glb',
   'wall-doorway-square.glb',
-  'wall-doorway-round.glb',
+  'wall-window-square.glb',
+  'roof-flat-center.glb',
+  'roof-flat-corner.glb',
+  'roof-flat-side.glb',
+  'floor.glb',
+  'wall.glb',
+  'column.glb',
 ];
 
 const SPACING = 3;

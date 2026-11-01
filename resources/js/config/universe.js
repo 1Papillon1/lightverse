@@ -379,5 +379,49 @@ export const universeConfig = {
     ]
   },
 
+  // ==========================================
+  // 🎨 GALAXY 6: Onchain Reach (Blockchain Infrastructure)
+  // ==========================================
+
+    {
+      id: "onchain-reach",
+      label: "Onchain Reach",
+      description: "Blockchain Infrastructure",
+      position: [170, 0, -130],
+      color: "#00C805",
+      route: "/galaxy/onchain-reach",
+      starSystems: [
+        {
+          id: "robinhood-chain",
+          label: "Robinhood Chain",
+          position: [0, 0, 0],
+          orbitRadius: 4,
+          color: "#00ccff",
+          route: "/galaxy/onchain-reach/robinhood-chain",
+          nodes: [
+            {
+              id: "chain-overview",
+              label: "Chain Overview",
+              color: "#00C805",
+              route: "/galaxy/onchain-reach/robinhood-chain/chain-overview"
+            },
+             {
+                id: "lightbridge",
+                label: "Lightbridge",
+                color: "#1E2124",
+                route: "/galaxy/onchain-reach/robinhood-chain/lightbridge"
+              },
+              {
+                id: "snair",
+                label: "Snair",
+                color: "#FF5000",
+                route: "/galaxy/onchain-reach/robinhood-chain/snair"
+              }
+          ]
+        }
+      ] 
+    }
+
+
   ]
 };

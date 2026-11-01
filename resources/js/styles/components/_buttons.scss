@@ -66,43 +66,12 @@
        
     }
 
-    &--icon {
-        &--text {
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-        }
-    }
-
-    &__dropdown {
-        position: absolute;
-        right: 3rem;
-        margin-top: 5px;
-
-        &__content {
-            position: absolute;
-            background: linear-gradient(145deg, #5a0fc8, #400a9c);
-            border-radius: 3px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            padding: 10px;
-            width: 261px;
-            z-index: 1;
-            margin-left:31px;
-            margin-top: 10px;
-            border-top-left-radius: 0;
-            border-top-right-radius: 0;
-            display: block;
-            opacity: 0;
-            transform: translateY(-10px);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-         
-            &.show {
-                opacity: 1;
-                transform: translateY(0);
-            }
+   
+  
+   
         
-        }
-    }
+        
+    
 
     
 }

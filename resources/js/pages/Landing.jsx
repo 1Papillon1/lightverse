@@ -11,7 +11,7 @@ const Landing = () => {
     <>
       <Head>
         {/* PRIMARY META */}
-        <title>Lightverse — Where Reputation Becomes Light</title>
+        <title>Where Reputation Becomes Light</title>
         <meta name="title"       content="Lightverse — Where Reputation Becomes Light" />
         <meta name="description" content="A 3D universe where your identity, knowledge, and contributions earn Light. Not bought. Not sold. Only earned." />
         <meta name="keywords"    content="web3, reputation platform, light economy, achievements, identity, 3D universe, contribution economy, blockchain" />

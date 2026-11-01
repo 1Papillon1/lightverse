@@ -93,11 +93,7 @@
           background: transparent;
           color: rgba(255,255,255,0.35);
         }
-        .ach-page__toggle-btn.is-active {
-          background: color-mix(in srgb, var(--cosmic, #ff9900) 15%, rgba(0,0,0,0.3));
-          color: var(--cosmic, #ff9900);
-          border: 1px solid color-mix(in srgb, var(--cosmic, #ff9900) 30%, transparent);
-        }
+        
 
         /* ── Category pills ────────────────────────── */
         .ach-page__cats {
@@ -112,12 +108,7 @@
           cursor: pointer; transition: all 0.2s;
           font-family: inherit;
         }
-        .ach-page__cat.is-active {
-          border-color: var(--ccolor);
-          color: var(--ccolor);
-          background: color-mix(in srgb, var(--ccolor) 12%, transparent);
-          box-shadow: 0 0 8px color-mix(in srgb, var(--ccolor) 30%, transparent);
-        }
+        
 
         /* ── Grid ──────────────────────────────────── */
         .ach-page__grid {

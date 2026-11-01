@@ -262,10 +262,7 @@
     z-index: 100;
   }
 
-  &--menu {
-    @extend .overlay--centered;
-    background: rgba(9, 4, 26, 0.6);
-  }
+ 
 
   &--comingsoon {
     @extend .overlay--centered;

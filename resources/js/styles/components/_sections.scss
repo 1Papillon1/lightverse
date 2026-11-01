@@ -15,9 +15,7 @@
     z-index: 14;
     
 
-    &__container {
-        margin-top: 25vh;
-    }
+   
 
     &__face {
         position: absolute;
@@ -37,9 +35,7 @@
         transform-style: preserve-3d;
         user-select: none;
 
-        &--centered {
-            text-align: center;
-        }
+       
     }
 
     &__title {
@@ -124,14 +120,7 @@
     }
 
     &__link {
-        display: inline-block;
-        margin-top: 1rem;
-        font-size: 18px;
-        color: variables.$color-accent;
-        text-decoration: none;
-        border-bottom: 2px solid transparent;
-        transition: border-color 0.3s ease;
-        pointer-events: auto;
+    
 
         &:hover {
             border-color: variables.$color-accent;
@@ -186,13 +175,7 @@
         transform: rotateY(90deg) translateZ(math.div(variables.$block-width, 2));
     }
     
-    &__face--top {
-        transform: rotateX(90deg) translateZ(math.div(variables.$block-width, 2));
-    }
-    
-    &__face--bottom {
-        transform: rotateX(-90deg) translateZ(math.div(variables.$block-width, 2));
-    }
+ 
 }
 
 .social-orbit {

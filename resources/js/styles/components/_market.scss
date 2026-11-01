@@ -37,38 +37,6 @@
     }
 }
 
-.market-grid {
-    width: variables.$block-width;
-    height: variables.$block-height;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-
-    .market-block {
-        transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out;
-        opacity: 1;
-    }
-
-    &.scrolling-up .market-block {
-        transform: translateY(-100px);
-        opacity: 0;
-    }
-
-    &.scrolling-down .market-block {
-        transform: translateY(100px);
-        opacity: 0;
-    }
-
-    .market-block.new {
-        animation: slide-in 0.6s ease-in-out forwards;
-    }
-
-    .market-block.old {
-        animation: slide-out 0.6s ease-in-out forwards;
-    }
-}
 
 .market--container.with-compare {
   display: flex;
@@ -176,9 +144,3 @@
     100% { opacity: 0.4; }
 }
   
-.no-results {
-    color: #ccc;
-    text-align: center;
-    margin-top: 2rem;
-    font-size: 16px;
-}

@@ -380,34 +380,10 @@
     &:hover { opacity: 1; }
   }
 
-  &__status {
-    flex-shrink: 0;
-    padding-top: 0.2rem;
-  }
+ 
 }
 
 // ── Badges ─────────────────────────────────────────────────────────────────────
-.identity-badge {
-  font-size: 0.68rem;
-  padding: 0.2rem 0.6rem;
-  border-radius: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  border: 1px solid transparent;
-  font-family: 'Rajdhani', sans-serif;
-  font-weight: 600;
-
-  &--connected {
-    background: rgba(0, 255, 204, 0.06);
-  }
-
-  &--empty {
-    border-color: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.2);
-  }
-
-
-}
 
 .identity-social-row__icon {
   margin-top: 4%;
