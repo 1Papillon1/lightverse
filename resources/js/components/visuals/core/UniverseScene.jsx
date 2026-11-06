@@ -210,32 +210,7 @@ const UniverseScene = observer(({ onSceneSelect, locked = false }) => {
   |--------------------------------------------------------------------------
   */
 
-  useEffect(() => {
-
-    console.log("🌌 UNIVERSE SCENE ROUTE STATE", {
-      pathname: window.location.pathname,
-
-      props: {
-        galaxy: pageGalaxy,
-        system: pageSystem,
-        node: pageNode,
-      },
-
-      resolved: {
-        galaxyId: activeGalaxy?.id ?? null,
-        systemId: activeSystem?.id ?? null,
-        nodeId: activeNode?.id ?? null,
-      },
-
-      view,
-    });
-
-  }, [
-    pageGalaxy,
-    pageSystem,
-    pageNode,
-    view,
-  ]);
+ 
 
 
   /*
@@ -312,18 +287,12 @@ const UniverseScene = observer(({ onSceneSelect, locked = false }) => {
 
     const controls = orbitRef.current;
 
-    if (!controls) {
-      console.log("📷 Camera positioning skipped - controls not ready");
-      return;
-    }
+    
+    const camera = controls?.object;
 
-    const camera = controls.object;
+    if (!camera) return;
 
-    if (!camera) {
-      console.log("📷 Camera positioning skipped - camera not ready");
-      return;
-    }
-
+  
 
     /*
     |--------------------------------------------------------------------------
