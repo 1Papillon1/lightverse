@@ -72,10 +72,17 @@
 }
 
 /* Responsive */
+// for mobile place on the bottom of the screen
+
 @media (max-width: 768px) {
-  .breadcrumb-trail {
-    font-size: 0.75rem;
-    padding: 10px 16px;
+ .breadcrumb-trail {
+    top: auto;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    flex-direction: row;
     gap: 6px;
+    padding: 10px 20px;
+    font-size: 0.8rem;
   }
 }
