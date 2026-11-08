@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { useRootStore } from "@/stores/RootStore";
-import AchievementCreate from "./achievements/AchievementCreate";
+
 
 
 const AdminPanel = observer(() => {

@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { Inertia } from "@inertiajs/inertia";
+import { useState } from "react";
 import { observer } from "mobx-react-lite";
 
 const AchievementList = observer(() => {

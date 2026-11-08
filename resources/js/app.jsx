@@ -30,5 +30,3 @@ createInertiaApp({
     },
 });
 
-// Optional: theme setup
-// initializeTheme();

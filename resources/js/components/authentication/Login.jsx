@@ -1,6 +1,7 @@
 // Login.jsx
 import { useForm } from "@inertiajs/react";
 import { router } from "@inertiajs/react";
+import { TextWidget } from '@livechat/widget-react'
 
 const Login = () => {
  const { data, setData, post, processing, errors } = useForm({
@@ -25,6 +26,7 @@ const Login = () => {
 
   return (
     <div className="overlay overlay--auth">
+      <TextWidget organizationId="bbd242aa-9c06-4831-a31d-69cbbc12f79e" />
       <div className="overlay__content">
         <h1 className="overlay__title">Login</h1>
         <form className="form" onSubmit={handleLogin} role="form" aria-label="Login form">

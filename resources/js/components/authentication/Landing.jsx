@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import UniverseScene from '@/components/visuals/core/UniverseScene';
 
